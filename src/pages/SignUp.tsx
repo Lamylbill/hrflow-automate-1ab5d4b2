@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle, User, Eye, EyeOff } from 'lucide-react';
@@ -22,7 +21,6 @@ const SignUp = () => {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
 
-  // Redirect if already logged in
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
@@ -33,13 +31,11 @@ const SignUp = () => {
     e.preventDefault();
     setError(null);
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
 
-    // Validate password strength
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       return;
@@ -62,7 +58,6 @@ const SignUp = () => {
           title: "Sign up successful",
           description: "Please check your email to confirm your account.",
         });
-        // Navigate to login page after successful signup
         navigate('/login');
       }
     } catch (err) {
@@ -82,14 +77,13 @@ const SignUp = () => {
     setShowPassword(!showPassword);
   };
 
-  // Extreme button style to ensure visibility
   const buttonStyleOverride = {
     color: 'white',
     backgroundColor: '#2563EB',
     fontWeight: 800,
     textShadow: '0 1px 3px rgba(0,0,0,0.7)',
     letterSpacing: '0.5px',
-    textTransform: 'uppercase' as const, // Fix: TypeScript type
+    textTransform: 'uppercase' as const,
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     border: 'none',
     padding: '10px 16px',

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -17,9 +18,9 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, clearUserData } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
@@ -31,25 +32,40 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Clear any existing data to ensure a clean state
+      clearUserData();
+      
+      console.log('Starting login process...');
       const { data, error } = await signIn(email, password);
       
       if (error) {
+        console.error('Login error:', error);
         setError(error.message);
         toast({
           title: "Login failed",
           description: error.message,
           variant: "destructive",
         });
-      } else if (data) {
+      } else if (data.session) {
+        console.log('Login successful, session established');
         toast({
           title: "Login successful",
           description: "Welcome back to HRFlow!",
         });
         navigate('/dashboard');
+      } else {
+        // This case handles when there's no error but also no valid session
+        console.error('No session established after login');
+        setError('Authentication failed. Please try again.');
+        toast({
+          title: "Login failed",
+          description: "Authentication failed. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
+      console.error('Unexpected login error:', err);
       setError('An unexpected error occurred');
-      console.error('Login error:', err);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -65,7 +81,7 @@ const Login = () => {
     setPassword('demopassword');
   };
 
-  // Extreme button style to ensure visibility
+  // Fixed TypeScript issue with textTransform
   const buttonStyleOverride = {
     color: 'white',
     backgroundColor: '#2563EB',
@@ -78,7 +94,7 @@ const Login = () => {
     padding: '10px 16px',
   };
 
-  // Outline button style
+  // Fixed TypeScript issue with textTransform
   const outlineButtonStyleOverride = {
     color: '#2563EB',
     backgroundColor: 'transparent',
