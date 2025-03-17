@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -61,10 +62,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
       
-      return { session: currentSession, user: user };
+      // Don't return anything (void) as specified in the type definition
     } catch (error) {
       console.error('Error refreshing session:', error);
-      return { session: null, user: null };
     } finally {
       setIsLoading(false);
     }
