@@ -6,7 +6,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { signIn } from '@/lib/auth';
+import { signIn, getCurrentSession } from '@/lib/auth';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
@@ -20,9 +20,20 @@ const Login = () => {
   const { toast } = useToast();
   const { isAuthenticated, clearUserData } = useAuth();
 
+  // Check if user is already authenticated
   useEffect(() => {
+    const checkAuth = async () => {
+      const session = await getCurrentSession();
+      if (session) {
+        console.log('User already has a valid session, redirecting to dashboard');
+        navigate('/dashboard');
+      }
+    };
+
     if (isAuthenticated) {
       navigate('/dashboard');
+    } else {
+      checkAuth();
     }
   }, [isAuthenticated, navigate]);
 

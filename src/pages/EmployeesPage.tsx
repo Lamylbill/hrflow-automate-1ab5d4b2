@@ -9,6 +9,7 @@ import {
   ChevronDown, 
   Check, 
   X,
+  AlertCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Badge } from '@/components/ui/badge';
@@ -30,111 +31,67 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 // Employee Type Definition
 interface Employee {
   id: string;
-  fullName: string;
-  profilePicture?: string;
-  jobTitle: string;
+  full_name: string;
+  profile_pic?: string;
+  job_title: string;
   department: string;
   email: string;
-  phone: string;
-  dateOfHire: string;
-  employmentType: 'Full-time' | 'Part-time' | 'Contract';
+  phone_number: string;
+  date_of_hire: string;
+  employment_type: 'Full-time' | 'Part-time' | 'Contract';
   salary: number;
   status: 'Active' | 'On Leave' | 'Resigned';
 }
-
-// Sample Employee Data
-const sampleEmployees: Employee[] = [
-  {
-    id: '1',
-    fullName: 'John Doe',
-    profilePicture: '/lovable-uploads/3bf9aea9-07cc-4942-b0a6-e00cdb531f71.png',
-    jobTitle: 'Software Engineer',
-    department: 'Engineering',
-    email: 'john.doe@hrflow.com',
-    phone: '(555) 123-4567',
-    dateOfHire: '2022-03-15',
-    employmentType: 'Full-time',
-    salary: 85000,
-    status: 'Active',
-  },
-  {
-    id: '2',
-    fullName: 'Jane Smith',
-    profilePicture: '/lovable-uploads/16579a3d-78a9-4018-a007-abf6f8fc7c9c.png',
-    jobTitle: 'UI/UX Designer',
-    department: 'Design',
-    email: 'jane.smith@hrflow.com',
-    phone: '(555) 987-6543',
-    dateOfHire: '2021-08-10',
-    employmentType: 'Full-time',
-    salary: 78000,
-    status: 'Active',
-  },
-  {
-    id: '3',
-    fullName: 'Michael Johnson',
-    jobTitle: 'Project Manager',
-    department: 'Product',
-    email: 'michael.johnson@hrflow.com',
-    phone: '(555) 567-8901',
-    dateOfHire: '2020-11-05',
-    employmentType: 'Full-time',
-    salary: 95000,
-    status: 'On Leave',
-  },
-  {
-    id: '4',
-    fullName: 'Sarah Williams',
-    jobTitle: 'HR Specialist',
-    department: 'Human Resources',
-    email: 'sarah.williams@hrflow.com',
-    phone: '(555) 234-5678',
-    dateOfHire: '2022-01-20',
-    employmentType: 'Part-time',
-    salary: 45000,
-    status: 'Active',
-  },
-  {
-    id: '5',
-    fullName: 'Robert Brown',
-    jobTitle: 'Frontend Developer',
-    department: 'Engineering',
-    email: 'robert.brown@hrflow.com',
-    phone: '(555) 345-6789',
-    dateOfHire: '2021-05-15',
-    employmentType: 'Contract',
-    salary: 70000,
-    status: 'Resigned',
-  },
-];
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const { toast } = useToast();
   
-  // Fetch employees (simulated)
+  // Fetch employees from Supabase
   useEffect(() => {
-    const loadEmployees = () => {
+    const fetchEmployees = async () => {
       try {
-        // In a real implementation, this would be an API call
-        setEmployees(sampleEmployees);
-      } catch (error) {
-        console.error('Error fetching employees:', error);
+        setIsLoading(true);
+        setError(null);
+        
+        const { data, error } = await supabase
+          .from('employees')
+          .select('*')
+          .order('full_name', { ascending: true });
+        
+        if (error) {
+          console.error('Error fetching employees:', error);
+          setError('Failed to load employees. Please try again.');
+          toast({
+            title: "Error",
+            description: "Failed to load employees",
+            variant: "destructive",
+          });
+        } else {
+          console.log('Fetched employees:', data?.length || 0);
+          setEmployees(data || []);
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching employees:', err);
+        setError('An unexpected error occurred. Please try again.');
       } finally {
         setIsLoading(false);
       }
     };
     
-    const timer = setTimeout(loadEmployees, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchEmployees();
+  }, [toast]);
   
   // Extract unique departments
   const departments = Array.from(new Set(employees.map(emp => emp.department)));
@@ -145,9 +102,9 @@ const EmployeesPage = () => {
   // Filter employees based on search term and filters
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = searchTerm === '' || 
-      employee.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
+      employee.job_title.toLowerCase().includes(searchTerm.toLowerCase());
       
     const matchesDepartment = selectedDepartments.length === 0 || 
       selectedDepartments.includes(employee.department);
@@ -187,6 +144,15 @@ const EmployeesPage = () => {
         return <Badge variant="danger" className="font-medium">Resigned</Badge>;
       default:
         return <Badge>{status}</Badge>;
+    }
+  };
+  
+  // Format date
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid date';
     }
   };
   
@@ -333,6 +299,13 @@ const EmployeesPage = () => {
       </AnimatedSection>
       
       <AnimatedSection delay={200}>
+        {error && (
+          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start">
+            <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
+      
         <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <Table>
@@ -359,7 +332,9 @@ const EmployeesPage = () => {
                 ) : filteredEmployees.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      No employees found.
+                      {searchTerm || selectedDepartments.length > 0 || selectedStatuses.length > 0 ? 
+                        "No employees match your search criteria." : 
+                        "No employees found. Add your first employee using the 'Add Employee' button."}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -368,14 +343,14 @@ const EmployeesPage = () => {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10 border">
-                            <AvatarImage src={employee.profilePicture} />
+                            <AvatarImage src={employee.profile_pic} />
                             <AvatarFallback className="bg-gray-200 text-gray-700">
-                              {employee.fullName.split(' ').map(n => n[0]).join('')}
+                              {employee.full_name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className="font-medium">{employee.fullName}</div>
-                            <div className="text-sm text-gray-500">{employee.jobTitle}</div>
+                            <div className="font-medium">{employee.full_name}</div>
+                            <div className="text-sm text-gray-500">{employee.job_title}</div>
                           </div>
                         </div>
                       </TableCell>
@@ -383,13 +358,13 @@ const EmployeesPage = () => {
                       <TableCell>
                         <div className="text-sm">
                           <div>{employee.email}</div>
-                          <div className="text-gray-500">{employee.phone}</div>
+                          <div className="text-gray-500">{employee.phone_number}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>{employee.employmentType}</div>
-                          <div className="text-gray-500">Since {new Date(employee.dateOfHire).toLocaleDateString()}</div>
+                          <div>{employee.employment_type}</div>
+                          <div className="text-gray-500">Since {formatDate(employee.date_of_hire)}</div>
                         </div>
                       </TableCell>
                       <TableCell>
