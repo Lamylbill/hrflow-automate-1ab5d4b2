@@ -28,7 +28,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "primary",
+      variant: "premium", // Changed from "primary" to "premium"
       size: "default",
     },
   }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -25,12 +24,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   
-  // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  // Track scroll position for navbar styling
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -40,7 +37,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Different navigation items depending on authentication state
   const publicNavItems = [
     { name: 'Home', href: '/', icon: <Home className="h-4 w-4 mr-2" /> },
     { name: 'Features', href: '/features', icon: <BarChart className="h-4 w-4 mr-2" /> },
@@ -49,7 +45,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
     { name: 'About', href: '/about', icon: <Info className="h-4 w-4 mr-2" /> },
   ];
 
-  // Get user initials for avatar
   const getUserInitials = () => {
     if (!user?.email) return 'U';
     return user.email.substring(0, 2).toUpperCase();
@@ -66,7 +61,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
     >
       <nav className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           {showLogo && (
             <Link to="/" className="flex items-center gap-2">
               <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
@@ -74,7 +68,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             </Link>
           )}
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             {publicNavItems.map((item) => (
               <Link
@@ -93,7 +86,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             ))}
           </div>
 
-          {/* Auth Buttons / User Menu */}
           <div className="hidden md:flex items-center gap-2">
             {isAuthenticated ? (
               <DropdownMenu>
@@ -136,7 +128,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <Button 
               variant="ghost" 
@@ -149,7 +140,6 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden pt-4 pb-3 border-t mt-3 animate-fade-in-up">
             <div className="flex flex-col space-y-2">
@@ -174,7 +164,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     <Button variant="outline" className="w-full">Log In</Button>
                   </Link>
                   <Link to="/signup" className="w-full">
-                    <Button variant="primary" className="w-full">Sign Up</Button>
+                    <Button className="w-full">Sign Up</Button>
                   </Link>
                 </div>
               )}

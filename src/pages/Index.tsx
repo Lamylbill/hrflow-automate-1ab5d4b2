@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Users, Clock, Calendar, BarChart, ShieldCheck, Briefcase, ChevronRight } from 'lucide-react';
@@ -63,14 +62,14 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 {isAuthenticated ? (
                   <Link to="/dashboard">
-                    <Button variant="premium" size="lg">
+                    <Button size="lg">
                       Go to Dashboard <ChevronRight className="h-5 w-5 ml-1" />
                     </Button>
                   </Link>
                 ) : (
                   <>
                     <Link to="/signup">
-                      <Button variant="primary" size="lg">
+                      <Button size="lg">
                         Get Started <ChevronRight className="h-5 w-5 ml-1" />
                       </Button>
                     </Link>
@@ -168,7 +167,7 @@ const Index = () => {
               
               <div className="mt-8">
                 <Link to={isAuthenticated ? "/dashboard" : "/signup"}>
-                  <Button variant="premium" size="lg">
+                  <Button size="lg">
                     {isAuthenticated ? "Go to Dashboard" : "Get Started"} <ChevronRight className="h-5 w-5 ml-1" />
                   </Button>
                 </Link>
