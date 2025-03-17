@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -43,17 +43,11 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
   // Different navigation items depending on authentication state
   const publicNavItems = [
     { name: 'Home', href: '/', icon: <Home className="h-4 w-4 mr-2" /> },
-    { name: 'Corporate Staff', href: '/corporate-staff', icon: <Users className="h-4 w-4 mr-2" /> },
+    { name: 'Features', href: '/features', icon: <BarChart className="h-4 w-4 mr-2" /> },
+    { name: 'Pricing', href: '/pricing', icon: <FileText className="h-4 w-4 mr-2" /> },
     { name: 'Contact', href: '/contact', icon: <Phone className="h-4 w-4 mr-2" /> },
-    { name: 'About HRFlow', href: '/about', icon: <Info className="h-4 w-4 mr-2" /> },
+    { name: 'About', href: '/about', icon: <Info className="h-4 w-4 mr-2" /> },
   ];
-
-  const privateNavItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: <Home className="h-4 w-4 mr-2" /> },
-    { name: 'Employees', href: '/employees', icon: <Users className="h-4 w-4 mr-2" /> },
-  ];
-
-  const navItems = isAuthenticated ? privateNavItems : publicNavItems;
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -82,7 +76,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
-            {navItems.map((item) => (
+            {publicNavItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -134,7 +128,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <Button variant="outline" size="sm">Log In</Button>
                 </Link>
                 <Link to="/signup">
-                  <Button variant="primary" size="sm" className="text-white font-medium">
+                  <Button variant="primary" size="sm">
                     Sign Up <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
@@ -159,7 +153,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
         {isMobileMenuOpen && (
           <div className="md:hidden pt-4 pb-3 border-t mt-3 animate-fade-in-up">
             <div className="flex flex-col space-y-2">
-              {navItems.map((item) => (
+              {publicNavItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
@@ -180,7 +174,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     <Button variant="outline" className="w-full">Log In</Button>
                   </Link>
                   <Link to="/signup" className="w-full">
-                    <Button variant="primary" className="w-full text-white font-bold">Sign Up</Button>
+                    <Button variant="primary" className="w-full">Sign Up</Button>
                   </Link>
                 </div>
               )}

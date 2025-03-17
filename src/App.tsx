@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,19 +10,17 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
+import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 
 const queryClient = new QueryClient();
 
-// Protected route component that redirects to login if not authenticated
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
-  // Show loading state while checking authentication
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
   
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -38,7 +35,6 @@ const AppRoutes = () => {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       
-      {/* Protected routes */}
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
@@ -46,11 +42,65 @@ const AppRoutes = () => {
       } />
       <Route path="/employees" element={
         <ProtectedRoute>
-          <div>Employees Page</div>
+          <div className="flex h-screen bg-gray-50">
+            <DashboardSidebar />
+            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
+              <div className="min-h-screen pt-20 pb-12 px-6">
+                <div className="max-w-7xl mx-auto">
+                  <h1 className="text-3xl font-bold mb-6">Employees</h1>
+                  <p>Manage your team members and their information.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      <Route path="/payroll" element={
+        <ProtectedRoute>
+          <div className="flex h-screen bg-gray-50">
+            <DashboardSidebar />
+            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
+              <div className="min-h-screen pt-20 pb-12 px-6">
+                <div className="max-w-7xl mx-auto">
+                  <h1 className="text-3xl font-bold mb-6">Payroll</h1>
+                  <p>Manage employee compensation and payments.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      <Route path="/leave" element={
+        <ProtectedRoute>
+          <div className="flex h-screen bg-gray-50">
+            <DashboardSidebar />
+            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
+              <div className="min-h-screen pt-20 pb-12 px-6">
+                <div className="max-w-7xl mx-auto">
+                  <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
+                  <p>Track and approve employee time off and absences.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      <Route path="/compliance" element={
+        <ProtectedRoute>
+          <div className="flex h-screen bg-gray-50">
+            <DashboardSidebar />
+            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
+              <div className="min-h-screen pt-20 pb-12 px-6">
+                <div className="max-w-7xl mx-auto">
+                  <h1 className="text-3xl font-bold mb-6">Compliance</h1>
+                  <p>Ensure regulatory compliance and manage company policies.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </ProtectedRoute>
       } />
       
-      {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

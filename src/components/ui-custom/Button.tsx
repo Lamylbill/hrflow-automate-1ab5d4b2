@@ -4,19 +4,20 @@ import { cn } from '@/lib/utils';
 import { cva, VariantProps } from 'class-variance-authority';
 import { Button as ShadcnButton } from '@/components/ui/button';
 
-// Extend the button variants with our premium styles
+// Extend the button variants with our premium styles and improved contrast
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm",
+        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white",
+        outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-medium",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-hrflow-dark hover:bg-white/30",
-        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]",
+        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-medium",
+        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-bold",
+        destructive: "bg-red-500 text-white hover:bg-red-600 font-medium",
       },
       size: {
         default: "h-10 px-4 py-2",
