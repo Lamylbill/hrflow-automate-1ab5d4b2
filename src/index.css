@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -116,27 +117,44 @@
     @apply leading-relaxed;
   }
   
-  /* Enhanced button styling with forced text visibility */
-  button, .button {
+  /* Aggressive button styling for maximum text visibility */
+  button, .button, .button-high-contrast {
     @apply font-bold;
-    color: white; /* Ensure visibility */
+    color: white !important; /* Force visibility */
     padding: 10px 15px;
     border-radius: 5px;
+    text-transform: uppercase;
   }
   
-  /* High contrast for all buttons */
-  .primary-button, button[data-variant="primary"], .bg-hrflow-blue {
+  /* Premium buttons with strongest visibility */
+  button[data-variant="premium"], 
+  [data-variant="premium"] {
     @apply text-white font-bold;
+    color: white !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
   }
 
-  /* Premium buttons (default) get white text */
-  button[data-variant="premium"] {
+  /* Ensure primary buttons have white text */
+  button[data-variant="primary"], 
+  [data-variant="primary"],
+  .bg-hrflow-blue {
     @apply text-white font-bold;
+    color: white !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
   }
 
-  /* Ensure outline buttons have consistent styling */
-  button[data-variant="outline"] {
+  /* Special treatment for outline variant */
+  button[data-variant="outline"], 
+  [data-variant="outline"] {
     @apply font-bold;
+    color: #2563EB !important; /* HRFlow blue */
+    text-shadow: none;
+  }
+
+  /* Force all buttons to have white text when inside .premium-button */
+  .premium-button * {
+    color: white !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
   }
 }
 
@@ -150,9 +168,12 @@
     text-wrap: balance;
   }
 
-  /* Enhanced button styling */
+  /* Aggressive button fallback styling */
   .button-fallback {
     @apply text-white bg-hrflow-blue font-bold py-2 px-4 rounded;
+    color: white !important;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    text-transform: uppercase;
   }
 }
 
@@ -188,4 +209,25 @@
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity 300ms, transform 300ms;
+}
+
+/* Override the shadcn button to ensure MAXIMUM text visibility */
+.button, 
+button[class*="bg-"], 
+button[class*="text-"],
+[role="button"] {
+  color: white !important;
+  font-weight: bold !important;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Only outline button should have blue text */
+button[data-variant="outline"]:not(:hover) {
+  color: #2563EB !important;
+  text-shadow: none;
+}
+
+/* When hovering outline button, force white text */
+button[data-variant="outline"]:hover {
+  color: white !important;
 }
