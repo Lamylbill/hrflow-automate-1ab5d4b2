@@ -27,8 +27,12 @@ export const DashboardSidebar = () => {
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
+      // Automatically collapse sidebar on smaller screens
       if (window.innerWidth < 768) {
         setCollapsed(true);
+      } else if (window.innerWidth >= 1024) {
+        // Auto-expand on larger screens
+        setCollapsed(false);
       }
     };
 
@@ -38,6 +42,14 @@ export const DashboardSidebar = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Update CSS variable whenever collapsed state changes
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--sidebar-width', 
+      collapsed ? '70px' : '250px'
+    );
+  }, [collapsed]);
 
   const navigationItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -56,15 +68,13 @@ export const DashboardSidebar = () => {
     setCollapsed(!collapsed);
   };
 
-  // Calculate main content margin
-  const sidebarWidth = collapsed ? '70px' : '250px';
-
   return (
     <div
       className={cn(
         'h-screen fixed left-0 top-0 z-30 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
         collapsed ? 'w-[70px]' : 'w-[250px]'
       )}
+      style={{ boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
     >
       {/* Sidebar Header with Logo */}
       <div className={cn(
@@ -99,7 +109,7 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleCollapse}
-          className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-gray-200 bg-white shadow-sm text-gray-500 z-40"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-gray-200 bg-white shadow-sm text-gray-500 z-40 flex items-center justify-center"
         >
           <ChevronRight className="h-3 w-3" />
         </Button>
@@ -145,10 +155,10 @@ export const DashboardSidebar = () => {
                       collapsed ? "justify-center" : ""
                     )}
                   >
-                    <div className={cn("", collapsed ? "" : "mr-3")}>
+                    <div className={cn("flex-shrink-0", collapsed ? "" : "mr-3")}>
                       {item.icon}
                     </div>
-                    {!collapsed && <span>{item.name}</span>}
+                    {!collapsed && <span className="truncate">{item.name}</span>}
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right" className={collapsed ? "" : "hidden"}>
@@ -193,18 +203,17 @@ export const DashboardSidebar = () => {
 // Export a hook to get the current sidebar state for other components
 export const useSidebarWidth = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
       if (window.innerWidth < 768) {
         setCollapsed(true);
+      } else if (window.innerWidth >= 1024) {
+        setCollapsed(false);
       }
     };
 
     window.addEventListener('resize', handleResize);
-    // Initial check
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);

@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import EmployeesPage from "./pages/EmployeesPage";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +48,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Add a useEffect to update the CSS variable
+// Routes component
 const AppRoutes = () => {
   return (
     <Routes>
@@ -104,8 +105,8 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  // Add this effect to set the CSS variable based on sidebar state
-  React.useEffect(() => {
+  // Set up the CSS variable for sidebar width
+  useEffect(() => {
     const updateSidebarVar = () => {
       const width = window.innerWidth < 768 ? '70px' : '250px';
       document.documentElement.style.setProperty('--sidebar-width', width);

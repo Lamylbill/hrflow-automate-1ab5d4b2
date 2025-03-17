@@ -30,13 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Function to clear local user data
+  // Enhanced function to clear local user data
   const clearUserData = () => {
-    // Clear any app-specific local/session storage
+    console.log('Clearing user data...');
+    
+    // Clear app-specific data
     localStorage.removeItem('hrflow-user-settings');
     sessionStorage.removeItem('hrflow-temp-data');
     
-    // Clear any other cached data
+    // Clear any data with hrflow prefix
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('hrflow-')) {
         localStorage.removeItem(key);
@@ -49,8 +51,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
     
-    // You can add more specific cleanup logic here
-    console.log('User data cleared');
+    // Clear any employee-related data
+    localStorage.removeItem('employeeList');
+    localStorage.removeItem('employeeFilters');
+    localStorage.removeItem('lastEmployeeView');
+    
+    // Clear any other app-specific caches
+    try {
+      const cacheKeys = Object.keys(localStorage)
+        .concat(Object.keys(sessionStorage))
+        .filter(key => 
+          key.includes('cache') || 
+          key.includes('temp') || 
+          key.includes('data') ||
+          key.includes('employee')
+        );
+      
+      cacheKeys.forEach(key => {
+        if (localStorage.getItem(key)) localStorage.removeItem(key);
+        if (sessionStorage.getItem(key)) sessionStorage.removeItem(key);
+      });
+    } catch (error) {
+      console.error('Error clearing cached data:', error);
+    }
+    
+    console.log('User data cleared successfully');
   };
 
   useEffect(() => {
@@ -63,8 +88,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession) {
           const { data: { user: currentUser } } = await supabase.auth.getUser();
           setUser(currentUser);
+          
           // Clean up data on initial login
           clearUserData();
+          
+          // Set clean initial state for the app
+          console.log('Setting up clean user environment');
         }
       } catch (error) {
         console.error('Error loading auth:', error);
@@ -78,6 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log('Auth state changed:', event);
         setSession(newSession);
         
         if (newSession) {
@@ -87,6 +117,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Clean data on new sign in
           if (event === 'SIGNED_IN') {
             clearUserData();
+            toast({
+              title: "Welcome back!",
+              description: "You have been successfully logged in.",
+            });
           }
         } else {
           setUser(null);
@@ -99,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [toast]);
 
   const logout = async () => {
     try {
