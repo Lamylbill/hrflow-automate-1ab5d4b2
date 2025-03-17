@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { DashboardSidebar } from "./components/layout/DashboardSidebar";
+import EmployeesPage from "./pages/EmployeesPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Create a layout component that includes the sidebar
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <DashboardSidebar />
+      <div className="flex-1 flex flex-col transition-all duration-300 overflow-auto"
+           style={{ marginLeft: 'var(--sidebar-width, 250px)' }}>
+        <div className="min-h-screen pt-6 pb-12 px-6">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Add a useEffect to update the CSS variable
 const AppRoutes = () => {
   return (
     <Routes>
@@ -37,67 +57,44 @@ const AppRoutes = () => {
       
       <Route path="/dashboard" element={
         <ProtectedRoute>
-          <Dashboard />
+          <DashboardLayout>
+            <Dashboard />
+          </DashboardLayout>
         </ProtectedRoute>
       } />
+      
       <Route path="/employees" element={
         <ProtectedRoute>
-          <div className="flex h-screen bg-gray-50">
-            <DashboardSidebar />
-            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
-              <div className="min-h-screen pt-20 pb-12 px-6">
-                <div className="max-w-7xl mx-auto">
-                  <h1 className="text-3xl font-bold mb-6">Employees</h1>
-                  <p>Manage your team members and their information.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardLayout>
+            <EmployeesPage />
+          </DashboardLayout>
         </ProtectedRoute>
       } />
+      
       <Route path="/payroll" element={
         <ProtectedRoute>
-          <div className="flex h-screen bg-gray-50">
-            <DashboardSidebar />
-            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
-              <div className="min-h-screen pt-20 pb-12 px-6">
-                <div className="max-w-7xl mx-auto">
-                  <h1 className="text-3xl font-bold mb-6">Payroll</h1>
-                  <p>Manage employee compensation and payments.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Payroll</h1>
+            <p>Manage employee compensation and payments.</p>
+          </DashboardLayout>
         </ProtectedRoute>
       } />
+      
       <Route path="/leave" element={
         <ProtectedRoute>
-          <div className="flex h-screen bg-gray-50">
-            <DashboardSidebar />
-            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
-              <div className="min-h-screen pt-20 pb-12 px-6">
-                <div className="max-w-7xl mx-auto">
-                  <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
-                  <p>Track and approve employee time off and absences.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
+            <p>Track and approve employee time off and absences.</p>
+          </DashboardLayout>
         </ProtectedRoute>
       } />
+      
       <Route path="/compliance" element={
         <ProtectedRoute>
-          <div className="flex h-screen bg-gray-50">
-            <DashboardSidebar />
-            <div className="flex-1 flex flex-col ml-[250px] transition-all duration-300">
-              <div className="min-h-screen pt-20 pb-12 px-6">
-                <div className="max-w-7xl mx-auto">
-                  <h1 className="text-3xl font-bold mb-6">Compliance</h1>
-                  <p>Ensure regulatory compliance and manage company policies.</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Compliance</h1>
+            <p>Ensure regulatory compliance and manage company policies.</p>
+          </DashboardLayout>
         </ProtectedRoute>
       } />
       
@@ -106,18 +103,33 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Add this effect to set the CSS variable based on sidebar state
+  React.useEffect(() => {
+    const updateSidebarVar = () => {
+      const width = window.innerWidth < 768 ? '70px' : '250px';
+      document.documentElement.style.setProperty('--sidebar-width', width);
+    };
+    
+    window.addEventListener('resize', updateSidebarVar);
+    updateSidebarVar();
+    
+    return () => window.removeEventListener('resize', updateSidebarVar);
+  }, []);
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

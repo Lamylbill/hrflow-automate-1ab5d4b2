@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
@@ -16,12 +16,28 @@ import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const { user, logout } = useAuth();
   const location = useLocation();
+
+  // Auto-collapse on smaller screens
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Initial check
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const navigationItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -40,10 +56,13 @@ export const DashboardSidebar = () => {
     setCollapsed(!collapsed);
   };
 
+  // Calculate main content margin
+  const sidebarWidth = collapsed ? '70px' : '250px';
+
   return (
     <div
       className={cn(
-        'h-screen fixed left-0 top-0 z-30 flex flex-col bg-white border-r border-gray-200 transition-all duration-300',
+        'h-screen fixed left-0 top-0 z-30 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
         collapsed ? 'w-[70px]' : 'w-[250px]'
       )}
     >
@@ -80,7 +99,7 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleCollapse}
-          className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-gray-200 bg-white shadow-sm text-gray-500"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-gray-200 bg-white shadow-sm text-gray-500 z-40"
         >
           <ChevronRight className="h-3 w-3" />
         </Button>
@@ -169,4 +188,27 @@ export const DashboardSidebar = () => {
       </div>
     </div>
   );
+};
+
+// Export a hook to get the current sidebar state for other components
+export const useSidebarWidth = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      if (window.innerWidth < 768) {
+        setCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    // Initial check
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  return collapsed ? '70px' : '250px';
 };

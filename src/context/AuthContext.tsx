@@ -11,6 +11,7 @@ type AuthContextType = {
   isLoading: boolean;
   isAuthenticated: boolean;
   logout: () => Promise<void>;
+  clearUserData: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isAuthenticated: false,
   logout: async () => {},
+  clearUserData: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -27,6 +29,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Function to clear local user data
+  const clearUserData = () => {
+    // Clear any app-specific local/session storage
+    localStorage.removeItem('hrflow-user-settings');
+    sessionStorage.removeItem('hrflow-temp-data');
+    
+    // Clear any other cached data
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('hrflow-')) {
+        localStorage.removeItem(key);
+      }
+    });
+    
+    Object.keys(sessionStorage).forEach(key => {
+      if (key.startsWith('hrflow-')) {
+        sessionStorage.removeItem(key);
+      }
+    });
+    
+    // You can add more specific cleanup logic here
+    console.log('User data cleared');
+  };
 
   useEffect(() => {
     const setupAuth = async () => {
@@ -38,6 +63,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession) {
           const { data: { user: currentUser } } = await supabase.auth.getUser();
           setUser(currentUser);
+          // Clean up data on initial login
+          clearUserData();
         }
       } catch (error) {
         console.error('Error loading auth:', error);
@@ -56,6 +83,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (newSession) {
           const { data: { user: currentUser } } = await supabase.auth.getUser();
           setUser(currentUser);
+          
+          // Clean data on new sign in
+          if (event === 'SIGNED_IN') {
+            clearUserData();
+          }
         } else {
           setUser(null);
         }
@@ -71,6 +103,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
+      // Clear user data before logout
+      clearUserData();
+      
       await supabase.auth.signOut();
       toast({
         title: "Logged out successfully",
@@ -95,6 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         isAuthenticated: !!user,
         logout,
+        clearUserData,
       }}
     >
       {children}
