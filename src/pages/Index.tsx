@@ -70,7 +70,7 @@ const Index = () => {
                 ) : (
                   <>
                     <Link to="/signup">
-                      <Button variant="premium" size="lg">
+                      <Button variant="primary" size="lg">
                         Get Started <ChevronRight className="h-5 w-5 ml-1" />
                       </Button>
                     </Link>

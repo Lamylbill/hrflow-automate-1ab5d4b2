@@ -12,7 +12,7 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold", // Ensure white text with bold weight
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-medium",
+        outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-bold", // Updated to match primary font-weight
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-medium",
