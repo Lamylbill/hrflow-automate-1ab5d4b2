@@ -4,6 +4,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { checkAuthStatus } from '@/lib/auth';
 
 type AuthContextType = {
   user: User | null;
@@ -12,6 +13,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   logout: () => Promise<void>;
   clearUserData: () => void;
+  refreshSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   logout: async () => {},
   clearUserData: () => {},
+  refreshSession: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -78,22 +81,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('User data cleared successfully');
   };
 
+  // Function to manually refresh auth state
+  const refreshSession = async () => {
+    try {
+      setIsLoading(true);
+      const { isAuthenticated, session: currentSession, user: currentUser } = await checkAuthStatus();
+      
+      if (isAuthenticated && currentSession && currentUser) {
+        console.log('Session refreshed successfully');
+        setSession(currentSession);
+        setUser(currentUser);
+      } else {
+        console.log('No valid session found during refresh');
+        setSession(null);
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const setupAuth = async () => {
       try {
+        console.log('Setting up auth state...');
+        setIsLoading(true);
+        
         // Get initial session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
-        setSession(currentSession);
         
         if (currentSession) {
+          console.log('Initial session found');
+          setSession(currentSession);
+          
           const { data: { user: currentUser } } = await supabase.auth.getUser();
-          setUser(currentUser);
-          
-          // Clean up data on initial login
-          clearUserData();
-          
-          // Set clean initial state for the app
-          console.log('Setting up clean user environment');
+          if (currentUser) {
+            console.log('User data retrieved for ID:', currentUser.id);
+            setUser(currentUser);
+            
+            // Clean up data on initial login
+            clearUserData();
+            
+            // Set clean initial state for the app
+            console.log('Setting up clean user environment');
+          } else {
+            console.log('No user data found despite having session');
+          }
+        } else {
+          console.log('No initial session found');
         }
       } catch (error) {
         console.error('Error loading auth:', error);
@@ -108,22 +145,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth state changed:', event);
-        setSession(newSession);
         
         if (newSession) {
-          const { data: { user: currentUser } } = await supabase.auth.getUser();
-          setUser(currentUser);
+          console.log('New session established');
+          setSession(newSession);
           
-          // Clean data on new sign in
-          if (event === 'SIGNED_IN') {
-            clearUserData();
-            toast({
-              title: "Welcome back!",
-              description: "You have been successfully logged in.",
-            });
+          try {
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (currentUser) {
+              console.log('User data retrieved after auth state change:', currentUser.id);
+              setUser(currentUser);
+              
+              // Clean data on new sign in
+              if (event === 'SIGNED_IN') {
+                console.log('Sign in event detected, clearing user data');
+                clearUserData();
+                toast({
+                  title: "Welcome back!",
+                  description: "You have been successfully logged in.",
+                });
+              }
+            } else {
+              console.log('No user data found despite having new session');
+              setUser(null);
+            }
+          } catch (error) {
+            console.error('Error getting user after auth state change:', error);
+            setUser(null);
           }
         } else {
+          console.log('No session after auth state change');
           setUser(null);
+          setSession(null);
         }
         
         setIsLoading(false);
@@ -131,6 +184,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     return () => {
+      console.log('Cleaning up auth listener');
       authListener?.subscription.unsubscribe();
     };
   }, [toast]);
@@ -140,14 +194,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clear user data before logout
       clearUserData();
       
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account.",
-      });
-      navigate('/');
+      console.log('Attempting to sign out...');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error during logout:', error);
+        toast({
+          title: "Logout failed",
+          description: "There was an error logging you out. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        console.log('Logout successful');
+        setUser(null);
+        setSession(null);
+        
+        toast({
+          title: "Logged out successfully",
+          description: "You have been logged out of your account.",
+        });
+        navigate('/');
+      }
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Unexpected error during logout:', error);
       toast({
         title: "Logout failed",
         description: "There was an error logging you out. Please try again.",
@@ -162,9 +231,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         session,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !!session,
         logout,
         clearUserData,
+        refreshSession,
       }}
     >
       {children}

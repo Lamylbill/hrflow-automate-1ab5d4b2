@@ -33,20 +33,24 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
+import { getCurrentUser } from '@/lib/auth';
 
 // Employee Type Definition
 interface Employee {
   id: string;
   full_name: string;
-  profile_pic?: string;
+  profile_pic?: string | null;
   job_title: string;
   department: string;
   email: string;
-  phone_number: string;
+  phone_number: string | null;
   date_of_hire: string;
-  employment_type: 'Full-time' | 'Part-time' | 'Contract';
+  employment_type: 'Full-time' | 'Part-time' | 'Contract' | null;
   salary: number;
-  status: 'Active' | 'On Leave' | 'Resigned';
+  status: 'Active' | 'On Leave' | 'Resigned' | null;
+  user_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const EmployeesPage = () => {
@@ -65,9 +69,21 @@ const EmployeesPage = () => {
         setIsLoading(true);
         setError(null);
         
+        // Get current user
+        const user = await getCurrentUser();
+        if (!user) {
+          console.error('No authenticated user found');
+          setError('You must be logged in to view employees');
+          setIsLoading(false);
+          return;
+        }
+        
+        console.log('Fetching employees for user:', user.id);
+        
         const { data, error } = await supabase
           .from('employees')
           .select('*')
+          .eq('user_id', user.id)
           .order('full_name', { ascending: true });
         
         if (error) {
@@ -80,7 +96,8 @@ const EmployeesPage = () => {
           });
         } else {
           console.log('Fetched employees:', data?.length || 0);
-          setEmployees(data || []);
+          // Type assertion to match the Employee interface
+          setEmployees(data as Employee[] || []);
         }
       } catch (err) {
         console.error('Unexpected error fetching employees:', err);
@@ -97,7 +114,7 @@ const EmployeesPage = () => {
   const departments = Array.from(new Set(employees.map(emp => emp.department)));
   
   // Extract unique statuses
-  const statuses = Array.from(new Set(employees.map(emp => emp.status)));
+  const statuses = Array.from(new Set(employees.map(emp => emp.status).filter(Boolean) as string[]));
   
   // Filter employees based on search term and filters
   const filteredEmployees = employees.filter(employee => {
@@ -110,7 +127,7 @@ const EmployeesPage = () => {
       selectedDepartments.includes(employee.department);
       
     const matchesStatus = selectedStatuses.length === 0 || 
-      selectedStatuses.includes(employee.status);
+      (employee.status && selectedStatuses.includes(employee.status));
       
     return matchesSearch && matchesDepartment && matchesStatus;
   });
@@ -134,7 +151,9 @@ const EmployeesPage = () => {
   };
   
   // Status badge component
-  const StatusBadge = ({ status }: { status: string }) => {
+  const StatusBadge = ({ status }: { status: string | null }) => {
+    if (!status) return <Badge variant="outline">Unknown</Badge>;
+    
     switch (status) {
       case 'Active':
         return <Badge variant="success" className="font-medium">Active</Badge>;

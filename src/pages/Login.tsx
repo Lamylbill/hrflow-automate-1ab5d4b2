@@ -6,7 +6,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { signIn, getCurrentSession } from '@/lib/auth';
+import { signIn, getCurrentSession, checkAuthStatus } from '@/lib/auth';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
@@ -23,10 +23,18 @@ const Login = () => {
   // Check if user is already authenticated
   useEffect(() => {
     const checkAuth = async () => {
-      const session = await getCurrentSession();
-      if (session) {
-        console.log('User already has a valid session, redirecting to dashboard');
-        navigate('/dashboard');
+      try {
+        // Run a comprehensive auth check
+        const { isAuthenticated, session } = await checkAuthStatus();
+        
+        if (isAuthenticated && session) {
+          console.log('User already has a valid session, redirecting to dashboard');
+          navigate('/dashboard');
+        } else {
+          console.log('No valid session found, staying on login page');
+        }
+      } catch (err) {
+        console.error('Error checking authentication:', err);
       }
     };
 
@@ -51,19 +59,42 @@ const Login = () => {
       
       if (error) {
         console.error('Login error:', error);
-        setError(error.message);
+        let errorMessage = error.message;
+        
+        // Provide more user-friendly error messages
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Incorrect email or password. Please try again.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Please confirm your email before logging in. Check your inbox for a confirmation email.';
+        }
+        
+        setError(errorMessage);
         toast({
           title: "Login failed",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive",
         });
       } else if (data.session) {
         console.log('Login successful, session established');
-        toast({
-          title: "Login successful",
-          description: "Welcome back to HRFlow!",
-        });
-        navigate('/dashboard');
+        
+        // Double-check session validity
+        const currentSession = await getCurrentSession();
+        if (currentSession) {
+          console.log('Session verified, redirecting to dashboard');
+          toast({
+            title: "Login successful",
+            description: "Welcome back to HRFlow!",
+          });
+          navigate('/dashboard');
+        } else {
+          console.error('Session verification failed');
+          setError('Authentication succeeded but session verification failed. Please try again.');
+          toast({
+            title: "Login issue",
+            description: "Session verification failed. Please try again.",
+            variant: "destructive",
+          });
+        }
       } else {
         // This case handles when there's no error but also no valid session
         console.error('No session established after login');
@@ -76,7 +107,7 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Unexpected login error:', err);
-      setError('An unexpected error occurred');
+      setError('An unexpected error occurred. Please try again.');
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -188,7 +219,6 @@ const Login = () => {
                   className="w-full bg-hrflow-blue text-white uppercase font-extrabold tracking-wide"
                   variant="premium"
                   disabled={loading}
-                  style={buttonStyleOverride}
                 >
                   {loading ? 'Logging in...' : 'Log in'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -199,7 +229,6 @@ const Login = () => {
                   variant="outline"
                   className="w-full text-hrflow-blue hover:text-white uppercase font-extrabold tracking-wide"
                   onClick={fillTestCredentials}
-                  style={outlineButtonStyleOverride}
                 >
                   Use demo credentials
                 </Button>
