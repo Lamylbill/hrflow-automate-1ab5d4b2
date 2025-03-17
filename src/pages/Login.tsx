@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -132,8 +133,10 @@ const Login = () => {
 
                 <Button
                   type="submit"
-                  className="w-full font-bold"
+                  className="w-full font-bold text-white uppercase"
+                  variant="premium"
                   disabled={loading}
+                  style={{ color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
                 >
                   {loading ? 'Logging in...' : 'Log in'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -142,8 +145,9 @@ const Login = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full text-gray-700"
+                  className="w-full text-hrflow-blue hover:text-white uppercase"
                   onClick={fillTestCredentials}
+                  style={{ fontWeight: 'bold' }}
                 >
                   Use demo credentials
                 </Button>

@@ -46,10 +46,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Default placeholder text if no children provided
     const buttonContent = children || "Button";
     
-    // Add data-variant attribute to help with CSS targeting
+    // Add even more explicit styling to ensure text visibility
+    const buttonTextClass = 
+      variant === 'outline' && !props.disabled 
+        ? 'text-hrflow-blue hover:text-white' 
+        : 'text-white';
+    
     return (
       <ShadcnButton
-        className={cn(buttonVariants({ variant, size, className }), "button-high-contrast")}
+        className={cn(
+          buttonVariants({ variant, size, className }), 
+          "button-high-contrast uppercase", 
+          buttonTextClass
+        )}
         ref={ref}
         data-variant={variant || "premium"}
         {...props}

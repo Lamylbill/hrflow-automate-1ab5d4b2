@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -117,44 +116,49 @@
     @apply leading-relaxed;
   }
   
-  /* Aggressive button styling for maximum text visibility */
-  button, .button, .button-high-contrast {
-    @apply font-bold;
+  /* Super aggressive button styling for maximum text visibility */
+  button, 
+  .button, 
+  .button-high-contrast,
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    @apply font-bold uppercase;
     color: white !important; /* Force visibility */
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    letter-spacing: 0.5px !important;
   }
   
+  /* Only outline buttons should have blue text */
+  button[data-variant="outline"]:not(:hover):not(:disabled),
+  [data-variant="outline"]:not(:hover):not(:disabled) {
+    color: #2563EB !important;
+    text-shadow: none !important;
+  }
+  
+  /* When hovering outline button, force white text */
+  button[data-variant="outline"]:hover:not(:disabled),
+  [data-variant="outline"]:hover:not(:disabled) {
+    color: white !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  }
+
   /* Premium buttons with strongest visibility */
   button[data-variant="premium"], 
   [data-variant="premium"] {
-    @apply text-white font-bold;
+    @apply text-white font-bold uppercase;
     color: white !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
   }
 
   /* Ensure primary buttons have white text */
   button[data-variant="primary"], 
   [data-variant="primary"],
-  .bg-hrflow-blue {
-    @apply text-white font-bold;
+  .bg-hrflow-blue,
+  .bg-gradient-to-r {
+    @apply text-white font-bold uppercase;
     color: white !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-  }
-
-  /* Special treatment for outline variant */
-  button[data-variant="outline"], 
-  [data-variant="outline"] {
-    @apply font-bold;
-    color: #2563EB !important; /* HRFlow blue */
-    text-shadow: none;
-  }
-
-  /* Force all buttons to have white text when inside .premium-button */
-  .premium-button * {
-    color: white !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
   }
 }
 
@@ -168,12 +172,16 @@
     text-wrap: balance;
   }
 
-  /* Aggressive button fallback styling */
-  .button-fallback {
-    @apply text-white bg-hrflow-blue font-bold py-2 px-4 rounded;
+  /* Aggressive button fallback styling for ALL buttons */
+  button, 
+  .button,
+  [type="button"],
+  [type="submit"],
+  [type="reset"] {
+    @apply text-white bg-hrflow-blue font-bold py-2 px-4 rounded uppercase;
     color: white !important;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
-    text-transform: uppercase;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    letter-spacing: 0.5px !important;
   }
 }
 
@@ -211,23 +219,44 @@
   transition: opacity 300ms, transform 300ms;
 }
 
-/* Override the shadcn button to ensure MAXIMUM text visibility */
+/* Override ALL buttons globally with highest specificity */
+button,
 .button, 
+[type="button"],
+[type="submit"],
+[type="reset"],
+a[role="button"],
 button[class*="bg-"], 
 button[class*="text-"],
 [role="button"] {
   color: white !important;
   font-weight: bold !important;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Special styles for login/signup page buttons */
+.min-h-screen button,
+.min-h-screen [type="button"],
+.min-h-screen [type="submit"] {
+  color: white !important;
+  font-weight: bold !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  text-transform: uppercase !important;
+  background-color: #2563EB !important;
 }
 
 /* Only outline button should have blue text */
-button[data-variant="outline"]:not(:hover) {
+button[data-variant="outline"]:not(:hover):not(:disabled),
+[data-variant="outline"]:not(:hover):not(:disabled) {
   color: #2563EB !important;
-  text-shadow: none;
+  text-shadow: none !important;
 }
 
 /* When hovering outline button, force white text */
-button[data-variant="outline"]:hover {
+button[data-variant="outline"]:hover:not(:disabled),
+[data-variant="outline"]:hover:not(:disabled) {
   color: white !important;
+  background-color: #2563EB !important;
 }
