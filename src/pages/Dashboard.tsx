@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Clock, Users, CalendarDays, DollarSign, Shield, BarChart3, ChevronRight, CircleUser } from 'lucide-react';
@@ -151,5 +152,101 @@ const Dashboard = () => {
                     <CardHeader>
                       <CardTitle>Recent Employees</CardTitle>
                       <CardDescription>Latest employees added to the system</CardDescription>
-                   
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 rounded-full h-8 w-8 flex items-center justify-center text-gray-500 mr-3">
+                            <Users className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">John Doe</p>
+                            <p className="text-xs text-gray-500">Web Developer</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <div className="bg-gray-100 rounded-full h-8 w-8 flex items-center justify-center text-gray-500 mr-3">
+                            <Users className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">Sarah Smith</p>
+                            <p className="text-xs text-gray-500">UI Designer</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </PremiumCard>
+                  
+                  <PremiumCard>
+                    <CardHeader>
+                      <CardTitle>Quick Actions</CardTitle>
+                      <CardDescription>Common tasks you can perform</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 gap-3">
+                        {quickActions.map((action, index) => (
+                          <Button key={index} variant="outline" className="justify-start text-gray-700">
+                            {action.icon}
+                            <span>{action.title}</span>
+                            <ChevronRight className="ml-auto h-4 w-4" />
+                          </Button>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </PremiumCard>
+                </div>
+              </AnimatedSection>
+              
+              <AnimatedSection>
+                <PremiumCard>
+                  <CardHeader>
+                    <CardTitle>Upcoming Events</CardTitle>
+                    <CardDescription>Your scheduled activities</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-start">
+                        <div className="bg-blue-100 rounded-lg p-2 text-blue-500 mr-3">
+                          <CalendarDays className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium">Team Meeting</h4>
+                          <p className="text-xs text-gray-500">May 20, 2023 • 10:00 AM</p>
+                          <p className="text-xs text-gray-500 mt-1">Discussion about new HR policies</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start">
+                        <div className="bg-green-100 rounded-lg p-2 text-green-500 mr-3">
+                          <DollarSign className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium">Payroll Processing</h4>
+                          <p className="text-xs text-gray-500">May 25, 2023 • All Day</p>
+                          <p className="text-xs text-gray-500 mt-1">Monthly salary processing</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start">
+                        <div className="bg-yellow-100 rounded-lg p-2 text-yellow-500 mr-3">
+                          <Shield className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium">Compliance Training</h4>
+                          <p className="text-xs text-gray-500">May 30, 2023 • 2:00 PM</p>
+                          <p className="text-xs text-gray-500 mt-1">Mandatory annual compliance review</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </PremiumCard>
+              </AnimatedSection>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
+export default Dashboard;
