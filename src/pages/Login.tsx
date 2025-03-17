@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -135,7 +136,7 @@ const Login = () => {
                 <Button
                   type="submit"
                   variant="primary"
-                  className="w-full text-white font-bold"
+                  className="w-full font-bold"
                   disabled={loading}
                 >
                   {loading ? 'Logging in...' : 'Log in'} 

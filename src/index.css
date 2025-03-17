@@ -116,6 +116,16 @@
   p {
     @apply leading-relaxed;
   }
+  
+  /* Ensure buttons have good contrast */
+  button, .button {
+    @apply font-medium;
+  }
+  
+  /* High contrast for primary buttons */
+  .primary-button, button[data-variant="primary"] {
+    @apply text-white font-bold;
+  }
 }
 
 /* Custom component styles */
