@@ -58,7 +58,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       textShadow: variant === 'outline' && !props.disabled ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
       fontWeight: 'bold',
       letterSpacing: '0.5px',
-      textTransform: 'uppercase',
+      textTransform: 'uppercase' as const, // Fix: Use as const to specify the correct type
       ...style,
     };
     

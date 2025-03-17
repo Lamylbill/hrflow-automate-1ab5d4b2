@@ -89,7 +89,7 @@ const SignUp = () => {
     fontWeight: 800,
     textShadow: '0 1px 3px rgba(0,0,0,0.7)',
     letterSpacing: '0.5px',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const, // Fix: TypeScript type
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     border: 'none',
     padding: '10px 16px',

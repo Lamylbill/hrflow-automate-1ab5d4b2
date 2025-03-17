@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -73,7 +72,7 @@ const Login = () => {
     fontWeight: 800,
     textShadow: '0 1px 3px rgba(0,0,0,0.7)',
     letterSpacing: '0.5px',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     border: 'none',
     padding: '10px 16px',
@@ -86,7 +85,7 @@ const Login = () => {
     fontWeight: 800,
     textShadow: 'none',
     letterSpacing: '0.5px',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
     border: '2px solid #2563EB',
     padding: '10px 16px',

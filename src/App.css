@@ -53,6 +53,7 @@ a[role="button"] {
   background-color: #2563EB !important;
   font-weight: 800 !important;
   text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+  /* Use a class instead of inline style for text-transform */
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
   min-height: 40px !important;
