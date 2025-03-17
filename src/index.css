@@ -123,7 +123,7 @@
   }
   
   /* High contrast for primary buttons */
-  .primary-button, button[data-variant="primary"] {
+  .primary-button, button[data-variant="primary"], .bg-hrflow-blue {
     @apply text-white font-bold;
   }
 }

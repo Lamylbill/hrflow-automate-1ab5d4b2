@@ -10,7 +10,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold", // Keep white text for contrast
+        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold", // Ensure white text with bold weight
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-medium",
         ghost: "hover:bg-accent hover:text-accent-foreground",
