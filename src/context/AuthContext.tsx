@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
-import { supabase, getSession, getCurrentUser, signOut } from '../lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 type AuthContextType = {
@@ -31,11 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const setupAuth = async () => {
       try {
-        const currentSession = await getSession();
+        // Get initial session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
         setSession(currentSession);
         
         if (currentSession) {
-          const currentUser = await getCurrentUser();
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
           setUser(currentUser);
         }
       } catch (error) {
@@ -51,7 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         setSession(newSession);
-        setUser(newSession ? await getCurrentUser() : null);
+        
+        if (newSession) {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          setUser(currentUser);
+        } else {
+          setUser(null);
+        }
+        
         setIsLoading(false);
       }
     );
@@ -63,9 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await signOut();
-      setUser(null);
-      setSession(null);
+      await supabase.auth.signOut();
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account.",
