@@ -18,7 +18,7 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated, clearUserData } = useAuth();
+  const { isAuthenticated, clearUserData, refreshSession } = useAuth();
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -74,8 +74,11 @@ const Login = () => {
           description: errorMessage,
           variant: "destructive",
         });
-      } else if (data.session) {
+      } else if (data && data.session) {
         console.log('Login successful, session established');
+        
+        // Refresh the session in AuthContext
+        await refreshSession();
         
         // Double-check session validity
         const currentSession = await getCurrentSession();

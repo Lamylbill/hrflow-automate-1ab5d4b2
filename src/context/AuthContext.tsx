@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +31,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Function to manually refresh auth state
+  const refreshSession = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Manually refreshing session...');
+      
+      // Get the current session directly from Supabase
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (currentSession) {
+        console.log('Session found during refresh:', currentSession.user.id);
+        setSession(currentSession);
+        
+        // Also get user data
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        if (currentUser) {
+          console.log('User data retrieved during refresh:', currentUser.id);
+          setUser(currentUser);
+        } else {
+          console.log('No user data found despite having session');
+          setUser(null);
+        }
+      } else {
+        console.log('No valid session found during refresh');
+        setSession(null);
+        setUser(null);
+      }
+      
+      return { session: currentSession, user: user };
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+      return { session: null, user: null };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Enhanced function to clear local user data
   const clearUserData = () => {
@@ -81,28 +118,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('User data cleared successfully');
   };
 
-  // Function to manually refresh auth state
-  const refreshSession = async () => {
-    try {
-      setIsLoading(true);
-      const { isAuthenticated, session: currentSession, user: currentUser } = await checkAuthStatus();
-      
-      if (isAuthenticated && currentSession && currentUser) {
-        console.log('Session refreshed successfully');
-        setSession(currentSession);
-        setUser(currentUser);
-      } else {
-        console.log('No valid session found during refresh');
-        setSession(null);
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Error refreshing session:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     const setupAuth = async () => {
       try {
@@ -113,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (currentSession) {
-          console.log('Initial session found');
+          console.log('Initial session found with user ID:', currentSession.user.id);
           setSession(currentSession);
           
           const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -123,17 +138,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             
             // Clean up data on initial login
             clearUserData();
-            
-            // Set clean initial state for the app
-            console.log('Setting up clean user environment');
           } else {
             console.log('No user data found despite having session');
+            setUser(null);
           }
         } else {
           console.log('No initial session found');
+          setSession(null);
+          setUser(null);
         }
       } catch (error) {
         console.error('Error loading auth:', error);
+        setSession(null);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }
@@ -147,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state changed:', event);
         
         if (newSession) {
-          console.log('New session established');
+          console.log('New session established for user:', newSession.user.id);
           setSession(newSession);
           
           try {

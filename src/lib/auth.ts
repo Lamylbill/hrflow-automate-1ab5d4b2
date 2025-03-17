@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export const signIn = async (email: string, password: string) => {
@@ -5,31 +6,46 @@ export const signIn = async (email: string, password: string) => {
   
   try {
     // Clear any existing sessions first to prevent conflicts
-    // This can help when there are lingering session issues
     await supabase.auth.signOut();
     console.log('Cleared any existing sessions before login attempt');
     
-    // Attempt to sign in
+    // Attempt to sign in with more detailed error logging
     const response = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (response.error) {
-      console.error('Sign in error:', response.error.message, response.error.status);
-      // Add more detailed error logging to help with debugging
+      console.error('Sign in error:', response.error.message);
+      console.error('Error details:', response.error);
+      
       if (response.error.status === 400) {
         console.log('This could be an incorrect email/password combination');
       } else if (response.error.status === 422) {
         console.log('Email/password format validation failed');
       }
-    } else {
-      console.log('Sign in successful, session established:', !!response.data.session);
-      console.log('User ID:', response.data.user?.id);
       
-      // Verify the session is active
-      const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Session verification:', !!sessionData.session ? 'Valid session' : 'No active session');
+      return response;
+    } 
+    
+    // Successfully signed in
+    console.log('Sign in successful!');
+    console.log('User data:', response.data.user);
+    console.log('Session established:', !!response.data.session);
+    
+    // Double check that we have a valid session
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log('Session verification:', !!sessionData.session ? 'Valid session' : 'No active session');
+    
+    if (!sessionData.session) {
+      console.error('Session could not be established after successful login');
+      return {
+        data: response.data,
+        error: {
+          message: 'Session could not be established',
+          status: 500
+        }
+      };
     }
     
     return response;
@@ -117,6 +133,13 @@ export const getCurrentSession = async () => {
     if (session) {
       console.log('Session expires at:', new Date(session.expires_at * 1000).toLocaleString());
       console.log('User ID from session:', session.user.id);
+      
+      // Check if session has access_token
+      if (session.access_token) {
+        console.log('Access token exists and is', session.access_token.length, 'characters long');
+      } else {
+        console.log('No access token found in session');
+      }
     }
     return session;
   } catch (error) {
