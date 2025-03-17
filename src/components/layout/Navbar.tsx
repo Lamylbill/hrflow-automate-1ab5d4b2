@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight, Menu, X, LogOut } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-export const Navbar = () => {
+interface NavbarProps {
+  showLogo?: boolean;
+}
+
+export const Navbar = ({ showLogo = true }: NavbarProps) => {
   const { isAuthenticated, user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,15 +42,15 @@ export const Navbar = () => {
 
   // Different navigation items depending on authentication state
   const publicNavItems = [
-    { name: 'Features', href: '/#features' },
-    { name: 'Pricing', href: '/#pricing' },
-    { name: 'About', href: '/#about' },
-    { name: 'Contact', href: '/#contact' },
+    { name: 'Home', href: '/', icon: <Home className="h-4 w-4 mr-2" /> },
+    { name: 'Corporate Staff', href: '/corporate-staff', icon: <Users className="h-4 w-4 mr-2" /> },
+    { name: 'Contact', href: '/contact', icon: <Phone className="h-4 w-4 mr-2" /> },
+    { name: 'About HRFlow', href: '/about', icon: <Info className="h-4 w-4 mr-2" /> },
   ];
 
   const privateNavItems = [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Employees', href: '/employees' },
+    { name: 'Dashboard', href: '/dashboard', icon: <Home className="h-4 w-4 mr-2" /> },
+    { name: 'Employees', href: '/employees', icon: <Users className="h-4 w-4 mr-2" /> },
   ];
 
   const navItems = isAuthenticated ? privateNavItems : publicNavItems;
@@ -69,10 +73,12 @@ export const Navbar = () => {
       <nav className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
-            <span className="font-display font-bold text-xl">Flow</span>
-          </Link>
+          {showLogo && (
+            <Link to="/" className="flex items-center gap-2">
+              <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+              <span className="font-display font-bold text-xl">Flow</span>
+            </Link>
+          )}
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
@@ -81,12 +87,13 @@ export const Navbar = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center",
                   location.pathname === item.href
                     ? "text-hrflow-blue"
                     : "text-gray-700 hover:text-hrflow-blue hover:bg-gray-100/80"
                 )}
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
@@ -127,7 +134,7 @@ export const Navbar = () => {
                   <Button variant="outline" size="sm">Log In</Button>
                 </Link>
                 <Link to="/signup">
-                  <Button variant="premium" size="sm">
+                  <Button variant="primary" size="sm" className="text-white font-medium">
                     Sign Up <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
@@ -157,12 +164,13 @@ export const Navbar = () => {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "px-3 py-2 rounded-md text-base font-medium",
+                    "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
                       ? "bg-hrflow-blue/10 text-hrflow-blue"
                       : "text-gray-700 hover:bg-gray-100 hover:text-hrflow-blue"
                   )}
                 >
+                  {item.icon}
                   {item.name}
                 </Link>
               ))}
@@ -172,7 +180,7 @@ export const Navbar = () => {
                     <Button variant="outline" className="w-full">Log In</Button>
                   </Link>
                   <Link to="/signup" className="w-full">
-                    <Button variant="premium" className="w-full">Sign Up</Button>
+                    <Button variant="primary" className="w-full text-white font-bold">Sign Up</Button>
                   </Link>
                 </div>
               )}
