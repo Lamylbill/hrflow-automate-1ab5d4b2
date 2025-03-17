@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -117,10 +118,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline" size="sm">Log In</Button>
+                  <Button variant="outline" size="sm">
+                    Log In
+                  </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button variant="primary" size="sm">
+                  <Button size="sm">
                     Sign Up <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
@@ -161,10 +164,14 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               {!isAuthenticated && (
                 <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
                   <Link to="/login" className="w-full">
-                    <Button variant="outline" className="w-full">Log In</Button>
+                    <Button variant="outline" className="w-full">
+                      Log In
+                    </Button>
                   </Link>
                   <Link to="/signup" className="w-full">
-                    <Button className="w-full">Sign Up</Button>
+                    <Button className="w-full">
+                      Sign Up
+                    </Button>
                   </Link>
                 </div>
               )}

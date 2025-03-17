@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -20,7 +19,6 @@ const Login = () => {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
 
-  // Redirect if already logged in
   React.useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
@@ -62,7 +60,6 @@ const Login = () => {
     }
   };
 
-  // For demo purposes - prefill with test credentials
   const fillTestCredentials = () => {
     setEmail('demo@hrflow.com');
     setPassword('demopassword');
@@ -135,7 +132,6 @@ const Login = () => {
 
                 <Button
                   type="submit"
-                  variant="primary"
                   className="w-full font-bold"
                   disabled={loading}
                 >
