@@ -66,6 +66,32 @@ const Login = () => {
     setPassword('demopassword');
   };
 
+  // Extreme button style to ensure visibility
+  const buttonStyleOverride = {
+    color: 'white',
+    backgroundColor: '#2563EB',
+    fontWeight: 800,
+    textShadow: '0 1px 3px rgba(0,0,0,0.7)',
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: 'none',
+    padding: '10px 16px',
+  };
+
+  // Outline button style
+  const outlineButtonStyleOverride = {
+    color: '#2563EB',
+    backgroundColor: 'transparent',
+    fontWeight: 800,
+    textShadow: 'none',
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: '2px solid #2563EB',
+    padding: '10px 16px',
+  };
+
   return (
     <>
       <Navbar showLogo={true} />
@@ -133,10 +159,10 @@ const Login = () => {
 
                 <Button
                   type="submit"
-                  className="w-full font-bold text-white uppercase"
+                  className="w-full bg-hrflow-blue text-white uppercase font-extrabold tracking-wide"
                   variant="premium"
                   disabled={loading}
-                  style={{ color: 'white', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+                  style={buttonStyleOverride}
                 >
                   {loading ? 'Logging in...' : 'Log in'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -145,9 +171,9 @@ const Login = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full text-hrflow-blue hover:text-white uppercase"
+                  className="w-full text-hrflow-blue hover:text-white uppercase font-extrabold tracking-wide"
                   onClick={fillTestCredentials}
-                  style={{ fontWeight: 'bold' }}
+                  style={outlineButtonStyleOverride}
                 >
                   Use demo credentials
                 </Button>

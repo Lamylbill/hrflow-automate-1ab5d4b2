@@ -82,6 +82,19 @@ const SignUp = () => {
     setShowPassword(!showPassword);
   };
 
+  // Extreme button style to ensure visibility
+  const buttonStyleOverride = {
+    color: 'white',
+    backgroundColor: '#2563EB',
+    fontWeight: 800,
+    textShadow: '0 1px 3px rgba(0,0,0,0.7)',
+    letterSpacing: '0.5px',
+    textTransform: 'uppercase',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    border: 'none',
+    padding: '10px 16px',
+  };
+
   return (
     <>
       <Navbar showLogo={true} />
@@ -141,8 +154,9 @@ const SignUp = () => {
                     />
                     <button
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center bg-transparent border-none shadow-none"
                       onClick={togglePasswordVisibility}
+                      style={{ backgroundColor: 'transparent', border: 'none', boxShadow: 'none', minWidth: 'auto' }}
                     >
                       {showPassword ? (
                         <EyeOff className="h-5 w-5 text-gray-400" />
@@ -174,8 +188,9 @@ const SignUp = () => {
                 <Button
                   type="submit"
                   variant="primary"
-                  className="w-full text-white font-bold"
+                  className="w-full text-white bg-hrflow-blue uppercase font-extrabold tracking-wide"
                   disabled={loading}
+                  style={buttonStyleOverride}
                 >
                   {loading ? 'Creating account...' : 'Sign up'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -185,7 +200,7 @@ const SignUp = () => {
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-hrflow-blue font-medium hover:underline">
+                  <Link to="/login" className="text-sm text-hrflow-blue font-medium hover:underline">
                     Log in
                   </Link>
                 </p>

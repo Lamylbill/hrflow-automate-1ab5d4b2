@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,58 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Extreme button styles for maximum visibility */
+button,
+.button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+a[role="button"] {
+  color: white !important;
+  background-color: #2563EB !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  min-height: 40px !important;
+  min-width: 80px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0.375rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 0.5rem 1rem !important;
+}
+
+/* Only outline buttons have different styling */
+button[data-variant="outline"]:not(:hover):not(:disabled),
+[data-variant="outline"]:not(:hover):not(:disabled) {
+  color: #2563EB !important;
+  background-color: transparent !important;
+  border: 2px solid #2563EB !important;
+  text-shadow: none !important;
+}
+
+/* When hovering outline button, force white text */
+button[data-variant="outline"]:hover:not(:disabled),
+[data-variant="outline"]:hover:not(:disabled) {
+  color: white !important;
+  background-color: #2563EB !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+}
+
+/* Special styles for icon buttons */
+button.h-10.w-10,
+button.rounded-full,
+button.p-2 {
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0.5rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }

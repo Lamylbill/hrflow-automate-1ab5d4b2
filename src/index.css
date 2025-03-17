@@ -122,11 +122,14 @@
   .button-high-contrast,
   [type="button"],
   [type="submit"],
-  [type="reset"] {
-    @apply font-bold uppercase;
+  [type="reset"],
+  a[role="button"] {
+    @apply font-extrabold uppercase;
     color: white !important; /* Force visibility */
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
     letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    border-width: 2px !important;
   }
   
   /* Only outline buttons should have blue text */
@@ -134,21 +137,24 @@
   [data-variant="outline"]:not(:hover):not(:disabled) {
     color: #2563EB !important;
     text-shadow: none !important;
+    font-weight: 800 !important;
   }
   
   /* When hovering outline button, force white text */
   button[data-variant="outline"]:hover:not(:disabled),
   [data-variant="outline"]:hover:not(:disabled) {
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+    background-color: #2563EB !important;
   }
 
   /* Premium buttons with strongest visibility */
   button[data-variant="premium"], 
   [data-variant="premium"] {
-    @apply text-white font-bold uppercase;
+    @apply bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light;
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+    font-weight: 800 !important;
   }
 
   /* Ensure primary buttons have white text */
@@ -156,9 +162,9 @@
   [data-variant="primary"],
   .bg-hrflow-blue,
   .bg-gradient-to-r {
-    @apply text-white font-bold uppercase;
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+    font-weight: 800 !important;
   }
 }
 
@@ -178,10 +184,21 @@
   [type="button"],
   [type="submit"],
   [type="reset"] {
-    @apply text-white bg-hrflow-blue font-bold py-2 px-4 rounded uppercase;
+    background-color: #2563EB !important;
     color: white !important;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+    font-weight: 800 !important;
     letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.375rem !important;
+  }
+  
+  /* Only allow outline buttons to have different background */
+  button[data-variant="outline"]:not(:hover):not(:disabled),
+  [data-variant="outline"]:not(:hover):not(:disabled) {
+    background-color: transparent !important;
+    border: 2px solid #2563EB !important;
   }
 }
 
@@ -230,10 +247,17 @@ button[class*="bg-"],
 button[class*="text-"],
 [role="button"] {
   color: white !important;
-  font-weight: bold !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
+  min-height: 40px !important;
+  min-width: 80px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 1 !important;
 }
 
 /* Special styles for login/signup page buttons */
@@ -241,8 +265,8 @@ button[class*="text-"],
 .min-h-screen [type="button"],
 .min-h-screen [type="submit"] {
   color: white !important;
-  font-weight: bold !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
   text-transform: uppercase !important;
   background-color: #2563EB !important;
 }
@@ -252,6 +276,8 @@ button[data-variant="outline"]:not(:hover):not(:disabled),
 [data-variant="outline"]:not(:hover):not(:disabled) {
   color: #2563EB !important;
   text-shadow: none !important;
+  background-color: transparent !important;
+  border: 2px solid #2563EB !important;
 }
 
 /* When hovering outline button, force white text */
@@ -259,4 +285,38 @@ button[data-variant="outline"]:hover:not(:disabled),
 [data-variant="outline"]:hover:not(:disabled) {
   color: white !important;
   background-color: #2563EB !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+}
+
+/* Fix for link buttons to ensure text is visible */
+a.button, 
+a[role="button"],
+a.inline-flex {
+  color: white !important;
+  text-decoration: none !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
+}
+
+/* Fix for icon buttons to ensure proper sizing and layout */
+button.rounded-full,
+button[class*="icon"],
+button[class*="p-2"],
+button.h-10.w-10 {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Create super visible text for buttons on light backgrounds */
+.bg-white button, 
+.bg-gray-50 button,
+.bg-gray-100 button,
+.glass-card button {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
 }

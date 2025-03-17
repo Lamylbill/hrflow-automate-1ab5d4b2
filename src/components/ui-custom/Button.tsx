@@ -10,21 +10,21 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold text-white", // Force white text
-        secondary: "bg-secondary text-white hover:bg-secondary/80 font-bold text-white", // Force white text
-        outline: "border border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-bold", // Updated to match primary font-weight
-        ghost: "hover:bg-accent hover:text-accent-foreground text-hrflow-blue font-medium", // Improved text visibility
-        link: "text-hrflow-blue underline-offset-4 hover:underline font-medium", // Better contrast
-        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-bold text-white", // Force white text
-        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-bold text-white", // Force white text
-        destructive: "bg-red-500 text-white hover:bg-red-600 font-bold text-white", // Force white text
+        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-extrabold text-white", // Force white text, extrabold
+        secondary: "bg-secondary text-white hover:bg-secondary/80 font-extrabold text-white", // Force white text, extrabold
+        outline: "border-2 border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-extrabold", // Thicker border, extrabold
+        ghost: "hover:bg-accent hover:text-accent-foreground text-hrflow-blue font-bold", // Improved text visibility
+        link: "text-hrflow-blue underline-offset-4 hover:underline font-bold", // Better contrast
+        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-extrabold text-white", // Force white text, extrabold
+        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-extrabold text-white", // Force white text, extrabold
+        destructive: "bg-red-500 text-white hover:bg-red-600 font-extrabold text-white", // Force white text, extrabold
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-12 rounded-md px-8 text-base",
         xl: "h-14 rounded-md px-10 text-lg",
-        icon: "h-10 w-10",
+        icon: "h-10 w-10 flex items-center justify-center",
       },
     },
     defaultVariants: {
@@ -42,7 +42,7 @@ export interface ButtonProps
 
 // Create our custom Button component based on shadcn Button with enforced text visibility
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, children, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, style, ...props }, ref) => {
     // Default placeholder text if no children provided
     const buttonContent = children || "Button";
     
@@ -51,6 +51,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant === 'outline' && !props.disabled 
         ? 'text-hrflow-blue hover:text-white' 
         : 'text-white';
+    
+    // Merge styles for ultimate visibility
+    const buttonStyle = {
+      color: variant === 'outline' && !props.disabled ? '#2563EB' : 'white',
+      textShadow: variant === 'outline' && !props.disabled ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
+      fontWeight: 'bold',
+      letterSpacing: '0.5px',
+      textTransform: 'uppercase',
+      ...style,
+    };
     
     return (
       <ShadcnButton
@@ -61,6 +71,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         ref={ref}
         data-variant={variant || "premium"}
+        style={buttonStyle}
         {...props}
       >
         {buttonContent}
