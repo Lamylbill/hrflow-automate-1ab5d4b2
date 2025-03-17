@@ -140,8 +140,9 @@ export const checkAuthStatus = async () => {
       const now = new Date();
       console.log('Session expired:', expiresAt < now);
       console.log('Session expires:', expiresAt.toLocaleString());
-      console.log('Session created:', session.created_at ? 
-        new Date(session.created_at * 1000).toLocaleString() : 'Creation time not available');
+      // The created_at property doesn't exist on the Session type from Supabase
+      // So we'll just log that the information is not available
+      console.log('Session created: Creation time not available');
     }
     
     if (user) {
