@@ -10,7 +10,8 @@ import {
   Shield, 
   LogOut, 
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Download
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -68,13 +69,25 @@ export const DashboardSidebar = () => {
     setCollapsed(!collapsed);
   };
 
+  // Function to download CSV template
+  const downloadCSVTemplate = () => {
+    const csvHeader = "Full Name,Job Title,Department,Email,Phone Number,Date of Hire,Employment Type,Salary,Status,Profile Picture";
+    const csvContent = "data:text/csv;charset=utf-8," + csvHeader;
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "employee_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div
+    <aside
       className={cn(
-        'h-screen fixed left-0 top-0 z-30 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out',
+        'h-screen fixed left-0 top-0 z-30 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out shadow-sm',
         collapsed ? 'w-[70px]' : 'w-[250px]'
       )}
-      style={{ boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
     >
       {/* Sidebar Header with Logo */}
       <div className={cn(
@@ -161,12 +174,46 @@ export const DashboardSidebar = () => {
                     {!collapsed && <span className="truncate">{item.name}</span>}
                   </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right" className={collapsed ? "" : "hidden"}>
+                <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
                   {item.name}
                 </TooltipContent>
               </Tooltip>
             ))}
           </TooltipProvider>
+
+          {/* Template Download Button */}
+          {location.pathname === '/employees' && !collapsed && (
+            <div className="mt-4 px-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-sm flex items-center justify-start"
+                onClick={downloadCSVTemplate}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                <span>Download Template</span>
+              </Button>
+            </div>
+          )}
+          
+          {/* Template Download Button (Collapsed sidebar) */}
+          {location.pathname === '/employees' && collapsed && (
+            <Tooltip disableHoverableContent={!collapsed}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="w-full mt-4 flex justify-center"
+                  onClick={downloadCSVTemplate}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right" align="center">
+                Download Employee Template
+              </TooltipContent>
+            </Tooltip>
+          )}
         </nav>
       </div>
 
@@ -196,7 +243,7 @@ export const DashboardSidebar = () => {
           </Tooltip>
         </TooltipProvider>
       </div>
-    </div>
+    </aside>
   );
 };
 

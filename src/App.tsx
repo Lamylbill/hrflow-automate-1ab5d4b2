@@ -34,15 +34,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Create a layout component that includes the sidebar
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col transition-all duration-300 overflow-auto"
            style={{ marginLeft: 'var(--sidebar-width, 250px)' }}>
-        <div className="min-h-screen pt-6 pb-12 px-6">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
-        </div>
+        {children}
       </div>
     </div>
   );
@@ -75,8 +71,8 @@ const AppRoutes = () => {
       <Route path="/payroll" element={
         <ProtectedRoute>
           <DashboardLayout>
-            <h1 className="text-3xl font-bold mb-6">Payroll</h1>
-            <p>Manage employee compensation and payments.</p>
+            <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
+            <p className="px-6">Manage employee compensation and payments.</p>
           </DashboardLayout>
         </ProtectedRoute>
       } />
@@ -84,8 +80,8 @@ const AppRoutes = () => {
       <Route path="/leave" element={
         <ProtectedRoute>
           <DashboardLayout>
-            <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
-            <p>Track and approve employee time off and absences.</p>
+            <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
+            <p className="px-6">Track and approve employee time off and absences.</p>
           </DashboardLayout>
         </ProtectedRoute>
       } />
@@ -93,8 +89,8 @@ const AppRoutes = () => {
       <Route path="/compliance" element={
         <ProtectedRoute>
           <DashboardLayout>
-            <h1 className="text-3xl font-bold mb-6">Compliance</h1>
-            <p>Ensure regulatory compliance and manage company policies.</p>
+            <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
+            <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
           </DashboardLayout>
         </ProtectedRoute>
       } />
