@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, AlertCircle, User, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,10 +55,18 @@ const SignUp = () => {
           variant: "destructive",
         });
       } else {
+        // Clear form fields on success
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        
+        // Show success toast
         toast({
           title: "Sign up successful",
-          description: "Please check your email to confirm your account.",
+          description: "Please log in with your new account.",
         });
+        
+        // Redirect to login page as specified in the flow
         navigate('/login');
       }
     } catch (err) {

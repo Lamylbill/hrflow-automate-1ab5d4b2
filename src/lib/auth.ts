@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export const signIn = async (email: string, password: string) => {
@@ -58,6 +59,27 @@ export const signUp = async (email: string, password: string) => {
   console.log('Attempting to sign up with:', email);
   
   try {
+    // First check if a user with this email already exists to provide better error messages
+    const { data: existingUsers, error: checkError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+      
+    if (checkError) {
+      console.error('Error checking for existing user:', checkError);
+    } else if (existingUsers) {
+      console.log('User already exists with this email');
+      return {
+        data: null,
+        error: {
+          message: 'An account with this email already exists. Please log in instead.',
+          status: 400
+        }
+      };
+    }
+    
+    // Proceed with signup
     const response = await supabase.auth.signUp({
       email,
       password,
@@ -69,19 +91,24 @@ export const signUp = async (email: string, password: string) => {
     
     if (response.error) {
       console.error('Sign up error:', response.error.message, response.error.status);
+      return response;
     } else {
       console.log('Sign up successful:', response.data);
       if (response.data.user?.identities?.length === 0) {
         console.log('User already exists with this email');
+        return {
+          data: response.data,
+          error: {
+            message: 'An account with this email already exists. Please log in instead.',
+            status: 400
+          }
+        };
       }
-      if (response.data.user?.confirmed_at) {
-        console.log('Email already confirmed');
-      } else {
-        console.log('Email confirmation required');
-      }
+      
+      // Sign up was successful
+      console.log('New user created successfully');
+      return response;
     }
-    
-    return response;
   } catch (error) {
     console.error('Unexpected error during sign up:', error);
     throw error;

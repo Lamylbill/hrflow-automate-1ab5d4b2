@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -61,8 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(null);
         setUser(null);
       }
-      
-      // Don't return anything as the function is specified to return void
     } catch (error) {
       console.error('Error refreshing session:', error);
     } finally {
@@ -135,9 +132,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (currentUser) {
             console.log('User data retrieved for ID:', currentUser.id);
             setUser(currentUser);
-            
-            // Clean up data on initial login
-            clearUserData();
           } else {
             console.log('No user data found despite having session');
             setUser(null);
@@ -158,7 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setupAuth();
 
-    // Set up auth state listener
+    // Set up auth state listener with improved error handling
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth state changed:', event);
@@ -173,10 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               console.log('User data retrieved after auth state change:', currentUser.id);
               setUser(currentUser);
               
-              // Clean data on new sign in
+              // If new sign-in, show welcome toast
               if (event === 'SIGNED_IN') {
-                console.log('Sign in event detected, clearing user data');
-                clearUserData();
                 toast({
                   title: "Welcome back!",
                   description: "You have been successfully logged in.",

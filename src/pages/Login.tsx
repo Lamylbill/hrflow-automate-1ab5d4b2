@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { signIn, getCurrentSession, checkAuthStatus } from '@/lib/auth';
+import { signIn, checkAuthStatus } from '@/lib/auth';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
@@ -25,9 +24,9 @@ const Login = () => {
     const checkAuth = async () => {
       try {
         // Run a comprehensive auth check
-        const { isAuthenticated, session } = await checkAuthStatus();
+        const { isAuthenticated } = await checkAuthStatus();
         
-        if (isAuthenticated && session) {
+        if (isAuthenticated) {
           console.log('User already has a valid session, redirecting to dashboard');
           navigate('/dashboard');
         } else {
@@ -57,7 +56,7 @@ const Login = () => {
       clearUserData();
       
       console.log('Starting login process with email:', email);
-      // Direct call to Supabase auth
+      // Call to Supabase auth
       const { data, error } = await signIn(email, password);
       
       if (error) {
@@ -84,25 +83,14 @@ const Login = () => {
           // Refresh the session in AuthContext
           await refreshSession();
           
-          // Verify session is now valid
-          const currentSession = await getCurrentSession();
-          if (currentSession) {
-            console.log('Session verified, redirecting to dashboard');
-            toast({
-              title: "Login successful",
-              description: "Welcome back to HRFlow!",
-            });
-            // Use navigate instead of direct window location change
-            navigate('/dashboard');
-          } else {
-            console.error('Session verification failed after refresh');
-            setError('Authentication succeeded but session verification failed. Please try again.');
-            toast({
-              title: "Login issue",
-              description: "Session verification failed. Please try again.",
-              variant: "destructive",
-            });
-          }
+          console.log('Session refreshed, redirecting to dashboard');
+          toast({
+            title: "Login successful",
+            description: "Welcome back to HRFlow!",
+          });
+          
+          // Use navigate for redirection
+          navigate('/dashboard');
         } catch (refreshError) {
           console.error('Error refreshing session:', refreshError);
           setError('Error establishing session. Please try again.');
