@@ -59,17 +59,43 @@ export const signUp = async (email: string, password: string) => {
   console.log('Attempting to sign up with:', email);
   
   try {
-    // First check if a user with this email already exists to provide better error messages
-    const { data: existingUsers, error: checkError } = await supabase
-      .from('profiles')
+    // First check if a user with this email already exists in auth to provide better error messages
+    // We need to use the auth API since we don't have a profiles table
+    const { data: authData, error: authError } = await supabase.auth.admin.listUsers({
+      page: 1,
+      perPage: 1,
+      filter: {
+        email: email
+      }
+    });
+    
+    // If we get an error here, we should just continue with the signup
+    if (authError) {
+      console.error('Error checking for existing user:', authError);
+    } 
+    // Check if the user exists in the auth system
+    else if (authData && authData.users && authData.users.length > 0) {
+      console.log('User already exists with this email');
+      return {
+        data: null,
+        error: {
+          message: 'An account with this email already exists. Please log in instead.',
+          status: 400
+        }
+      };
+    }
+    
+    // Alternatively, check if there's an employee with this email
+    const { data: existingEmployees, error: checkError } = await supabase
+      .from('employees')
       .select('id')
       .eq('email', email)
       .maybeSingle();
       
     if (checkError) {
-      console.error('Error checking for existing user:', checkError);
-    } else if (existingUsers) {
-      console.log('User already exists with this email');
+      console.error('Error checking for existing employee:', checkError);
+    } else if (existingEmployees) {
+      console.log('Employee already exists with this email');
       return {
         data: null,
         error: {
