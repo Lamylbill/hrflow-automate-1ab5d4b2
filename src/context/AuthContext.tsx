@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(null);
       }
       
-      // Don't return anything (void) as specified in the type definition
+      // Don't return anything as the function is specified to return void
     } catch (error) {
       console.error('Error refreshing session:', error);
     } finally {

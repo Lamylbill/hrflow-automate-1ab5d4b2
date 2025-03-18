@@ -80,26 +80,32 @@ const Login = () => {
       } else if (data && data.session) {
         console.log('Login successful, session established');
         
-        // Refresh the session in AuthContext
-        await refreshSession();
-        
-        // Double-check session validity
-        const currentSession = await getCurrentSession();
-        if (currentSession) {
-          console.log('Session verified, redirecting to dashboard');
-          toast({
-            title: "Login successful",
-            description: "Welcome back to HRFlow!",
-          });
-          navigate('/dashboard');
-        } else {
-          console.error('Session verification failed');
-          setError('Authentication succeeded but session verification failed. Please try again.');
-          toast({
-            title: "Login issue",
-            description: "Session verification failed. Please try again.",
-            variant: "destructive",
-          });
+        try {
+          // Refresh the session in AuthContext
+          await refreshSession();
+          
+          // Verify session is now valid
+          const currentSession = await getCurrentSession();
+          if (currentSession) {
+            console.log('Session verified, redirecting to dashboard');
+            toast({
+              title: "Login successful",
+              description: "Welcome back to HRFlow!",
+            });
+            // Use navigate instead of direct window location change
+            navigate('/dashboard');
+          } else {
+            console.error('Session verification failed after refresh');
+            setError('Authentication succeeded but session verification failed. Please try again.');
+            toast({
+              title: "Login issue",
+              description: "Session verification failed. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } catch (refreshError) {
+          console.error('Error refreshing session:', refreshError);
+          setError('Error establishing session. Please try again.');
         }
       } else {
         // This case handles when there's no error but also no valid session
