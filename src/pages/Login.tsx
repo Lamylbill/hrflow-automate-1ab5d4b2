@@ -32,6 +32,8 @@ const Login = () => {
           navigate('/dashboard');
         } else {
           console.log('No valid session found, staying on login page');
+          // Clear any stale data that might be in localStorage
+          clearUserData();
         }
       } catch (err) {
         console.error('Error checking authentication:', err);
@@ -43,7 +45,7 @@ const Login = () => {
     } else {
       checkAuth();
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, clearUserData]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +56,8 @@ const Login = () => {
       // Clear any existing data to ensure a clean state
       clearUserData();
       
-      console.log('Starting login process...');
+      console.log('Starting login process with email:', email);
+      // Direct call to Supabase auth
       const { data, error } = await signIn(email, password);
       
       if (error) {

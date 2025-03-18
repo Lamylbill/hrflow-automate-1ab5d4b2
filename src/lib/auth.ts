@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export const signIn = async (email: string, password: string) => {
@@ -163,9 +162,8 @@ export const checkAuthStatus = async () => {
       const now = new Date();
       console.log('Session expired:', expiresAt < now);
       console.log('Session expires:', expiresAt.toLocaleString());
-      // The created_at property doesn't exist on the Session type from Supabase
-      // So we'll just log that the information is not available
-      console.log('Session created: Creation time not available');
+      // Note that creation time information is not available
+      console.log('Session creation time not available');
     }
     
     if (user) {
