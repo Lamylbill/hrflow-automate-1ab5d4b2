@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
@@ -56,6 +57,7 @@ const Login = () => {
       clearUserData();
       
       console.log('Starting login process with email:', email);
+      
       // Call to Supabase auth
       const { data, error } = await signIn(email, password);
       
@@ -76,25 +78,25 @@ const Login = () => {
           description: errorMessage,
           variant: "destructive",
         });
+        setLoading(false);
       } else if (data && data.session) {
         console.log('Login successful, session established');
         
-        try {
-          // Refresh the session in AuthContext
-          await refreshSession();
-          
-          console.log('Session refreshed, redirecting to dashboard');
-          toast({
-            title: "Login successful",
-            description: "Welcome back to HRFlow!",
-          });
-          
-          // Use navigate for redirection
+        // Notify user of successful login before navigation
+        toast({
+          title: "Login successful",
+          description: "Welcome back to HRFlow!",
+        });
+        
+        // Force session refresh and redirect
+        await refreshSession();
+        console.log('Session refreshed, redirecting to dashboard');
+        
+        // Set a small timeout to ensure toast is shown before navigation
+        setTimeout(() => {
           navigate('/dashboard');
-        } catch (refreshError) {
-          console.error('Error refreshing session:', refreshError);
-          setError('Error establishing session. Please try again.');
-        }
+          setLoading(false);
+        }, 300);
       } else {
         // This case handles when there's no error but also no valid session
         console.error('No session established after login');
@@ -104,6 +106,7 @@ const Login = () => {
           description: "Authentication failed. Please try again.",
           variant: "destructive",
         });
+        setLoading(false);
       }
     } catch (err) {
       console.error('Unexpected login error:', err);
@@ -113,7 +116,6 @@ const Login = () => {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -220,7 +222,7 @@ const Login = () => {
                   variant="premium"
                   disabled={loading}
                 >
-                  {loading ? 'Logging in...' : 'Log in'} 
+                  {loading ? 'LOGGING IN...' : 'LOG IN'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
 

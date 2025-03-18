@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
@@ -62,6 +63,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error refreshing session:', error);
+      // On error, force a clean state
+      setSession(null);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -152,10 +156,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setupAuth();
 
-    // Set up auth state listener with improved error handling
+    // Set up auth state listener with improved error handling and immediate updates
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth state changed:', event);
+        
+        // Force the isLoading state for better UX
+        setIsLoading(true);
         
         if (newSession) {
           console.log('New session established for user:', newSession.user.id);
@@ -186,6 +193,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('No session after auth state change');
           setUser(null);
           setSession(null);
+          
+          // If signed out, show message and redirect
+          if (event === 'SIGNED_OUT') {
+            navigate('/');
+          }
         }
         
         setIsLoading(false);
@@ -196,14 +208,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Cleaning up auth listener');
       authListener?.subscription.unsubscribe();
     };
-  }, [toast]);
+  }, [navigate, toast]);
 
   const logout = async () => {
     try {
-      // Clear user data before logout
+      // First clear user data to prevent stale state
       clearUserData();
       
       console.log('Attempting to sign out...');
+      setIsLoading(true);
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -231,6 +245,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "There was an error logging you out. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -32,11 +32,8 @@ export const signIn = async (email: string, password: string) => {
     console.log('User data:', response.data.user);
     console.log('Session established:', !!response.data.session);
     
-    // Double check that we have a valid session
-    const { data: sessionData } = await supabase.auth.getSession();
-    console.log('Session verification:', !!sessionData.session ? 'Valid session' : 'No active session');
-    
-    if (!sessionData.session) {
+    // Ensure we have a valid session
+    if (!response.data.session) {
       console.error('Session could not be established after successful login');
       return {
         data: response.data,
@@ -50,7 +47,13 @@ export const signIn = async (email: string, password: string) => {
     return response;
   } catch (error) {
     console.error('Unexpected error during sign in:', error);
-    throw error;
+    return {
+      data: { user: null, session: null },
+      error: {
+        message: 'An unexpected error occurred during sign in',
+        status: 500
+      }
+    };
   }
 };
 
@@ -111,7 +114,13 @@ export const signUp = async (email: string, password: string) => {
     }
   } catch (error) {
     console.error('Unexpected error during sign up:', error);
-    throw error;
+    return {
+      data: { user: null, session: null },
+      error: {
+        message: 'An unexpected error occurred during sign up',
+        status: 500
+      }
+    };
   }
 };
 
@@ -189,8 +198,7 @@ export const checkAuthStatus = async () => {
       const now = new Date();
       console.log('Session expired:', expiresAt < now);
       console.log('Session expires:', expiresAt.toLocaleString());
-      // Note that creation time information is not available
-      console.log('Session creation time not available');
+      console.log('Session valid:', expiresAt > now);
     }
     
     if (user) {
