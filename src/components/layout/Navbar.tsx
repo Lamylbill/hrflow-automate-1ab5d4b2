@@ -27,7 +27,7 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-// Define the ListItem component outside of the Navbar component
+// Define the ListItem component outside of the Navbar component with correct typing
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { title: React.ReactNode }

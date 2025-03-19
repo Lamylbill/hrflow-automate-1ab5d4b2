@@ -5,6 +5,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
+import { Navbar } from '@/components/layout/Navbar';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
@@ -45,6 +46,9 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Explicitly include Navbar component */}
+      <Navbar />
+      
       {/* Hero Section */}
       <section className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 bg-gradient-to-br from-white via-gray-50 to-blue-50">
         <div className="container mx-auto max-w-6xl">
