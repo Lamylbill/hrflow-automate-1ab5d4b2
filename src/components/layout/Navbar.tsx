@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -99,7 +98,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
 
   const ListItem = React.forwardRef<
     React.ElementRef<"a">,
-    React.ComponentPropsWithoutRef<"a">
+    React.ComponentPropsWithoutRef<"a"> & { title: React.ReactNode }
   >(({ className, title, children, ...props }, ref) => {
     return (
       <li>
