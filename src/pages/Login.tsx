@@ -1,189 +1,134 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui-custom/Button';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
-import { Navbar } from '@/components/layout/Navbar';
+import { LoadingSpinner } from '@/components/ui-custom/LoadingSpinner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !isLoading) {
       navigate('/dashboard');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-
+    
+    if (!email || !password) {
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     try {
+      setIsSubmitting(true);
       const { error } = await login(email, password);
       
       if (error) {
-        setError(error.message);
         toast({
           title: "Login failed",
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        // Clear form
-        setEmail('');
-        setPassword('');
-        
-        // Success toast is shown in the AuthContext
-        
-        // Navigate after a short delay to ensure state updates
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 500);
       }
-    } catch (err) {
-      setError('An unexpected error occurred');
+    } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Error",
+        title: "Login failed",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
-  };
-
-  const fillTestCredentials = () => {
-    setEmail('demo@hrflow.com');
-    setPassword('demopassword');
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
-          <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          </div>
-        </div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <>
-      <Navbar showLogo={true} />
-      <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gray-50 pt-24">
-        <div className="w-full max-w-md">
-          <AnimatedSection>
-            <div className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
-              <div className="mb-8 text-center">
-                <Link to="/" className="inline-flex items-center gap-2 mb-6">
-                  <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
-                  <span className="font-display font-bold text-xl">Flow</span>
-                </Link>
-                <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-                <p className="text-gray-600 mt-2">Log in to your account</p>
-              </div>
-
-              {error && (
-                <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                  <p className="text-red-700 text-sm">{error}</p>
-                </div>
-              )}
-
-              <form onSubmit={handleLogin} className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@example.com"
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link to="/forgot-password" className="text-sm text-hrflow-blue hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="pl-10"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full bg-hrflow-blue text-white uppercase font-extrabold tracking-wide"
-                  disabled={loading}
-                >
-                  {loading ? 'LOGGING IN...' : 'LOG IN'} 
-                  {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full text-hrflow-blue hover:text-white uppercase font-extrabold tracking-wide"
-                  onClick={fillTestCredentials}
-                >
-                  Use demo credentials
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
-                  <Link to="/signup" className="text-hrflow-blue font-medium hover:underline">
-                    Sign up
-                  </Link>
-                </p>
-              </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Login to HRFlow</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials to access your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
-          </AnimatedSection>
-        </div>
-      </div>
-    </>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link to="#" className="text-sm text-blue-500 hover:text-blue-700">
+                  Forgot password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <LoadingSpinner size="sm" color="white" />
+              ) : (
+                "Login"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link to="/signup" className="text-blue-500 hover:text-blue-700">
+              Sign up
+            </Link>
+          </div>
+          <div className="text-center">
+            <Link to="/" className="text-sm text-gray-500 hover:text-gray-700">
+              Return to home page
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

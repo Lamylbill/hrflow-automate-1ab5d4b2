@@ -19,11 +19,11 @@ export const signIn = async (email: string, password: string) => {
 
     console.log('Sign in successful:', data.user?.id);
     return { data };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error during sign in:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred during sign in',
+        message: error?.message || 'An unexpected error occurred during sign in',
       } 
     };
   }
@@ -64,11 +64,11 @@ export const signUp = async (email: string, password: string, fullName: string) 
 
     console.log('Sign up successful:', data.user?.id);
     return { data };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error during sign up:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred during sign up',
+        message: error?.message || 'An unexpected error occurred during sign up',
       } 
     };
   }
@@ -85,11 +85,11 @@ export const getSession = async () => {
       return { error };
     }
     return { data: data.session };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error getting session:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred while getting session',
+        message: error?.message || 'An unexpected error occurred while getting session',
       } 
     };
   }
@@ -106,11 +106,11 @@ export const getUser = async () => {
       return { error };
     }
     return { data: data.user };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error getting user:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred while getting user',
+        message: error?.message || 'An unexpected error occurred while getting user',
       } 
     };
   }
@@ -139,11 +139,11 @@ export const signOut = async () => {
       return { error };
     }
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error signing out:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred while signing out',
+        message: error?.message || 'An unexpected error occurred while signing out',
       } 
     };
   }
@@ -164,11 +164,11 @@ export const resetPassword = async (email: string) => {
     }
     
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error during password reset:', error);
     return { 
       error: { 
-        message: 'An unexpected error occurred during password reset',
+        message: error?.message || 'An unexpected error occurred during password reset',
       } 
     };
   }

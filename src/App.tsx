@@ -14,7 +14,7 @@ import { useAuth } from "./context/AuthContext";
 import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect } from "react";
-import { PageTransition } from "./components/ui-custom/PageTransition";
+import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 
 const queryClient = new QueryClient();
 
@@ -26,16 +26,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
-          <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-          </div>
-        </div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -83,61 +74,49 @@ const App = () => {
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
-              
-              {/* Auth routes without PageTransition to prevent issues */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <PageTransition>
-                    <DashboardLayout>
-                      <Dashboard />
-                    </DashboardLayout>
-                  </PageTransition>
+                  <DashboardLayout>
+                    <Dashboard />
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               
               <Route path="/employees" element={
                 <ProtectedRoute>
-                  <PageTransition>
-                    <DashboardLayout>
-                      <EmployeesPage />
-                    </DashboardLayout>
-                  </PageTransition>
+                  <DashboardLayout>
+                    <EmployeesPage />
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               
               <Route path="/payroll" element={
                 <ProtectedRoute>
-                  <PageTransition>
-                    <DashboardLayout>
-                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
-                      <p className="px-6">Manage employee compensation and payments.</p>
-                    </DashboardLayout>
-                  </PageTransition>
+                  <DashboardLayout>
+                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
+                    <p className="px-6">Manage employee compensation and payments.</p>
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               
               <Route path="/leave" element={
                 <ProtectedRoute>
-                  <PageTransition>
-                    <DashboardLayout>
-                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
-                      <p className="px-6">Track and approve employee time off and absences.</p>
-                    </DashboardLayout>
-                  </PageTransition>
+                  <DashboardLayout>
+                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
+                    <p className="px-6">Track and approve employee time off and absences.</p>
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               
               <Route path="/compliance" element={
                 <ProtectedRoute>
-                  <PageTransition>
-                    <DashboardLayout>
-                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
-                      <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
-                    </DashboardLayout>
-                  </PageTransition>
+                  <DashboardLayout>
+                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
+                    <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
+                  </DashboardLayout>
                 </ProtectedRoute>
               } />
               
