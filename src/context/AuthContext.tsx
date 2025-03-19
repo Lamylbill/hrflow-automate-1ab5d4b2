@@ -32,94 +32,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Initialize authentication state
   useEffect(() => {
-    console.log('Auth Provider Mounted');
-    let isMounted = true;
+    let mounted = true;
+    console.log('Auth Provider initialized');
     
-    const initializeAuth = async () => {
+    const setupAuth = async () => {
       try {
-        console.log('Initializing auth...');
-        if (!isMounted) return;
-        
-        // Get current session
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        // Get initial session
+        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
-          console.error('Session error:', sessionError);
-          if (isMounted) setIsLoading(false);
-          return;
+          throw sessionError;
         }
         
-        if (sessionData?.session && isMounted) {
-          console.log('Got session:', sessionData.session.user.id);
-          setSession(sessionData.session);
-          
-          // Get current user
-          const { data: userData, error: userError } = await supabase.auth.getUser();
-          
-          if (userError) {
-            console.error('User error:', userError);
-            if (isMounted) setIsLoading(false);
-            return;
+        if (mounted) {
+          if (initialSession) {
+            console.log('Found existing session:', initialSession.user.id);
+            setSession(initialSession);
+            setUser(initialSession.user);
+          } else {
+            console.log('No session found');
+            setSession(null);
+            setUser(null);
           }
-          
-          if (userData?.user && isMounted) {
-            console.log('Got user:', userData.user.id);
-            setUser(userData.user);
-          }
+          setIsLoading(false);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        if (isMounted) {
-          console.log('Auth initialization complete');
+        console.error('Error setting up auth:', error);
+        if (mounted) {
           setIsLoading(false);
         }
       }
     };
-
-    initializeAuth();
-
+    
+    setupAuth();
+    
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth state changed:', event);
-        if (!isMounted) return;
+        
+        if (!mounted) return;
         
         try {
           if (newSession) {
+            console.log('New session established:', newSession.user.id);
             setSession(newSession);
+            setUser(newSession.user);
             
-            // Get updated user data
-            const { data: userData, error: userError } = await supabase.auth.getUser();
-            
-            if (userError) {
-              console.error('User error during auth change:', userError);
-              return;
-            }
-            
-            if (userData?.user && isMounted) {
-              setUser(userData.user);
-              
-              if (event === 'SIGNED_IN') {
-                toast({
-                  title: "Login successful",
-                  description: "Welcome to HRFlow!",
-                });
-              }
+            if (event === 'SIGNED_IN') {
+              toast({
+                title: "Login successful",
+                description: "Welcome to HRFlow!",
+              });
             }
           } else {
-            if (isMounted) {
-              setUser(null);
-              setSession(null);
-              
-              if (event === 'SIGNED_OUT') {
-                toast({
-                  title: "Logged out",
-                  description: "You have been logged out successfully.",
-                });
-                navigate('/');
-              }
+            console.log('Session ended');
+            setSession(null);
+            setUser(null);
+            
+            if (event === 'SIGNED_OUT') {
+              toast({
+                title: "Logged out",
+                description: "You have been logged out successfully.",
+              });
+              navigate('/');
             }
           }
         } catch (error) {
@@ -127,10 +105,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
     );
-
+    
     return () => {
-      console.log('Auth Provider Unmounting');
-      isMounted = false;
+      console.log('Auth Provider cleanup');
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
@@ -156,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       navigate('/dashboard');
       return {};
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected login error:', error);
       return { 
         error: { 
@@ -205,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       navigate('/login');
       return {};
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected signup error:', error);
       return { 
         error: { 
@@ -219,8 +197,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      console.log('Attempting logout');
       setIsLoading(true);
+      console.log('Attempting logout');
       
       const { error } = await supabase.auth.signOut();
       

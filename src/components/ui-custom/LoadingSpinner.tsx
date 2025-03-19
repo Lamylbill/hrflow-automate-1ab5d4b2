@@ -20,7 +20,7 @@ export const LoadingSpinner = ({
   };
 
   const colorClasses = {
-    primary: 'border-hrflow-blue/30 border-t-hrflow-blue',
+    primary: 'border-blue-500/30 border-t-blue-500',
     secondary: 'border-gray-300/30 border-t-gray-300',
     white: 'border-white/30 border-t-white',
   };

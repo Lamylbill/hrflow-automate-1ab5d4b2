@@ -19,7 +19,9 @@ const Login = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
+    console.log("Login page - Auth state:", { isAuthenticated, isLoading });
     if (isAuthenticated && !isLoading) {
+      console.log("Already authenticated, redirecting to dashboard");
       navigate('/dashboard');
     }
   }, [isAuthenticated, isLoading, navigate]);
@@ -38,14 +40,18 @@ const Login = () => {
     
     try {
       setIsSubmitting(true);
+      console.log("Submitting login form");
       const { error } = await login(email, password);
       
       if (error) {
+        console.error("Login error:", error.message);
         toast({
           title: "Login failed",
           description: error.message,
           variant: "destructive",
         });
+      } else {
+        console.log("Login successful, redirecting...");
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -59,6 +65,7 @@ const Login = () => {
     }
   };
 
+  // Show loading spinner while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -86,6 +93,7 @@ const Login = () => {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>
@@ -102,6 +110,7 @@ const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
                 required
               />
             </div>

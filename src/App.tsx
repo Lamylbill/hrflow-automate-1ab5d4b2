@@ -22,7 +22,7 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   
-  // Show loading state
+  // Always show loading state while auth is being checked
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -33,9 +33,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
+    console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
   }
   
+  // If authenticated, render children
   return <>{children}</>;
 };
 
@@ -73,10 +75,12 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <Routes>
+              {/* Public routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               
+              {/* Protected dashboard routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <DashboardLayout>
@@ -120,6 +124,7 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
+              {/* Fallback route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
