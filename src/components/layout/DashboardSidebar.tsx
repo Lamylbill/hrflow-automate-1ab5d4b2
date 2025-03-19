@@ -123,6 +123,11 @@ export const DashboardSidebar = () => {
     document.body.removeChild(link);
   };
 
+  // Function to navigate to the landing page
+  const navigateToLanding = () => {
+    window.location.href = "/";
+  };
+
   return (
     <aside
       className={cn(
@@ -136,15 +141,21 @@ export const DashboardSidebar = () => {
         collapsed ? 'justify-center' : 'justify-between'
       )}>
         {!collapsed && (
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <div 
+            onClick={navigateToLanding} 
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
             <span className="font-display font-bold text-lg">Flow</span>
-          </Link>
+          </div>
         )}
         {collapsed && (
-          <Link to="/dashboard" className="flex items-center justify-center">
+          <div 
+            onClick={navigateToLanding} 
+            className="flex items-center justify-center cursor-pointer"
+          >
             <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
-          </Link>
+          </div>
         )}
         
         {!collapsed && (

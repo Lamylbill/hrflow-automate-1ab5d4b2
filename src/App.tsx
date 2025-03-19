@@ -14,6 +14,7 @@ import { useAuth } from "./context/AuthContext";
 import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect } from "react";
+import { PageTransition } from "./components/ui-custom/PageTransition";
 
 const queryClient = new QueryClient();
 
@@ -87,44 +88,54 @@ const App = () => {
               
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <DashboardLayout>
-                    <Dashboard />
-                  </DashboardLayout>
+                  <PageTransition>
+                    <DashboardLayout>
+                      <Dashboard />
+                    </DashboardLayout>
+                  </PageTransition>
                 </ProtectedRoute>
               } />
               
               <Route path="/employees" element={
                 <ProtectedRoute>
-                  <DashboardLayout>
-                    <EmployeesPage />
-                  </DashboardLayout>
+                  <PageTransition>
+                    <DashboardLayout>
+                      <EmployeesPage />
+                    </DashboardLayout>
+                  </PageTransition>
                 </ProtectedRoute>
               } />
               
               <Route path="/payroll" element={
                 <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
-                    <p className="px-6">Manage employee compensation and payments.</p>
-                  </DashboardLayout>
+                  <PageTransition>
+                    <DashboardLayout>
+                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
+                      <p className="px-6">Manage employee compensation and payments.</p>
+                    </DashboardLayout>
+                  </PageTransition>
                 </ProtectedRoute>
               } />
               
               <Route path="/leave" element={
                 <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
-                    <p className="px-6">Track and approve employee time off and absences.</p>
-                  </DashboardLayout>
+                  <PageTransition>
+                    <DashboardLayout>
+                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
+                      <p className="px-6">Track and approve employee time off and absences.</p>
+                    </DashboardLayout>
+                  </PageTransition>
                 </ProtectedRoute>
               } />
               
               <Route path="/compliance" element={
                 <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
-                    <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
-                  </DashboardLayout>
+                  <PageTransition>
+                    <DashboardLayout>
+                      <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
+                      <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
+                    </DashboardLayout>
+                  </PageTransition>
                 </ProtectedRoute>
               } />
               

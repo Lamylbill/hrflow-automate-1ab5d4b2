@@ -40,15 +40,25 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
 
   const publicNavItems = [
     { name: 'Home', href: '/', icon: <Home className="h-4 w-4 mr-2" /> },
-    { name: 'Features', href: '/features', icon: <BarChart className="h-4 w-4 mr-2" /> },
-    { name: 'Pricing', href: '/pricing', icon: <FileText className="h-4 w-4 mr-2" /> },
-    { name: 'Contact', href: '/contact', icon: <Phone className="h-4 w-4 mr-2" /> },
-    { name: 'About', href: '/about', icon: <Info className="h-4 w-4 mr-2" /> },
+    { name: 'Features', href: '#features', icon: <BarChart className="h-4 w-4 mr-2" /> },
+    { name: 'Pricing', href: '#pricing', icon: <FileText className="h-4 w-4 mr-2" /> },
+    { name: 'Contact', href: '#contact', icon: <Phone className="h-4 w-4 mr-2" /> },
+    { name: 'About', href: '#about', icon: <Info className="h-4 w-4 mr-2" /> },
   ];
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
     return user.email.substring(0, 2).toUpperCase();
+  };
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    if (sectionId.startsWith('#')) {
+      e.preventDefault();
+      const element = document.getElementById(sectionId.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   return (
@@ -71,9 +81,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
 
           <div className="hidden md:flex items-center space-x-1">
             {publicNavItems.map((item) => (
-              <Link
+              <a
                 key={item.name}
-                to={item.href}
+                href={item.href}
+                onClick={(e) => scrollToSection(e, item.href)}
                 className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center",
                   location.pathname === item.href
@@ -83,7 +94,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               >
                 {item.icon}
                 {item.name}
-              </Link>
+              </a>
             ))}
           </div>
 
@@ -147,9 +158,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
           <div className="md:hidden pt-4 pb-3 border-t mt-3 animate-fade-in-up">
             <div className="flex flex-col space-y-2">
               {publicNavItems.map((item) => (
-                <Link
+                <a
                   key={item.name}
-                  to={item.href}
+                  href={item.href}
+                  onClick={(e) => scrollToSection(e, item.href)}
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
@@ -159,7 +171,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                 >
                   {item.icon}
                   {item.name}
-                </Link>
+                </a>
               ))}
               {!isAuthenticated && (
                 <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
