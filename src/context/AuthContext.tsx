@@ -34,26 +34,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Initialize auth state
   useEffect(() => {
+    let isMounted = true;
+    
     const initializeAuth = async () => {
       try {
+        if (!isMounted) return;
         setIsLoading(true);
         
         // Get current session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
-        if (currentSession) {
+        if (currentSession && isMounted) {
           setSession(currentSession);
           
           // Get current user
           const { data: { user: currentUser } } = await supabase.auth.getUser();
-          setUser(currentUser);
-          
-          console.log('Auth initialized with user:', currentUser?.id);
+          if (isMounted) {
+            setUser(currentUser);
+            console.log('Auth initialized with user:', currentUser?.id);
+          }
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -62,35 +68,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        if (!isMounted) return;
+        
         console.log('Auth state changed:', event);
         setSession(newSession);
         
         if (newSession) {
           // Get updated user data
           const { data: { user: newUser } } = await supabase.auth.getUser();
-          setUser(newUser);
-          
-          if (event === 'SIGNED_IN') {
-            toast({
-              title: "Login successful",
-              description: "Welcome to HRFlow!",
-            });
+          if (isMounted) {
+            setUser(newUser);
+            
+            if (event === 'SIGNED_IN') {
+              toast({
+                title: "Login successful",
+                description: "Welcome to HRFlow!",
+              });
+            }
           }
         } else {
-          setUser(null);
-          
-          if (event === 'SIGNED_OUT') {
-            toast({
-              title: "Logged out",
-              description: "You have been logged out successfully.",
-            });
-            navigate('/');
+          if (isMounted) {
+            setUser(null);
+            
+            if (event === 'SIGNED_OUT') {
+              toast({
+                title: "Logged out",
+                description: "You have been logged out successfully.",
+              });
+              navigate('/');
+            }
           }
         }
       }
     );
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);

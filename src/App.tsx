@@ -83,6 +83,8 @@ const App = () => {
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              
+              {/* Auth routes without PageTransition to prevent issues */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
               

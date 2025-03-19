@@ -53,7 +53,7 @@ export const signUp = async (email: string, password: string, fullName: string) 
       return { error };
     }
 
-    if (data.user?.identities?.length === 0) {
+    if (data?.user?.identities?.length === 0) {
       console.log('User already exists with this email');
       return {
         error: {
