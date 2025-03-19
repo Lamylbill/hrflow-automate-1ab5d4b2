@@ -96,24 +96,26 @@ export const DashboardSidebar = () => {
       )}>
         {!collapsed && (
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
             <span className="font-display font-bold text-lg">Flow</span>
           </Link>
         )}
         {collapsed && (
           <Link to="/dashboard" className="flex items-center justify-center">
-            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
           </Link>
         )}
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={toggleCollapse} 
-          className={cn("text-gray-500", collapsed ? "hidden" : "")}
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
+        {!collapsed && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleCollapse} 
+            className="text-white bg-hrflow-blue hover:bg-hrflow-blue/90 h-8 w-8 rounded-md"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       {/* Collapse Trigger (Only visible when collapsed) */}
@@ -122,9 +124,9 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleCollapse}
-          className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-gray-200 bg-white shadow-sm text-gray-500 z-40 flex items-center justify-center"
+          className="text-white bg-hrflow-blue hover:bg-hrflow-blue/90 h-8 w-8 rounded-md mx-auto mt-4"
         >
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-5 w-5" />
         </Button>
       )}
 
@@ -133,8 +135,8 @@ export const DashboardSidebar = () => {
         'p-4 border-b border-gray-200 flex items-center',
         collapsed ? 'justify-center' : 'gap-3'
       )}>
-        <Avatar className={cn("border-2 border-hrflow-blue/20", collapsed ? "h-8 w-8" : "h-10 w-10")}>
-          <AvatarFallback className="bg-hrflow-blue text-white">
+        <Avatar className={cn("bg-hrflow-blue", collapsed ? "h-10 w-10" : "h-12 w-12")}>
+          <AvatarFallback className="text-white font-medium">
             {getUserInitials()}
           </AvatarFallback>
         </Avatar>
@@ -161,7 +163,7 @@ export const DashboardSidebar = () => {
                   <Link
                     to={item.path}
                     className={cn(
-                      "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors my-1",
                       location.pathname === item.path 
                         ? "bg-hrflow-blue text-white" 
                         : "text-gray-700 hover:bg-hrflow-blue/10 hover:text-hrflow-blue",
@@ -228,8 +230,8 @@ export const DashboardSidebar = () => {
               <Button
                 variant="outline"
                 className={cn(
-                  "text-red-500 w-full justify-center",
-                  !collapsed && "justify-start"
+                  "text-red-500 w-full flex items-center",
+                  collapsed ? "justify-center px-2" : "justify-start"
                 )}
                 onClick={() => logout()}
               >
