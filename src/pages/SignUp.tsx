@@ -1,18 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { signUp } from '@/lib/auth';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -20,9 +20,10 @@ const SignUp = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { signup, isAuthenticated, isLoading } = useAuth();
 
-  React.useEffect(() => {
+  // Redirect if already authenticated
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
@@ -32,6 +33,7 @@ const SignUp = () => {
     e.preventDefault();
     setError(null);
 
+    // Validate inputs
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -42,10 +44,15 @@ const SignUp = () => {
       return;
     }
 
+    if (!fullName.trim()) {
+      setError("Please enter your full name");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { data, error } = await signUp(email, password);
+      const { error } = await signup(email, password, fullName);
       
       if (error) {
         setError(error.message);
@@ -55,8 +62,9 @@ const SignUp = () => {
           variant: "destructive",
         });
       } else {
-        // Clear form fields on success
+        // Clear form fields
         setEmail('');
+        setFullName('');
         setPassword('');
         setConfirmPassword('');
         
@@ -66,12 +74,11 @@ const SignUp = () => {
           description: "Please log in with your new account.",
         });
         
-        // Redirect to login page as specified in the flow
+        // Redirect to login page
         navigate('/login');
       }
     } catch (err) {
       setError('An unexpected error occurred');
-      console.error('Signup error:', err);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -86,17 +93,22 @@ const SignUp = () => {
     setShowPassword(!showPassword);
   };
 
-  const buttonStyleOverride = {
-    color: 'white',
-    backgroundColor: '#2563EB',
-    fontWeight: 800,
-    textShadow: '0 1px 3px rgba(0,0,0,0.7)',
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase' as const,
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: 'none',
-    padding: '10px 16px',
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+          <div className="flex-1 space-y-4 py-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -122,6 +134,24 @@ const SignUp = () => {
               )}
 
               <form onSubmit={handleSignUp} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="John Doe"
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -193,7 +223,6 @@ const SignUp = () => {
                   variant="primary"
                   className="w-full text-white bg-hrflow-blue uppercase font-extrabold tracking-wide"
                   disabled={loading}
-                  style={buttonStyleOverride}
                 >
                   {loading ? 'Creating account...' : 'Sign up'} 
                   {!loading && <ArrowRight className="ml-2 h-4 w-4" />}

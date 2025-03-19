@@ -6,7 +6,6 @@ import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { signIn, checkAuthStatus } from '@/lib/auth';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
@@ -18,34 +17,14 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated, clearUserData, refreshSession } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
 
-  // Check if user is already authenticated
+  // Redirect if already authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Run a comprehensive auth check
-        const { isAuthenticated } = await checkAuthStatus();
-        
-        if (isAuthenticated) {
-          console.log('User already has a valid session, redirecting to dashboard');
-          navigate('/dashboard');
-        } else {
-          console.log('No valid session found, staying on login page');
-          // Clear any stale data that might be in localStorage
-          clearUserData();
-        }
-      } catch (err) {
-        console.error('Error checking authentication:', err);
-      }
-    };
-
     if (isAuthenticated) {
       navigate('/dashboard');
-    } else {
-      checkAuth();
     }
-  }, [isAuthenticated, navigate, clearUserData]);
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,69 +32,35 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // Clear any existing data to ensure a clean state
-      clearUserData();
-      
-      console.log('Starting login process with email:', email);
-      
-      // Call to Supabase auth
-      const { data, error } = await signIn(email, password);
+      const { error } = await login(email, password);
       
       if (error) {
-        console.error('Login error:', error);
-        let errorMessage = error.message;
-        
-        // Provide more user-friendly error messages
-        if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Incorrect email or password. Please try again.';
-        } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Please confirm your email before logging in. Check your inbox for a confirmation email.';
-        }
-        
-        setError(errorMessage);
+        setError(error.message);
         toast({
           title: "Login failed",
-          description: errorMessage,
+          description: error.message,
           variant: "destructive",
         });
-        setLoading(false);
-      } else if (data && data.session) {
-        console.log('Login successful, session established');
+      } else {
+        // Clear form
+        setEmail('');
+        setPassword('');
         
-        // Notify user of successful login before navigation
-        toast({
-          title: "Login successful",
-          description: "Welcome back to HRFlow!",
-        });
+        // Success toast is shown in the AuthContext
         
-        // Force session refresh and redirect
-        await refreshSession();
-        console.log('Session refreshed, redirecting to dashboard');
-        
-        // Set a small timeout to ensure toast is shown before navigation
+        // Navigate after a short delay to ensure state updates
         setTimeout(() => {
           navigate('/dashboard');
-          setLoading(false);
-        }, 300);
-      } else {
-        // This case handles when there's no error but also no valid session
-        console.error('No session established after login');
-        setError('Authentication failed. Please try again.');
-        toast({
-          title: "Login failed",
-          description: "Authentication failed. Please try again.",
-          variant: "destructive",
-        });
-        setLoading(false);
+        }, 500);
       }
     } catch (err) {
-      console.error('Unexpected login error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred');
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setLoading(false);
     }
   };
@@ -125,31 +70,22 @@ const Login = () => {
     setPassword('demopassword');
   };
 
-  // Fixed TypeScript issue with textTransform
-  const buttonStyleOverride = {
-    color: 'white',
-    backgroundColor: '#2563EB',
-    fontWeight: 800,
-    textShadow: '0 1px 3px rgba(0,0,0,0.7)',
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase' as const,
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: 'none',
-    padding: '10px 16px',
-  };
-
-  // Fixed TypeScript issue with textTransform
-  const outlineButtonStyleOverride = {
-    color: '#2563EB',
-    backgroundColor: 'transparent',
-    fontWeight: 800,
-    textShadow: 'none',
-    letterSpacing: '0.5px',
-    textTransform: 'uppercase' as const,
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-    border: '2px solid #2563EB',
-    padding: '10px 16px',
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+          <div className="flex-1 space-y-4 py-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -219,7 +155,6 @@ const Login = () => {
                 <Button
                   type="submit"
                   className="w-full bg-hrflow-blue text-white uppercase font-extrabold tracking-wide"
-                  variant="premium"
                   disabled={loading}
                 >
                   {loading ? 'LOGGING IN...' : 'LOG IN'} 

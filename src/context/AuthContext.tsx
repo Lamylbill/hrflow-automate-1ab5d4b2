@@ -1,29 +1,28 @@
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { Session, User } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
+import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { checkAuthStatus } from '@/lib/auth';
 
-type AuthContextType = {
+interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<{ error?: { message: string } }>;
+  signup: (email: string, password: string, fullName: string) => Promise<{ error?: { message: string } }>;
   logout: () => Promise<void>;
-  clearUserData: () => void;
-  refreshSession: () => Promise<void>;
-};
+}
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isLoading: true,
   isAuthenticated: false,
+  login: async () => ({}),
+  signup: async () => ({}),
   logout: async () => {},
-  clearUserData: () => {},
-  refreshSession: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -33,213 +32,147 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Function to manually refresh auth state
-  const refreshSession = async () => {
-    try {
-      setIsLoading(true);
-      console.log('Manually refreshing session...');
-      
-      // Get the current session directly from Supabase
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (currentSession) {
-        console.log('Session found during refresh:', currentSession.user.id);
-        setSession(currentSession);
-        
-        // Also get user data
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        
-        if (currentUser) {
-          console.log('User data retrieved during refresh:', currentUser.id);
-          setUser(currentUser);
-        } else {
-          console.log('No user data found despite having session');
-          setUser(null);
-        }
-      } else {
-        console.log('No valid session found during refresh');
-        setSession(null);
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Error refreshing session:', error);
-      // On error, force a clean state
-      setSession(null);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Enhanced function to clear local user data
-  const clearUserData = () => {
-    console.log('Clearing user data...');
-    
-    // Clear app-specific data
-    localStorage.removeItem('hrflow-user-settings');
-    sessionStorage.removeItem('hrflow-temp-data');
-    
-    // Clear any data with hrflow prefix
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('hrflow-')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    Object.keys(sessionStorage).forEach(key => {
-      if (key.startsWith('hrflow-')) {
-        sessionStorage.removeItem(key);
-      }
-    });
-    
-    // Clear any employee-related data
-    localStorage.removeItem('employeeList');
-    localStorage.removeItem('employeeFilters');
-    localStorage.removeItem('lastEmployeeView');
-    
-    // Clear any other app-specific caches
-    try {
-      const cacheKeys = Object.keys(localStorage)
-        .concat(Object.keys(sessionStorage))
-        .filter(key => 
-          key.includes('cache') || 
-          key.includes('temp') || 
-          key.includes('data') ||
-          key.includes('employee')
-        );
-      
-      cacheKeys.forEach(key => {
-        if (localStorage.getItem(key)) localStorage.removeItem(key);
-        if (sessionStorage.getItem(key)) sessionStorage.removeItem(key);
-      });
-    } catch (error) {
-      console.error('Error clearing cached data:', error);
-    }
-    
-    console.log('User data cleared successfully');
-  };
-
+  // Initialize auth state
   useEffect(() => {
-    const setupAuth = async () => {
+    const initializeAuth = async () => {
       try {
-        console.log('Setting up auth state...');
         setIsLoading(true);
         
-        // Get initial session
+        // Get current session
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         
         if (currentSession) {
-          console.log('Initial session found with user ID:', currentSession.user.id);
           setSession(currentSession);
           
+          // Get current user
           const { data: { user: currentUser } } = await supabase.auth.getUser();
-          if (currentUser) {
-            console.log('User data retrieved for ID:', currentUser.id);
-            setUser(currentUser);
-          } else {
-            console.log('No user data found despite having session');
-            setUser(null);
-          }
-        } else {
-          console.log('No initial session found');
-          setSession(null);
-          setUser(null);
+          setUser(currentUser);
+          
+          console.log('Auth initialized with user:', currentUser?.id);
         }
       } catch (error) {
-        console.error('Error loading auth:', error);
-        setSession(null);
-        setUser(null);
+        console.error('Error initializing auth:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    setupAuth();
+    initializeAuth();
 
-    // Set up auth state listener with improved error handling and immediate updates
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         console.log('Auth state changed:', event);
-        
-        // Force the isLoading state for better UX
-        setIsLoading(true);
+        setSession(newSession);
         
         if (newSession) {
-          console.log('New session established for user:', newSession.user.id);
-          setSession(newSession);
+          // Get updated user data
+          const { data: { user: newUser } } = await supabase.auth.getUser();
+          setUser(newUser);
           
-          try {
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (currentUser) {
-              console.log('User data retrieved after auth state change:', currentUser.id);
-              setUser(currentUser);
-              
-              // If new sign-in, show welcome toast
-              if (event === 'SIGNED_IN') {
-                toast({
-                  title: "Welcome back!",
-                  description: "You have been successfully logged in.",
-                });
-              }
-            } else {
-              console.log('No user data found despite having new session');
-              setUser(null);
-            }
-          } catch (error) {
-            console.error('Error getting user after auth state change:', error);
-            setUser(null);
+          if (event === 'SIGNED_IN') {
+            toast({
+              title: "Login successful",
+              description: "Welcome to HRFlow!",
+            });
           }
         } else {
-          console.log('No session after auth state change');
           setUser(null);
-          setSession(null);
           
-          // If signed out, show message and redirect
           if (event === 'SIGNED_OUT') {
+            toast({
+              title: "Logged out",
+              description: "You have been logged out successfully.",
+            });
             navigate('/');
           }
         }
-        
-        setIsLoading(false);
       }
     );
 
     return () => {
-      console.log('Cleaning up auth listener');
-      authListener?.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, [navigate, toast]);
 
+  const login = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error.message);
+        return { error };
+      }
+
+      // Update state immediately for better UX
+      setUser(data.user);
+      setSession(data.session);
+      
+      return {};
+    } catch (error) {
+      console.error('Unexpected login error:', error);
+      return { 
+        error: { 
+          message: 'An unexpected error occurred during login',
+        } 
+      };
+    }
+  };
+
+  const signup = async (email: string, password: string, fullName: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Signup error:', error.message);
+        return { error };
+      }
+
+      if (data.user?.identities?.length === 0) {
+        return {
+          error: {
+            message: 'An account with this email already exists. Please log in instead.',
+          }
+        };
+      }
+
+      toast({
+        title: "Account created",
+        description: "Your account has been created successfully. Please log in.",
+      });
+      
+      return {};
+    } catch (error) {
+      console.error('Unexpected signup error:', error);
+      return { 
+        error: { 
+          message: 'An unexpected error occurred during signup',
+        } 
+      };
+    }
+  };
+
   const logout = async () => {
     try {
-      // First clear user data to prevent stale state
-      clearUserData();
-      
-      console.log('Attempting to sign out...');
       setIsLoading(true);
-      
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('Error during logout:', error);
-        toast({
-          title: "Logout failed",
-          description: "There was an error logging you out. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        console.log('Logout successful');
-        setUser(null);
-        setSession(null);
-        
-        toast({
-          title: "Logged out successfully",
-          description: "You have been logged out of your account.",
-        });
-        navigate('/');
-      }
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      navigate('/');
     } catch (error) {
-      console.error('Unexpected error during logout:', error);
+      console.error('Error during logout:', error);
       toast({
         title: "Logout failed",
         description: "There was an error logging you out. Please try again.",
@@ -257,9 +190,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         isLoading,
         isAuthenticated: !!user && !!session,
+        login,
+        signup,
         logout,
-        clearUserData,
-        refreshSession,
       }}
     >
       {children}
