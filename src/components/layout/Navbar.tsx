@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -28,7 +27,6 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-// Define the ListItem component outside of the Navbar component with correct typing
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { title: React.ReactNode }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Users, Clock, Calendar, BarChart, ShieldCheck, Briefcase, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -10,7 +10,10 @@ import { Navbar } from '@/components/layout/Navbar';
 const Index = () => {
   const { isAuthenticated } = useAuth();
 
-  // Features section data
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const features = [
     {
       icon: <Users className="h-10 w-10 text-hrflow-blue" />,
@@ -46,10 +49,8 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Explicitly include Navbar component */}
-      <Navbar />
+      <Navbar showLogo={true} />
       
-      {/* Hero Section */}
       <section className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 bg-gradient-to-br from-white via-gray-50 to-blue-50">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -101,7 +102,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features" className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-6xl">
           <AnimatedSection>
@@ -131,7 +131,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="py-20 px-6 bg-gray-50 border-t border-b border-gray-100">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -181,7 +180,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-24 px-6 bg-white">
         <div className="container mx-auto max-w-5xl">
           <AnimatedSection>
@@ -204,7 +202,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-12 px-6 bg-gray-50 border-t border-gray-200">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
