@@ -33,9 +33,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
-import { getCurrentUser } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
 
-// Employee Type Definition
+// Placeholder Employee Type Definition for future implementation
 interface Employee {
   id: string;
   full_name: string;
@@ -61,6 +61,7 @@ const EmployeesPage = () => {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   // Fetch employees from Supabase
   useEffect(() => {
@@ -69,8 +70,6 @@ const EmployeesPage = () => {
         setIsLoading(true);
         setError(null);
         
-        // Get current user
-        const user = await getCurrentUser();
         if (!user) {
           console.error('No authenticated user found');
           setError('You must be logged in to view employees');
@@ -78,29 +77,13 @@ const EmployeesPage = () => {
           return;
         }
         
-        console.log('Fetching employees for user:', user.id);
+        console.log('User is authenticated, but employees functionality is not yet implemented');
         
-        const { data, error } = await supabase
-          .from('employees')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('full_name', { ascending: true });
+        // Placeholder until employee tables are created
+        setEmployees([]);
         
-        if (error) {
-          console.error('Error fetching employees:', error);
-          setError('Failed to load employees. Please try again.');
-          toast({
-            title: "Error",
-            description: "Failed to load employees",
-            variant: "destructive",
-          });
-        } else {
-          console.log('Fetched employees:', data?.length || 0);
-          // Type assertion to match the Employee interface
-          setEmployees(data as Employee[] || []);
-        }
       } catch (err) {
-        console.error('Unexpected error fetching employees:', err);
+        console.error('Unexpected error:', err);
         setError('An unexpected error occurred. Please try again.');
       } finally {
         setIsLoading(false);
@@ -108,15 +91,15 @@ const EmployeesPage = () => {
     };
     
     fetchEmployees();
-  }, [toast]);
+  }, [toast, user]);
   
-  // Extract unique departments
+  // Extract unique departments (placeholder)
   const departments = Array.from(new Set(employees.map(emp => emp.department)));
   
-  // Extract unique statuses
+  // Extract unique statuses (placeholder)
   const statuses = Array.from(new Set(employees.map(emp => emp.status).filter(Boolean) as string[]));
   
-  // Filter employees based on search term and filters
+  // Filter employees based on search term and filters (placeholder)
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = searchTerm === '' || 
       employee.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -351,9 +334,15 @@ const EmployeesPage = () => {
                 ) : filteredEmployees.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center">
-                      {searchTerm || selectedDepartments.length > 0 || selectedStatuses.length > 0 ? 
-                        "No employees match your search criteria." : 
-                        "No employees found. Add your first employee using the 'Add Employee' button."}
+                      <div className="flex flex-col items-center justify-center py-8">
+                        <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-1">Employee Management Coming Soon</h3>
+                        <p className="text-gray-600 max-w-md text-center mb-4">
+                          The employee management feature is currently under development. 
+                          Check back soon to add and manage your organization's employees.
+                        </p>
+                        <Button variant="outline">Back to Dashboard</Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ) : (

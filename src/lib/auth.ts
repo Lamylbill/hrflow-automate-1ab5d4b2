@@ -117,6 +117,18 @@ export const getUser = async () => {
 };
 
 /**
+ * Gets the current authenticated user - helper function for components
+ */
+export const getCurrentUser = async () => {
+  const { data, error } = await getUser();
+  if (error || !data) {
+    console.error('Error getting current user:', error?.message);
+    return null;
+  }
+  return data;
+};
+
+/**
  * Signs out the current user
  */
 export const signOut = async () => {

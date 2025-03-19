@@ -26,32 +26,33 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Fetch actual employee count when user is authenticated
+  // Temporary display of user profile until employee tables are created
   useEffect(() => {
-    const fetchEmployeeCount = async () => {
+    const fetchUserProfile = async () => {
       if (user) {
         try {
-          console.log('Fetching employees for user:', user.id);
+          console.log('Fetching profile for user:', user.id);
           const { data, error, count } = await supabase
-            .from('employees')
+            .from('profiles')
             .select('*', { count: 'exact' })
-            .eq('user_id', user.id);
+            .eq('id', user.id);
             
           if (error) {
-            console.error('Error fetching employees:', error);
+            console.error('Error fetching profile:', error);
           } else {
-            console.log('Fetched employees:', count);
-            setEmployeeCount(count || 0);
+            console.log('Fetched profile:', data);
+            // For now, we'll just set employee count to 0 or 1 for demo
+            setEmployeeCount(0);
           }
         } catch (error) {
-          console.error('Error in employee count fetch:', error);
+          console.error('Error in profile fetch:', error);
         } finally {
           setIsDataLoading(false);
         }
       }
     };
     
-    fetchEmployeeCount();
+    fetchUserProfile();
   }, [user]);
 
   if (isLoading) {
