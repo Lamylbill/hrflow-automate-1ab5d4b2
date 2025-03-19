@@ -18,14 +18,53 @@ import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Sidebar Navigation Item component
+const SidebarNavItem = ({ 
+  item, 
+  collapsed, 
+  isActive 
+}: { 
+  item: { name: string; path: string; icon: React.ReactNode }; 
+  collapsed: boolean; 
+  isActive: boolean 
+}) => {
+  return (
+    <Tooltip disableHoverableContent={!collapsed}>
+      <TooltipTrigger asChild>
+        <Link
+          to={item.path}
+          className={cn(
+            "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors my-1",
+            isActive 
+              ? "bg-hrflow-blue text-white" 
+              : "text-gray-700 hover:bg-hrflow-blue/10 hover:text-hrflow-blue",
+            collapsed ? "justify-center" : ""
+          )}
+        >
+          <div className={cn("flex-shrink-0", collapsed ? "" : "mr-3")}>
+            {item.icon}
+          </div>
+          {!collapsed && <span className="truncate">{item.name}</span>}
+        </Link>
+      </TooltipTrigger>
+      <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
+        {item.name}
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
+// Main DashboardSidebar component
 export const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const { user, logout } = useAuth();
   const location = useLocation();
 
   // Auto-collapse on smaller screens
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
       // Automatically collapse sidebar on smaller screens
@@ -46,10 +85,12 @@ export const DashboardSidebar = () => {
 
   // Update CSS variable whenever collapsed state changes
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      '--sidebar-width', 
-      collapsed ? '70px' : '250px'
-    );
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty(
+        '--sidebar-width', 
+        collapsed ? '70px' : '250px'
+      );
+    }
   }, [collapsed]);
 
   const navigationItems = [
@@ -158,28 +199,12 @@ export const DashboardSidebar = () => {
         <nav className={cn("space-y-1 px-2", collapsed ? "items-center" : "")}>
           <TooltipProvider delayDuration={0}>
             {navigationItems.map((item) => (
-              <Tooltip key={item.path} disableHoverableContent={!collapsed}>
-                <TooltipTrigger asChild>
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors my-1",
-                      location.pathname === item.path 
-                        ? "bg-hrflow-blue text-white" 
-                        : "text-gray-700 hover:bg-hrflow-blue/10 hover:text-hrflow-blue",
-                      collapsed ? "justify-center" : ""
-                    )}
-                  >
-                    <div className={cn("flex-shrink-0", collapsed ? "" : "mr-3")}>
-                      {item.icon}
-                    </div>
-                    {!collapsed && <span className="truncate">{item.name}</span>}
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
-                  {item.name}
-                </TooltipContent>
-              </Tooltip>
+              <SidebarNavItem 
+                key={item.path} 
+                item={item} 
+                collapsed={collapsed} 
+                isActive={location.pathname === item.path}
+              />
             ))}
           </TooltipProvider>
 
@@ -254,6 +279,8 @@ export const useSidebarWidth = () => {
   const [collapsed, setCollapsed] = useState(false);
   
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setCollapsed(true);

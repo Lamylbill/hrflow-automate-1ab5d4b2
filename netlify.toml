@@ -1,0 +1,18 @@
+
+# Netlify configuration file
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Handle SPA routing by redirecting all paths to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Set Cache-Control headers for assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
