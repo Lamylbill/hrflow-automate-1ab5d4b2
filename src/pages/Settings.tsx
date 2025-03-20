@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +17,7 @@ interface SettingsProps {
 }
 
 const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
-  const { user, updateUserProfile } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -83,7 +82,9 @@ const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
       setIsSaving(true);
       
       // Update profile data first
-      const { error: updateError } = await updateUserProfile({ full_name: fullName });
+      const { data, error: updateError } = await supabase.auth.updateUser({
+        data: { full_name: fullName }
+      });
       
       if (updateError) {
         toast({
@@ -380,7 +381,8 @@ const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
                   </div>
                   <Switch 
                     checked={emailNotifications} 
-                    onCheckedChange={setEmailNotifications} 
+                    onCheckedChange={setEmailNotifications}
+                    className="data-[state=checked]:bg-blue-600"
                   />
                 </div>
                 
@@ -391,7 +393,8 @@ const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
                   </div>
                   <Switch 
                     checked={smsNotifications} 
-                    onCheckedChange={setSmsNotifications} 
+                    onCheckedChange={setSmsNotifications}
+                    className="data-[state=checked]:bg-blue-600" 
                   />
                 </div>
                 
@@ -402,13 +405,14 @@ const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
                   </div>
                   <Switch 
                     checked={pushNotifications} 
-                    onCheckedChange={setPushNotifications} 
+                    onCheckedChange={setPushNotifications}
+                    className="data-[state=checked]:bg-blue-600"
                   />
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end">
                 <Button 
-                  className="bg-hrflow-blue text-white hover:bg-blue-700"
+                  className="bg-blue-600 text-white hover:bg-blue-700 font-bold"
                 >
                   Save Preferences
                 </Button>

@@ -140,12 +140,35 @@
     font-weight: 800 !important;
   }
   
+  /* Quick Actions buttons should not have all-caps text */
+  button[class*="normal-case"],
+  .normal-case {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+  }
+  
   /* When hovering outline button, force white text */
   button[data-variant="outline"]:hover:not(:disabled),
   [data-variant="outline"]:hover:not(:disabled) {
     color: white !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
     background-color: #2563EB !important;
+  }
+
+  /* Make switches more visible */
+  button[role="switch"],
+  [role="switch"] {
+    min-width: initial !important;
+    min-height: initial !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    background-color: #d1d5db !important; /* gray-300 */
+    box-shadow: none !important;
+  }
+
+  button[role="switch"][data-state="checked"],
+  [role="switch"][data-state="checked"] {
+    background-color: #2563EB !important; /* Blue-600 */
   }
 
   /* Premium buttons with strongest visibility */
@@ -165,6 +188,12 @@
     color: white !important;
     text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
     font-weight: 800 !important;
+  }
+  
+  /* Make date display non-clickable */
+  .non-clickable {
+    pointer-events: none;
+    cursor: default;
   }
 }
 
@@ -319,4 +348,13 @@ button.h-10.w-10 {
 .bg-gray-100 button,
 .glass-card button {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Fix for Quick Actions buttons to ensure proper text display */
+.justify-between {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  text-align: left !important;
 }

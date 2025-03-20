@@ -79,8 +79,30 @@ const Dashboard = () => {
     { title: "View Reports", icon: <BarChart3 className="flex-shrink-0" />, path: "/compliance" },
   ];
 
+  // Add a new component for the fixed date-time bar
+  const DateTimeBar = () => {
+    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+    
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentTime(new Date().toLocaleTimeString());
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }, []);
+    
+    return (
+      <div className="fixed top-0 right-0 z-50 flex items-center mr-6 mt-4">
+        <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-md text-sm font-medium">
+          {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} | {currentTime}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div className="flex-1 flex flex-col">
+      <DateTimeBar />
       <div className="min-h-screen pt-6 pb-12 px-6">
         <div className="max-w-7xl mx-auto">
           {/* Welcome Header */}
@@ -94,9 +116,10 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <Button variant="outline" size="sm" className="mr-2">
-                    <Clock className="mr-2 h-4 w-4" /> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </Button>
+                  <span className="inline-block bg-gray-100 text-gray-700 py-2 px-3 rounded-md mr-2">
+                    <Clock className="inline-block mr-2 h-4 w-4" /> 
+                    {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
                   <Button variant="primary" size="sm">
                     <BarChart className="mr-2 h-4 w-4" /> View Reports
                   </Button>
@@ -265,14 +288,14 @@ const Dashboard = () => {
                         <Button 
                           key={index} 
                           variant="outline" 
-                          className="justify-start text-gray-700 h-auto py-2 px-3"
+                          className="justify-between text-blue-600 h-auto py-3 px-4 font-semibold normal-case"
                           onClick={() => action.path && navigate(action.path)}
                         >
-                          <div className="flex items-center w-full">
-                            <span className="mr-2">{action.icon}</span>
-                            <span className="truncate">{action.title}</span>
-                            <ChevronRight className="ml-auto h-4 w-4" />
+                          <div className="flex items-center">
+                            <span className="mr-3 text-blue-500">{action.icon}</span>
+                            <span className="text-blue-600">{action.title}</span>
                           </div>
+                          <ChevronRight className="ml-2 h-5 w-5 text-blue-500" />
                         </Button>
                       ))}
                     </div>
