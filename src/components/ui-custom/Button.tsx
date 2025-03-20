@@ -28,7 +28,7 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "premium",
+      variant: "primary",
       size: "default",
     },
   }
@@ -40,7 +40,7 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-// Simplified custom Button component with better visibility for Quick Actions
+// Button component with consistent styling for all buttons
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, children, style, ...props }, ref) => {
     // Default placeholder text if no children provided
@@ -68,7 +68,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <ShadcnButton
         className={buttonClassName}
         ref={ref}
-        data-variant={variant || "premium"}
+        data-variant={variant || "primary"}
         style={buttonStyle}
         {...props}
       >

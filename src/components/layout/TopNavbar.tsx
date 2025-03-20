@@ -56,7 +56,7 @@ export const TopNavbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center gap-2">
-                <span className="font-display font-bold text-xl text-blue-600">HR Flow</span>
+                <span className="font-display font-bold text-xl text-hrflow-blue">HR Flow</span>
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
@@ -67,8 +67,8 @@ export const TopNavbar = () => {
                   className={cn(
                     "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md",
                     location.pathname === item.path
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-hrflow-blue text-white"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-hrflow-blue"
                   )}
                 >
                   {item.icon}
@@ -78,7 +78,7 @@ export const TopNavbar = () => {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-            <NotificationBell className="text-gray-500 hover:text-gray-700" />
+            <NotificationBell className="text-hrflow-blue hover:text-hrflow-blue-light" />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -87,7 +87,7 @@ export const TopNavbar = () => {
                     {avatarImageUrl ? (
                       <AvatarImage src={avatarImageUrl} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="bg-blue-600 text-white">
+                      <AvatarFallback className="bg-hrflow-blue text-white">
                         {getUserInitials()}
                       </AvatarFallback>
                     )}

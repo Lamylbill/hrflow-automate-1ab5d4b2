@@ -42,301 +42,48 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger, 
+  DialogFooter 
+} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateEmployeeTemplate, generateExcel } from '@/utils/excelUtils';
 import { NotificationBell } from '@/components/ui-custom/NotificationBell';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
-
-// Employee Type Definition based on our database structure
-interface Employee {
-  id: string;
-  user_id: string;
-  full_name: string;
-  profile_picture?: string | null;
-  job_title?: string | null;
-  department?: string | null;
-  email: string;
-  phone_number?: string | null;
-  date_of_hire?: string | null;
-  employment_type?: string | null;
-  employment_status?: string | null;
-  date_of_exit?: string | null;
-  employee_code?: string | null;
-  gender?: string | null;
-  nationality?: string | null;
-  date_of_birth?: string | null;
-  reporting_manager?: string | null;
-  home_address?: string | null;
-  postal_code?: string | null;
-  emergency_contact_name?: string | null;
-  emergency_contact_phone?: string | null;
-  salary?: number | null;
-  bank_name?: string | null;
-  bank_account_number?: string | null;
-  cpf_contribution?: boolean | null;
-  cpf_account_number?: string | null;
-  tax_identification_number?: string | null;
-  leave_entitlement?: number | null;
-  leave_balance?: number | null;
-  medical_entitlement?: number | null;
-  benefits_enrolled?: string[] | null;
-  work_permit_number?: string | null;
-  work_pass_expiry_date?: string | null;
-  contract_signed?: boolean | null;
-  probation_status?: string | null;
-  last_performance_review?: string | null;
-  performance_score?: number | null;
-  notes?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// View mode type
-type ViewMode = 'list' | 'card';
-
-// Employee Details Modal Component
-const EmployeeDetailsModal = ({ employee }: { employee: Employee }) => {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="px-2">
-          <Eye className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-xl flex items-center gap-3">
-            <Avatar className="h-10 w-10 border">
-              <AvatarImage src={employee.profile_picture || undefined} />
-              <AvatarFallback className="bg-gray-200 text-gray-700">
-                {employee.full_name?.split(' ').map(n => n?.[0]).join('') || '?'}
-              </AvatarFallback>
-            </Avatar>
-            <span>{employee.full_name}</span>
-            <Badge className="ml-2" variant={
-              employee.employment_status === 'Active' ? 'success' :
-              employee.employment_status === 'On Leave' ? 'warning' :
-              employee.employment_status === 'Resigned' ? 'destructive' : 'outline'
-            }>
-              {employee.employment_status || 'Unknown'}
-            </Badge>
-          </DialogTitle>
-        </DialogHeader>
-        
-        <Tabs defaultValue="personal" className="flex-1 overflow-hidden">
-          <TabsList className="w-full justify-start border-b px-1">
-            <TabsTrigger value="personal">Personal Details</TabsTrigger>
-            <TabsTrigger value="employment">Employment</TabsTrigger>
-            <TabsTrigger value="contact">Contact & Address</TabsTrigger>
-            <TabsTrigger value="payroll">Payroll & Financial</TabsTrigger>
-            <TabsTrigger value="leave">Leave & Benefits</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance & HR</TabsTrigger>
-            <TabsTrigger value="performance">Performance & Notes</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-          </TabsList>
-          
-          <ScrollArea className="flex-1 p-4">
-            <TabsContent value="personal" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Full Name</h3>
-                  <p>{employee.full_name || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Gender</h3>
-                  <p>{employee.gender || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Date of Birth</h3>
-                  <p>{employee.date_of_birth ? new Date(employee.date_of_birth).toLocaleDateString() : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Nationality</h3>
-                  <p>{employee.nationality || 'Not available'}</p>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="employment" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Job Title</h3>
-                  <p>{employee.job_title || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Department</h3>
-                  <p>{employee.department || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Employee Code</h3>
-                  <p>{employee.employee_code || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Employment Type</h3>
-                  <p>{employee.employment_type || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Employment Status</h3>
-                  <p>{employee.employment_status || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Date of Hire</h3>
-                  <p>{employee.date_of_hire ? new Date(employee.date_of_hire).toLocaleDateString() : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Date of Exit</h3>
-                  <p>{employee.date_of_exit ? new Date(employee.date_of_exit).toLocaleDateString() : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Reporting Manager</h3>
-                  <p>Not available</p>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="contact" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                  <p>{employee.email || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Phone Number</h3>
-                  <p>{employee.phone_number || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Home Address</h3>
-                  <p>{employee.home_address || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Postal Code</h3>
-                  <p>{employee.postal_code || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Emergency Contact</h3>
-                  <p>{employee.emergency_contact_name || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Emergency Contact Phone</h3>
-                  <p>{employee.emergency_contact_phone || 'Not available'}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="payroll" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Salary</h3>
-                  <p>{employee.salary ? `$${employee.salary.toLocaleString()}` : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Bank Name</h3>
-                  <p>{employee.bank_name || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Bank Account Number</h3>
-                  <p>{employee.bank_account_number || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">CPF Contribution</h3>
-                  <p>{employee.cpf_contribution !== undefined ? (employee.cpf_contribution ? 'Yes' : 'No') : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">CPF Account Number</h3>
-                  <p>{employee.cpf_account_number || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Tax Identification Number</h3>
-                  <p>{employee.tax_identification_number || 'Not available'}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="leave" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Leave Entitlement</h3>
-                  <p>{employee.leave_entitlement !== undefined ? `${employee.leave_entitlement} days` : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Leave Balance</h3>
-                  <p>{employee.leave_balance !== undefined ? `${employee.leave_balance} days` : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Medical Entitlement</h3>
-                  <p>{employee.medical_entitlement !== undefined ? `${employee.medical_entitlement} days` : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Benefits Enrolled</h3>
-                  <p>{employee.benefits_enrolled?.length ? employee.benefits_enrolled.join(', ') : 'None'}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="compliance" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Work Permit Number</h3>
-                  <p>{employee.work_permit_number || 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Work Pass Expiry Date</h3>
-                  <p>{employee.work_pass_expiry_date ? new Date(employee.work_pass_expiry_date).toLocaleDateString() : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Contract Signed</h3>
-                  <p>{employee.contract_signed !== undefined ? (employee.contract_signed ? 'Yes' : 'No') : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Probation Status</h3>
-                  <p>{employee.probation_status || 'Not available'}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="performance" className="mt-0">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Last Performance Review</h3>
-                  <p>{employee.last_performance_review ? new Date(employee.last_performance_review).toLocaleDateString() : 'Not available'}</p>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">Performance Score</h3>
-                  <p>{employee.performance_score !== undefined ? `${employee.performance_score}/10` : 'Not available'}</p>
-                </div>
-                <div className="space-y-1 col-span-2">
-                  <h3 className="text-sm font-medium text-gray-500">Notes</h3>
-                  <p className="whitespace-pre-line">{employee.notes || 'No notes available'}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="documents" className="mt-0">
-              <div className="text-center py-8">
-                <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-1">Document Management Coming Soon</h3>
-                <p className="text-gray-600 max-w-md mx-auto mb-4">
-                  The document management feature for employees is currently under development.
-                  Check back soon to upload and manage employee documents.
-                </p>
-              </div>
-            </TabsContent>
-          </ScrollArea>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
-  );
-};
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetDescription, 
+  SheetHeader, 
+  SheetTitle, 
+  SheetTrigger, 
+  SheetFooter 
+} from '@/components/ui/sheet';
+import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
+import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
+import { Employee } from '@/types/employee';
 
 // Employee Card Component for Card View
-const EmployeeCard = ({ employee }: { employee: Employee }) => {
+const EmployeeCard = ({ 
+  employee,
+  onViewDetails,
+  onEdit,
+  onDelete
+}: { 
+  employee: Employee,
+  onViewDetails: (employee: Employee) => void,
+  onEdit: (employee: Employee) => void,
+  onDelete: (employee: Employee) => void
+}) => {
   return (
     <div className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow">
       <div className="flex items-center mb-3">
         <Avatar className="h-12 w-12 border">
           <AvatarImage src={employee.profile_picture || undefined} />
-          <AvatarFallback className="bg-gray-200 text-gray-700">
+          <AvatarFallback className="bg-hrflow-blue text-white">
             {employee.full_name?.split(' ').map(n => n?.[0]).join('') || '?'}
           </AvatarFallback>
         </Avatar>
@@ -365,11 +112,28 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
       </div>
       
       <div className="flex justify-end gap-1 border-t pt-2">
-        <EmployeeDetailsModal employee={employee} />
-        <Button variant="ghost" size="sm" className="px-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="px-2"
+          onClick={() => onViewDetails(employee)}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="px-2"
+          onClick={() => onEdit(employee)}
+        >
           <Edit className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="px-2 text-red-500 hover:text-red-700">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="px-2 text-red-500 hover:text-red-700"
+          onClick={() => onDelete(employee)}
+        >
           <Trash className="h-4 w-4" />
         </Button>
       </div>
@@ -546,6 +310,7 @@ const ImportEmployeesDialog = ({ onImportSuccess }: { onImportSuccess?: () => vo
   );
 };
 
+// Main Employees Page Component
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -553,7 +318,9 @@ const EmployeesPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
+  const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -704,6 +471,45 @@ const EmployeesPage = () => {
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'list' ? 'card' : 'list');
   };
+
+  const handleAddEmployee = () => {
+    setSelectedEmployee(null);
+    setIsAddEmployeeOpen(true);
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsAddEmployeeOpen(true);
+  };
+
+  const handleDeleteEmployee = async (employee: Employee) => {
+    try {
+      const { error } = await supabase
+        .from('employees')
+        .delete()
+        .eq('id', employee.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Employee Deleted",
+        description: `${employee.full_name} has been removed from the system.`
+      });
+
+      fetchEmployees();
+    } catch (error: any) {
+      console.error("Error deleting employee:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete employee",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleViewDetails = (employee: Employee) => {
+    setSelectedEmployee(employee);
+  };
   
   return (
     <div className="px-4 sm:px-6 py-6">
@@ -711,7 +517,7 @@ const EmployeesPage = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
-            <NotificationBell />
+            <NotificationBell className="text-hrflow-blue hover:text-hrflow-blue-light" />
             <p className="mt-1 text-gray-600">
               Manage your organization's employees
             </p>
@@ -722,7 +528,7 @@ const EmployeesPage = () => {
               <Download className="mr-2 h-4 w-4" />
               Export
             </Button>
-            <Button variant="primary" size="sm">
+            <Button variant="primary" size="sm" onClick={handleAddEmployee}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Employee
             </Button>
@@ -918,7 +724,7 @@ const EmployeesPage = () => {
                               ? "You haven't added any employees yet. Click the 'Add Employee' button to get started."
                               : "No employees match your current search filters. Try adjusting your search or filters."}
                           </p>
-                          <Button variant="primary">Add Employee</Button>
+                          <Button variant="primary" onClick={handleAddEmployee}>Add Employee</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -929,7 +735,7 @@ const EmployeesPage = () => {
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10 border">
                               <AvatarImage src={employee.profile_picture || undefined} />
-                              <AvatarFallback className="bg-gray-200 text-gray-700">
+                              <AvatarFallback className="bg-hrflow-blue text-white">
                                 {employee.full_name?.split(' ').map(n => n?.[0]).join('') || '?'}
                               </AvatarFallback>
                             </Avatar>
@@ -957,11 +763,25 @@ const EmployeesPage = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <EmployeeDetailsModal employee={employee} />
-                            <Button variant="ghost" size="sm" className="px-2">
+                            <EmployeeDetailsDialog 
+                              employee={employee}
+                              onEdit={handleEditEmployee}
+                              onDelete={() => fetchEmployees()}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="px-2"
+                              onClick={() => handleEditEmployee(employee)}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="px-2 text-red-500 hover:text-red-700">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="px-2 text-red-500 hover:text-red-700"
+                              onClick={() => handleDeleteEmployee(employee)}
+                            >
                               <Trash className="h-4 w-4" />
                             </Button>
                           </div>
@@ -989,18 +809,59 @@ const EmployeesPage = () => {
                     ? "You haven't added any employees yet. Click the 'Add Employee' button to get started."
                     : "No employees match your current search filters. Try adjusting your search or filters."}
                 </p>
-                <Button variant="primary">Add Employee</Button>
+                <Button variant="primary" onClick={handleAddEmployee}>Add Employee</Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredEmployees.map(employee => (
-                  <EmployeeCard key={employee.id} employee={employee} />
+                  <EmployeeCard 
+                    key={employee.id} 
+                    employee={employee}
+                    onViewDetails={handleViewDetails}
+                    onEdit={handleEditEmployee}
+                    onDelete={handleDeleteEmployee}
+                  />
                 ))}
               </div>
             )}
           </div>
         )}
       </AnimatedSection>
+
+      {/* Sheet for adding/editing employees */}
+      <Sheet 
+        open={isAddEmployeeOpen} 
+        onOpenChange={setIsAddEmployeeOpen}
+      >
+        <SheetContent side="right" className="w-full md:max-w-xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{selectedEmployee ? 'Edit Employee' : 'Add New Employee'}</SheetTitle>
+            <SheetDescription>
+              {selectedEmployee 
+                ? 'Update employee information in the form below.' 
+                : 'Fill out the form below to add a new employee.'}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="mt-6">
+            <AddEmployeeForm 
+              onSuccess={() => {
+                fetchEmployees();
+                setIsAddEmployeeOpen(false);
+              }}
+              onCancel={() => setIsAddEmployeeOpen(false)}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Employee Details Dialog */}
+      {selectedEmployee && (
+        <EmployeeDetailsDialog 
+          employee={selectedEmployee}
+          onEdit={handleEditEmployee}
+          onDelete={() => fetchEmployees()}
+        />
+      )}
     </div>
   );
 };
