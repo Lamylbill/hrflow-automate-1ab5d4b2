@@ -68,7 +68,10 @@ const EmployeeCard = ({
   onDelete: (employee: Employee) => void
 }) => {
   return (
-    <div className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow">
+    <div 
+      className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onViewDetails(employee)}
+    >
       <div className="flex items-center mb-3">
         <Avatar className="h-12 w-12 border">
           <AvatarImage src={employee.profile_picture || undefined} />
@@ -105,15 +108,10 @@ const EmployeeCard = ({
           variant="ghost" 
           size="sm" 
           className="px-2"
-          onClick={() => onViewDetails(employee)}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="px-2"
-          onClick={() => onEdit(employee)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(employee);
+          }}
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -121,7 +119,10 @@ const EmployeeCard = ({
           variant="ghost" 
           size="sm" 
           className="px-2 text-red-500 hover:text-red-700"
-          onClick={() => onDelete(employee)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(employee);
+          }}
         >
           <Trash className="h-4 w-4" />
         </Button>
@@ -466,6 +467,7 @@ const EmployeesPage = () => {
 
   const handleViewDetails = (employee: Employee) => {
     setSelectedEmployee(employee);
+    document.getElementById(`view-employee-${employee.id}`)?.click();
   };
   
   return (
@@ -686,7 +688,9 @@ const EmployeesPage = () => {
                     </TableRow>
                   ) : (
                     filteredEmployees.map((employee) => (
-                      <TableRow key={employee.id}>
+                      <TableRow key={employee.id} 
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleViewDetails(employee)}>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-10 w-10 border">
@@ -717,18 +721,19 @@ const EmployeesPage = () => {
                         <TableCell>
                           <StatusBadge status={employee.employment_status} />
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-1">
-                            <EmployeeDetailsDialog 
-                              employee={employee}
-                              onEdit={handleEditEmployee}
-                              onDelete={() => fetchEmployees()}
-                            />
+                            <DialogTrigger asChild className="hidden">
+                              <button id={`view-employee-${employee.id}`}></button>
+                            </DialogTrigger>
                             <Button 
                               variant="ghost" 
                               size="sm" 
                               className="px-2"
-                              onClick={() => handleEditEmployee(employee)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditEmployee(employee);
+                              }}
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -736,7 +741,10 @@ const EmployeesPage = () => {
                               variant="ghost" 
                               size="sm" 
                               className="px-2 text-red-500 hover:text-red-700"
-                              onClick={() => handleDeleteEmployee(employee)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteEmployee(employee);
+                              }}
                             >
                               <Trash className="h-4 w-4" />
                             </Button>
@@ -799,6 +807,7 @@ const EmployeesPage = () => {
           </SheetHeader>
           <div className="mt-6">
             <AddEmployeeForm 
+              employeeData={selectedEmployee}
               onSuccess={() => {
                 fetchEmployees();
                 setIsAddEmployeeOpen(false);
@@ -809,13 +818,15 @@ const EmployeesPage = () => {
         </SheetContent>
       </Sheet>
 
-      {selectedEmployee && (
-        <EmployeeDetailsDialog 
-          employee={selectedEmployee}
-          onEdit={handleEditEmployee}
-          onDelete={() => fetchEmployees()}
-        />
-      )}
+      <Dialog>
+        {selectedEmployee && (
+          <EmployeeDetailsDialog 
+            employee={selectedEmployee}
+            onEdit={handleEditEmployee}
+            onDelete={() => fetchEmployees()}
+          />
+        )}
+      </Dialog>
     </div>
   );
 };

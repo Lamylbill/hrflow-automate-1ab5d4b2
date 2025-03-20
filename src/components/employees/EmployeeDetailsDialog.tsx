@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -26,7 +25,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { Employee } from '@/types/employee';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Eye, Edit, Trash } from 'lucide-react';
+import { Edit, Trash } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -71,14 +70,12 @@ export const EmployeeDetailsDialog = ({
   onDelete
 }: EmployeeDetailsDialogProps) => {
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
   const handleEdit = () => {
     if (onEdit) {
       onEdit(employee);
     }
-    setOpen(false);
   };
   
   const handleDelete = async () => {
@@ -95,8 +92,6 @@ export const EmployeeDetailsDialog = ({
         title: "Employee Deleted",
         description: `${employee.full_name} has been removed from the system.`,
       });
-      
-      setOpen(false);
       
       if (onDelete) {
         onDelete();
@@ -123,14 +118,8 @@ export const EmployeeDetailsDialog = ({
   };
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="ghost" size="sm" className="px-2">
-            <Eye className="h-4 w-4" />
-          </Button>
-        )}
-      </DialogTrigger>
+    <>
+      {trigger}
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl flex items-center gap-3">
@@ -332,6 +321,7 @@ export const EmployeeDetailsDialog = ({
           </AlertDialog>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+    </>
   );
 };
+
