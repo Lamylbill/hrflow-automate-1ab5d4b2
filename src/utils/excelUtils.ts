@@ -1,3 +1,4 @@
+
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
@@ -32,14 +33,15 @@ export function generateExcel(
 
 /**
  * Generates and downloads an employee template Excel file
+ * with Singapore-specific example data
  */
 export function generateEmployeeTemplate() {
   // Employee field descriptions
   const employeeFields = [
     ["Field", "Description", "Example", "Type", "Required"],
-    ["full_name", "Employee's full name", "John Doe", "Text", "Yes"],
+    ["full_name", "Employee's full name", "Tan Wei Ming", "Text", "Yes"],
     ["profile_picture", "URL to profile image", "https://example.com/image.jpg", "URL", "No"],
-    ["date_of_birth", "Employee's birth date", "1990-01-01", "Date (YYYY-MM-DD)", "No"],
+    ["date_of_birth", "Employee's birth date", "1990-01-15", "Date (YYYY-MM-DD)", "No"],
     ["gender", "Employee's gender", "Male / Female / Other", "Text", "No"],
     ["nationality", "Employee's nationality", "Singapore", "Text", "No"],
     ["employee_code", "Internal employee number", "EMP001", "Text", "No"],
@@ -47,26 +49,26 @@ export function generateEmployeeTemplate() {
     ["department", "Assigned department", "IT", "Text", "No"],
     ["employment_type", "Type of employment", "Full-time / Part-time / Contract", "Text", "No"],
     ["employment_status", "Current status", "Active / On Leave / Resigned", "Text", "No"],
-    ["date_of_hire", "Date employee was hired", "2022-01-01", "Date (YYYY-MM-DD)", "No"],
-    ["date_of_exit", "Last working date if resigned", "2023-01-01", "Date (YYYY-MM-DD)", "No"],
-    ["email", "Employee's work email", "john.doe@example.com", "Email", "Yes"],
-    ["phone_number", "Contact number", "+6512345678", "Text", "No"],
-    ["home_address", "Residential address", "123 Main Street", "Text", "No"],
-    ["postal_code", "Postal code", "123456", "Text", "No"],
-    ["emergency_contact_name", "Name of emergency contact", "Jane Doe", "Text", "No"],
+    ["date_of_hire", "Date employee was hired", "2022-01-15", "Date (YYYY-MM-DD)", "No"],
+    ["date_of_exit", "Last working date if resigned", "2023-01-15", "Date (YYYY-MM-DD)", "No"],
+    ["email", "Employee's work email", "wei.ming@example.com.sg", "Email", "Yes"],
+    ["phone_number", "Contact number", "+6591234567", "Text", "No"],
+    ["home_address", "Residential address", "Block 123, Ang Mo Kio Avenue 6, #12-34", "Text", "No"],
+    ["postal_code", "Postal code", "560123", "Text", "No"],
+    ["emergency_contact_name", "Name of emergency contact", "Lim Mei Ling", "Text", "No"],
     ["emergency_contact_phone", "Emergency contact phone", "+6598765432", "Text", "No"],
-    ["salary", "Monthly or annual salary", "5000", "Number", "No"],
-    ["bank_name", "Employee's bank name", "DBS Bank", "Text", "No"],
+    ["salary", "Monthly salary in SGD", "5000", "Number", "No"],
+    ["bank_name", "Employee's bank name", "DBS Bank / OCBC / UOB", "Text", "No"],
     ["bank_account_number", "Salary payment account", "123456789", "Text", "No"],
     ["cpf_contribution", "Whether CPF deductions apply", "true / false", "Boolean", "No"],
-    ["cpf_account_number", "CPF account for contributions", "CPF12345", "Text", "No"],
-    ["tax_identification_number", "Taxpayer ID for income tax", "Tax12345", "Text", "No"],
-    ["leave_entitlement", "Total leave days per year", "21", "Number", "No"],
-    ["leave_balance", "Remaining leave days", "15", "Number", "No"],
+    ["cpf_account_number", "CPF account for contributions", "S1234567D", "Text", "No"],
+    ["tax_identification_number", "NRIC or FIN for income tax", "S9812345A", "Text", "No"],
+    ["leave_entitlement", "Total annual leave days", "14", "Number", "No"],
+    ["leave_balance", "Remaining leave days", "10", "Number", "No"],
     ["medical_entitlement", "Total medical leave days", "14", "Number", "No"],
-    ["benefits_enrolled", "List of company benefits", "Health Insurance, Dental", "Text (comma-separated)", "No"],
-    ["work_permit_number", "Work visa/permit number", "WP12345", "Text", "No"],
-    ["work_pass_expiry_date", "Expiry date of work pass", "2025-01-01", "Date (YYYY-MM-DD)", "No"],
+    ["benefits_enrolled", "List of company benefits", "Health Insurance, Dental, Transport Allowance", "Text (comma-separated)", "No"],
+    ["work_permit_number", "Work visa/permit number", "G1234567K", "Text", "No"],
+    ["work_pass_expiry_date", "Expiry date of work pass", "2025-01-15", "Date (YYYY-MM-DD)", "No"],
     ["contract_signed", "Whether contract is signed", "true / false", "Boolean", "No"],
     ["probation_status", "Probation status", "Under Probation / Confirmed", "Text", "No"],
     ["notes", "HR/Admin notes", "Excellent performer", "Text", "No"]
@@ -109,11 +111,11 @@ export function generateEmployeeTemplate() {
     "notes"
   ];
   
-  // Example row
+  // Singapore-specific example row
   const exampleRow = [
-    "John Doe",
+    "Tan Wei Ming",
     "",
-    "1990-01-01",
+    "1990-01-15",
     "Male",
     "Singapore",
     "EMP001",
@@ -121,24 +123,24 @@ export function generateEmployeeTemplate() {
     "Engineering",
     "Full-time",
     "Active",
-    "2022-01-01",
+    "2022-01-15",
     "",
-    "john.doe@example.com",
-    "+6512345678",
-    "123 Main Street",
-    "123456",
-    "Jane Doe",
+    "wei.ming@example.com.sg",
+    "+6591234567",
+    "Block 123, Ang Mo Kio Avenue 6, #12-34",
+    "560123",
+    "Lim Mei Ling",
     "+6598765432",
     "5000",
     "DBS Bank",
     "123456789",
     "true",
-    "CPF12345",
-    "Tax12345",
-    "21",
-    "15",
+    "S1234567D",
+    "S9812345A",
     "14",
-    "Health Insurance, Dental",
+    "10",
+    "14",
+    "Health Insurance, Dental, Transport Allowance",
     "",
     "",
     "true",

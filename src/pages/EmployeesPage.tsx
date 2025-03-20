@@ -13,7 +13,8 @@ import {
   Grid,
   Eye,
   Edit,
-  Trash
+  Trash,
+  FileUp
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Badge } from '@/components/ui/badge';
@@ -39,9 +40,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { generateEmployeeTemplate } from '@/utils/excelUtils';
+import { generateEmployeeTemplate, generateExcel } from '@/utils/excelUtils';
+import { NotificationBell } from '@/components/ui-custom/NotificationBell';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
 
 // Employee Type Definition based on our database structure
 interface Employee {
@@ -372,6 +375,175 @@ const EmployeeCard = ({ employee }: { employee: Employee }) => {
   );
 };
 
+const ImportEmployeesDialog = ({ onImportSuccess }: { onImportSuccess?: () => void }) => {
+  const [isImporting, setIsImporting] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+  
+  const downloadTemplate = () => {
+    generateEmployeeTemplate();
+    toast({
+      title: "Template Downloaded",
+      description: "The employee template has been downloaded to your device.",
+    });
+  };
+  
+  const importEmployees = async () => {
+    if (!file || !user) return;
+    
+    setIsImporting(true);
+    
+    try {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          const worksheetName = workbook.SheetNames[1];
+          const worksheet = workbook.Sheets[worksheetName];
+          
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+            header: 1,
+            range: 2
+          }) as any[][];
+          
+          const filteredData = jsonData.filter(row => 
+            row.length > 0 && row.some(cell => cell !== undefined && cell !== '')
+          );
+          
+          if (filteredData.length === 0) {
+            throw new Error("No valid data found in the import file");
+          }
+          
+          const headers = workbook.Sheets[worksheetName] ? 
+            XLSX.utils.sheet_to_json(workbook.Sheets[worksheetName], { 
+              header: 1, 
+              range: 0, 
+              blankrows: false 
+            })[0] as string[] : [];
+          
+          const employees = filteredData.map(row => {
+            const employee: any = { user_id: user.id };
+            
+            headers.forEach((header, index) => {
+              if (header && row[index] !== undefined) {
+                if (header === 'benefits_enrolled' && row[index]) {
+                  employee[header] = row[index].toString().split(',').map((s: string) => s.trim());
+                } else if (header === 'cpf_contribution' || header === 'contract_signed') {
+                  const value = row[index].toString().toLowerCase();
+                  employee[header] = value === 'true' || value === 'yes';
+                } else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score'].includes(header) && row[index]) {
+                  employee[header] = Number(row[index]);
+                } else {
+                  employee[header] = row[index];
+                }
+              }
+            });
+            
+            if (!employee.full_name || !employee.email) {
+              throw new Error("All employees must have a full name and email");
+            }
+            
+            return employee;
+          });
+          
+          for (const employee of employees) {
+            const { error } = await supabase.from('employees').insert(employee);
+            if (error) throw error;
+          }
+          
+          toast({
+            title: "Import Successful",
+            description: `Successfully imported ${employees.length} employees.`,
+          });
+          
+          if (onImportSuccess) onImportSuccess();
+        } catch (error: any) {
+          console.error("Error importing employees:", error);
+          toast({
+            title: "Import Failed",
+            description: error.message || "An error occurred while importing employees.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsImporting(false);
+          setFile(null);
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+    } catch (error: any) {
+      console.error("Error reading file:", error);
+      toast({
+        title: "Import Failed",
+        description: error.message || "An error occurred while reading the file.",
+        variant: "destructive",
+      });
+      setIsImporting(false);
+    }
+  };
+  
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Upload className="mr-2 h-4 w-4" />
+          Import
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Import Employees</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-6">
+          <div className="flex flex-col items-center justify-center py-4 gap-4">
+            <Button variant="outline" onClick={downloadTemplate} className="w-full">
+              <Download className="mr-2 h-4 w-4" />
+              Download Template
+            </Button>
+            
+            <div className="border rounded-md p-6 w-full">
+              <div className="flex flex-col items-center gap-2">
+                <FileUp className="h-10 w-10 text-gray-400" />
+                <p className="text-sm text-gray-500">
+                  {file ? file.name : "Upload your employee data Excel file"}
+                </p>
+                <Input
+                  type="file"
+                  accept=".xlsx, .xls"
+                  onChange={handleFileChange}
+                  className="max-w-xs"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" disabled={isImporting}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={importEmployees} 
+            disabled={!file || isImporting}
+          >
+            {isImporting ? "Importing..." : "Import Employees"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -383,62 +555,95 @@ const EmployeesPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Fetch employees from Supabase
-  useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        if (!user) {
-          console.error('No authenticated user found');
-          setError('You must be logged in to view employees');
-          setIsLoading(false);
-          return;
-        }
-        
-        // Fetch employees from the database
-        const { data, error } = await supabase
-          .from('employees')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('full_name', { ascending: true });
-        
-        if (error) {
-          throw error;
-        }
-        
-        // Cast the data to Employee[] to satisfy TypeScript
-        setEmployees(data as Employee[]);
-      } catch (err: any) {
-        console.error('Error fetching employees:', err);
-        setError(err.message || 'An unexpected error occurred. Please try again.');
-      } finally {
+  const fetchEmployees = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      if (!user) {
+        console.error('No authenticated user found');
+        setError('You must be logged in to view employees');
         setIsLoading(false);
+        return;
       }
-    };
-    
+      
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('full_name', { ascending: true });
+      
+      if (error) {
+        throw error;
+      }
+      
+      setEmployees(data as Employee[]);
+    } catch (err: any) {
+      console.error('Error fetching employees:', err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchEmployees();
   }, [user, toast]);
   
-  // Generate CSV template for employee import
-  const downloadCSVTemplate = () => {
-    generateEmployeeTemplate();
+  const exportEmployees = () => {
+    if (employees.length === 0) {
+      toast({
+        title: "No Data to Export",
+        description: "There are no employees to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const headers = [
+      "Full Name",
+      "Email",
+      "Job Title",
+      "Department",
+      "Employment Type",
+      "Employment Status",
+      "Date of Hire",
+      "Phone Number",
+      "Employee Code"
+    ];
+    
+    const data = employees.map(employee => [
+      employee.full_name,
+      employee.email,
+      employee.job_title || "",
+      employee.department || "",
+      employee.employment_type || "",
+      employee.employment_status || "",
+      employee.date_of_hire || "",
+      employee.phone_number || "",
+      employee.employee_code || ""
+    ]);
+    
+    data.unshift(headers);
+    
+    generateExcel("employees_export", [
+      {
+        name: "Employees",
+        data: data
+      }
+    ]);
     
     toast({
-      title: "Success",
-      description: "Employee template downloaded successfully.",
+      title: "Export Successful",
+      description: "Employees exported successfully.",
       duration: 3000,
     });
   };
   
-  // Extract unique departments from employees
   const departments = Array.from(new Set(employees.map(emp => emp.department).filter(Boolean) as string[]));
   
-  // Extract unique statuses from employees
   const statuses = Array.from(new Set(employees.map(emp => emp.employment_status).filter(Boolean) as string[]));
   
-  // Filter employees based on search term and filters
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = searchTerm === '' || 
       employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -454,7 +659,6 @@ const EmployeesPage = () => {
     return matchesSearch && matchesDepartment && matchesStatus;
   });
   
-  // Toggle department selection
   const toggleDepartment = (department: string) => {
     setSelectedDepartments(prev => 
       prev.includes(department)
@@ -463,7 +667,6 @@ const EmployeesPage = () => {
     );
   };
   
-  // Toggle status selection
   const toggleStatus = (status: string) => {
     setSelectedStatuses(prev => 
       prev.includes(status)
@@ -472,7 +675,6 @@ const EmployeesPage = () => {
     );
   };
   
-  // Status badge component
   const StatusBadge = ({ status }: { status: string | null | undefined }) => {
     if (!status) return <Badge variant="outline">Unknown</Badge>;
     
@@ -488,7 +690,6 @@ const EmployeesPage = () => {
     }
   };
   
-  // Format date
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return 'N/A';
     try {
@@ -498,7 +699,6 @@ const EmployeesPage = () => {
     }
   };
 
-  // Toggle view mode between list and card
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'list' ? 'card' : 'list');
   };
@@ -507,20 +707,18 @@ const EmployeesPage = () => {
     <div className="px-4 sm:px-6 py-6">
       <AnimatedSection>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
+            <NotificationBell />
             <p className="mt-1 text-gray-600">
               Manage your organization's employees
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" size="sm">
-              <Upload className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-            <Button variant="outline" size="sm" onClick={downloadCSVTemplate}>
+            <ImportEmployeesDialog onImportSuccess={fetchEmployees} />
+            <Button variant="outline" size="sm" onClick={exportEmployees}>
               <Download className="mr-2 h-4 w-4" />
-              Export Template
+              Export
             </Button>
             <Button variant="primary" size="sm">
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -544,7 +742,6 @@ const EmployeesPage = () => {
           
           <div className="flex flex-wrap gap-2 items-center justify-between w-full sm:w-auto">
             <div className="flex flex-wrap gap-2">
-              {/* View Mode Toggle */}
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -564,7 +761,6 @@ const EmployeesPage = () => {
                 )}
               </Button>
             
-              {/* Department Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -609,7 +805,6 @@ const EmployeesPage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Status Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -654,7 +849,6 @@ const EmployeesPage = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
-              {/* Filter indicators */}
               {selectedDepartments.length > 0 && (
                 <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
                   Departments: {selectedDepartments.length}

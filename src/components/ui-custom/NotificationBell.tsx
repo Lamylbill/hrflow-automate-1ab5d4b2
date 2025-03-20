@@ -25,7 +25,7 @@ interface Notification {
   user_id: string;
 }
 
-export const NotificationBell = () => {
+export const NotificationBell = ({ className = "" }: { className?: string }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
@@ -169,7 +169,7 @@ export const NotificationBell = () => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <div className="relative cursor-pointer">
+        <div className={`relative cursor-pointer ${className}`}>
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge 
