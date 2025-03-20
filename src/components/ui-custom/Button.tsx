@@ -47,14 +47,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonContent = children || "Button";
     
     // Special handling for quick action buttons
-    const isQuickAction = props.className?.includes('normal-case') || 
-                          props.className?.includes('justify-between');
+    const isQuickAction = props['className']?.includes('normal-case') || 
+                          props['className']?.includes('justify-between');
     
     // Different styling based on button type
     const buttonStyle = {
       color: variant === 'outline' && !props.disabled ? '#2563EB' : 'white',
       fontWeight: 'bold',
-      ...(isQuickAction ? {} : { textTransform: 'uppercase' }),
+      ...(isQuickAction ? {} : { textTransform: 'uppercase' as const }),
       ...style,
     };
     
