@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -16,6 +17,7 @@ import {
   Trash,
   FileUp
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui-custom/Button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
