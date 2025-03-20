@@ -13,6 +13,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ error?: { message: string } }>;
   signup: (email: string, password: string, fullName: string) => Promise<{ error?: { message: string } }>;
   logout: () => Promise<void>;
+  updateProfile: (data: Record<string, any>) => Promise<{ error?: { message: string } }>;
+  updatePassword: (password: string) => Promise<{ error?: { message: string } }>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -23,6 +25,8 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => ({}),
   signup: async () => ({}),
   logout: async () => {},
+  updateProfile: async () => ({}),
+  updatePassword: async () => ({}),
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -85,6 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               toast({
                 title: "Login successful",
                 description: "Welcome to HRFlow!",
+              });
+            } else if (event === 'USER_UPDATED') {
+              toast({
+                title: "Profile updated",
+                description: "Your profile has been updated successfully.",
               });
             }
           } else {
@@ -226,6 +235,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     }
   };
+  
+  const updateProfile = async (data: Record<string, any>) => {
+    try {
+      console.log('Updating user profile with data:', data);
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        data
+      });
+      
+      if (error) {
+        console.error('Profile update error:', error.message);
+        return { error };
+      }
+      
+      return {};
+    } catch (error: any) {
+      console.error('Unexpected profile update error:', error);
+      return { 
+        error: { 
+          message: 'An unexpected error occurred during profile update',
+        } 
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const updatePassword = async (password: string) => {
+    try {
+      console.log('Updating user password');
+      setIsLoading(true);
+      
+      const { error } = await supabase.auth.updateUser({
+        password
+      });
+      
+      if (error) {
+        console.error('Password update error:', error.message);
+        return { error };
+      }
+      
+      return {};
+    } catch (error: any) {
+      console.error('Unexpected password update error:', error);
+      return { 
+        error: { 
+          message: 'An unexpected error occurred during password update',
+        } 
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Compute authentication state
   const isAuthenticated = !!user && !!session;
@@ -241,6 +304,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         signup,
         logout,
+        updateProfile,
+        updatePassword,
       }}
     >
       {children}

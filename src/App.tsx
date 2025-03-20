@@ -15,6 +15,7 @@ import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,13 @@ const App = () => {
                     <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
                     <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
                   </DashboardLayout>
+                </ProtectedRoute>
+              } />
+              
+              {/* Settings page */}
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               } />
               

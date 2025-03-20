@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield, Settings, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -22,7 +22,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getNavItems, getFeaturesItems } from './NavItems';
 import { toast } from "sonner";
 
@@ -122,7 +122,17 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigate('/');
+    
+    if (location.pathname === '/') {
+      // If on home page, scroll to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else {
+      // Navigate to home page
+      navigate('/');
+    }
   };
 
   return (
@@ -130,8 +140,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled || isAuthenticated || location.pathname !== '/' 
-          ? 'bg-white/95 backdrop-blur-md shadow-sm' 
-          : 'bg-white/80 backdrop-blur-sm'
+          ? 'bg-white shadow-md border-b border-hrflow-gray-medium' 
+          : 'bg-white shadow-sm'
       )}
     >
       <nav className="container mx-auto px-6 py-3">
@@ -150,10 +160,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="/" 
                     onClick={handleHomeClick}
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
                   >
                     <Home className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Home</span>
+                    <span>Home</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -161,10 +171,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#features" 
                     onClick={(e) => scrollToSection(e, '#features')}
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
                   >
                     <BarChart className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Features</span>
+                    <span>Features</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -172,10 +182,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#pricing" 
                     onClick={(e) => scrollToSection(e, '#pricing')}
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Pricing</span>
+                    <span>Pricing</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -183,10 +193,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#contact" 
                     onClick={(e) => scrollToSection(e, '#contact')}
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
                   >
                     <Phone className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Contact</span>
+                    <span>Contact</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -194,10 +204,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#about" 
                     onClick={(e) => scrollToSection(e, '#about')}
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
                   >
                     <Info className="h-4 w-4 mr-2" />
-                    <span className="font-medium">About</span>
+                    <span>About</span>
                   </a>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -208,22 +218,26 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative rounded-full">
-                    <Avatar className="h-9 w-9 border-2 border-hrflow-blue/20">
-                      <AvatarFallback className="bg-hrflow-blue text-white">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    </Avatar>
+                  <Button variant="ghost" size="icon" className="relative rounded-full p-0">
+                    <div className="flex items-center gap-2 border border-hrflow-gray-medium p-1 pl-3 pr-2 rounded-full bg-white hover:bg-hrflow-gray-light">
+                      <span className="text-sm font-medium text-hrflow-dark">{user?.email}</span>
+                      <Avatar className="h-8 w-8 border-2 border-hrflow-blue/20">
+                        <AvatarImage src="/avatar-placeholder.png" />
+                        <AvatarFallback className="bg-hrflow-blue text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Link to="/profile" className="flex w-full">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link to="/settings" className="flex w-full">Settings</Link>
+                    <Link to="/settings" className="flex w-full items-center">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()} className="text-red-500">
@@ -295,6 +309,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               )}
               {isAuthenticated && (
                 <div className="pt-2 border-t border-gray-200 mt-2">
+                  <Link to="/settings" className="w-full">
+                    <Button variant="outline" className="w-full mb-2">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Button>
+                  </Link>
                   <Button onClick={() => logout()} variant="outline" className="w-full text-red-500">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
