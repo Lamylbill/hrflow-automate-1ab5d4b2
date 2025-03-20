@@ -153,8 +153,8 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
   useEffect(() => {
     if (employeeData) {
       form.reset({
-        full_name: employeeData.full_name,
-        email: employeeData.email,
+        full_name: employeeData.full_name || '',
+        email: employeeData.email || '',
         job_title: employeeData.job_title || undefined,
         department: employeeData.department || undefined,
         employment_type: employeeData.employment_type || undefined,
@@ -168,14 +168,14 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
         postal_code: employeeData.postal_code || undefined,
         emergency_contact_name: employeeData.emergency_contact_name || undefined,
         emergency_contact_phone: employeeData.emergency_contact_phone || undefined,
-        salary: employeeData.salary || undefined,
+        salary: typeof employeeData.salary === 'number' ? employeeData.salary : undefined,
         bank_name: employeeData.bank_name || undefined,
         bank_account_number: employeeData.bank_account_number || undefined,
         cpf_contribution: employeeData.cpf_contribution || false,
         cpf_account_number: employeeData.cpf_account_number || undefined,
         tax_identification_number: employeeData.tax_identification_number || undefined,
-        leave_entitlement: employeeData.leave_entitlement || undefined,
-        medical_entitlement: employeeData.medical_entitlement || undefined,
+        leave_entitlement: typeof employeeData.leave_entitlement === 'number' ? employeeData.leave_entitlement : undefined,
+        medical_entitlement: typeof employeeData.medical_entitlement === 'number' ? employeeData.medical_entitlement : undefined,
         employee_code: employeeData.employee_code || undefined,
         reporting_manager: employeeData.reporting_manager || undefined,
         probation_status: employeeData.probation_status || undefined,
@@ -817,4 +817,3 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     </Form>
   );
 };
-
