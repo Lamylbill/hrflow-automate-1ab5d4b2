@@ -20,7 +20,7 @@ export function generateExcel(
   
   // Add each sheet to the workbook
   sheets.forEach(sheet => {
-    const ws = XLSX.utils.aoa_to_sheet(sheet.data, { header: sheet.header });
+    const ws = XLSX.utils.aoa_to_sheet(sheet.data);
     XLSX.utils.book_append_sheet(wb, ws, sheet.name);
   });
   
@@ -152,13 +152,11 @@ export function generateEmployeeTemplate() {
   generateExcel("employee_template", [
     {
       name: "Instructions",
-      data: employeeFields,
-      header: true
+      data: employeeFields
     },
     {
       name: "Template",
-      data: [templateHeaders, exampleRow, Array(templateHeaders.length).fill("")],
-      header: false
+      data: [templateHeaders, exampleRow, Array(templateHeaders.length).fill("")]
     }
   ]);
   

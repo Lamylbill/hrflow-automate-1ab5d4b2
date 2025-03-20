@@ -20,8 +20,9 @@ interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
   read: boolean;
   created_at: string;
-  related_entity?: string;
-  related_id?: string;
+  related_entity?: string | null;
+  related_id?: string | null;
+  user_id: string;
 }
 
 export const NotificationBell = () => {
@@ -44,8 +45,14 @@ export const NotificationBell = () => {
 
       if (error) throw error;
       
-      setNotifications(data as Notification[]);
-      setUnreadCount(data.filter((n: Notification) => !n.read).length);
+      // Cast the data to ensure it matches our Notification interface
+      const typedNotifications = (data || []).map((notification: any): Notification => ({
+        ...notification,
+        type: notification.type as 'info' | 'success' | 'warning' | 'error',
+      }));
+      
+      setNotifications(typedNotifications);
+      setUnreadCount(typedNotifications.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
@@ -117,7 +124,11 @@ export const NotificationBell = () => {
         },
         (payload) => {
           // Add new notification to the list
-          const newNotification = payload.new as Notification;
+          const newNotification = {
+            ...payload.new as Omit<Notification, 'type'>,
+            type: (payload.new as any).type as 'info' | 'success' | 'warning' | 'error'
+          };
+          
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           

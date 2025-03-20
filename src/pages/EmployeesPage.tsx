@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -42,6 +41,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { generateEmployeeTemplate } from '@/utils/excelUtils';
 
 // Employee Type Definition based on our database structure
 interface Employee {
@@ -56,7 +56,33 @@ interface Employee {
   date_of_hire?: string | null;
   employment_type?: 'Full-time' | 'Part-time' | 'Contract' | null;
   employment_status?: 'Active' | 'On Leave' | 'Resigned' | null;
+  date_of_exit?: string | null;
+  employee_code?: string | null;
+  gender?: string | null;
+  nationality?: string | null;
+  date_of_birth?: string | null;
+  reporting_manager?: string | null;
+  home_address?: string | null;
+  postal_code?: string | null;
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
   salary?: number | null;
+  bank_name?: string | null;
+  bank_account_number?: string | null;
+  cpf_contribution?: boolean | null;
+  cpf_account_number?: string | null;
+  tax_identification_number?: string | null;
+  leave_entitlement?: number | null;
+  leave_balance?: number | null;
+  medical_entitlement?: number | null;
+  benefits_enrolled?: string[] | null;
+  work_permit_number?: string | null;
+  work_pass_expiry_date?: string | null;
+  contract_signed?: boolean | null;
+  probation_status?: string | null;
+  last_performance_review?: string | null;
+  performance_score?: number | null;
+  notes?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -395,96 +421,9 @@ const EmployeesPage = () => {
   }, [user, toast]);
   
   // Generate CSV template for employee import
-  const generateCSVTemplate = () => {
-    // Header row with all employee fields
-    const headers = [
-      "full_name",
-      "profile_picture",
-      "date_of_birth",
-      "gender",
-      "nationality",
-      "employee_code",
-      "job_title",
-      "department",
-      "employment_type",
-      "employment_status",
-      "date_of_hire",
-      "date_of_exit",
-      "email",
-      "phone_number",
-      "home_address",
-      "postal_code",
-      "emergency_contact_name",
-      "emergency_contact_phone",
-      "salary",
-      "bank_name",
-      "bank_account_number",
-      "cpf_contribution",
-      "cpf_account_number",
-      "tax_identification_number",
-      "leave_entitlement",
-      "leave_balance",
-      "medical_entitlement",
-      "benefits_enrolled",
-      "work_permit_number",
-      "work_pass_expiry_date",
-      "contract_signed",
-      "probation_status",
-      "notes"
-    ];
-
-    // Create a sample row
-    const sampleRow = [
-      "John Doe",
-      "",
-      "1990-01-01",
-      "Male",
-      "Singapore",
-      "EMP001",
-      "Software Engineer",
-      "Engineering",
-      "Full-time",
-      "Active",
-      "2022-01-01",
-      "",
-      "john.doe@example.com",
-      "+6512345678",
-      "123 Main Street",
-      "123456",
-      "Jane Doe",
-      "+6598765432",
-      "5000",
-      "DBS Bank",
-      "123456789",
-      "true",
-      "CPF12345",
-      "Tax12345",
-      "21",
-      "15",
-      "14",
-      "Health Insurance, Dental",
-      "",
-      "",
-      "true",
-      "Confirmed",
-      "Excellent performer"
-    ];
-
-    return [headers.join(','), sampleRow.join(',')].join('\n');
-  };
-
-  // Download CSV template
   const downloadCSVTemplate = () => {
-    const csvContent = generateCSVTemplate();
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', 'employee_template.xlsx');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
+    generateEmployeeTemplate();
+    
     toast({
       title: "Success",
       description: "Employee template downloaded successfully.",
