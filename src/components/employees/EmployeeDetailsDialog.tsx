@@ -152,16 +152,15 @@ export const EmployeeDetailsDialog = ({
         </DialogHeader>
         
         <Tabs defaultValue="personal" className="flex-1 overflow-hidden">
-          <TabsList className="w-full justify-start border-b px-1">
+          <TabsList className="grid grid-cols-5 mt-4">
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="employment">Employment</TabsTrigger>
-            <TabsTrigger value="contact">Contact & Address</TabsTrigger>
-            <TabsTrigger value="payroll">Payroll & Financial</TabsTrigger>
-            <TabsTrigger value="leave">Leave & Benefits</TabsTrigger>
-            <TabsTrigger value="compliance">Compliance & HR</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="financial">Financial</TabsTrigger>
+            <TabsTrigger value="compliance">Compliance</TabsTrigger>
           </TabsList>
           
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4 mt-4">
             <TabsContent value="personal" className="mt-0">
               <Section title="Personal Information">
                 <DetailsItem label="Full Name" value={employee.full_name || 'Not available'} />
@@ -201,7 +200,7 @@ export const EmployeeDetailsDialog = ({
               </Section>
             </TabsContent>
 
-            <TabsContent value="payroll" className="mt-0">
+            <TabsContent value="financial" className="mt-0">
               <Section title="Payroll & Financial Information">
                 <DetailsItem 
                   label="Salary" 
@@ -225,11 +224,6 @@ export const EmployeeDetailsDialog = ({
                   label="Tax Identification Number" 
                   value={employee.tax_identification_number || 'Not available'} 
                 />
-              </Section>
-            </TabsContent>
-
-            <TabsContent value="leave" className="mt-0">
-              <Section title="Leave & Benefits">
                 <DetailsItem 
                   label="Leave Entitlement" 
                   value={employee.leave_entitlement !== undefined ? 
@@ -267,6 +261,19 @@ export const EmployeeDetailsDialog = ({
                   label="Contract Signed" 
                   value={employee.contract_signed !== undefined ? 
                     (employee.contract_signed ? 'Yes' : 'No') : 'Not available'} 
+                />
+                <DetailsItem
+                  label="Last Performance Review"
+                  value={formatDate(employee.last_performance_review)}
+                />
+                <DetailsItem
+                  label="Performance Score"
+                  value={employee.performance_score !== undefined ?
+                    employee.performance_score : 'Not available'}
+                />
+                <DetailsItem
+                  label="Notes"
+                  value={employee.notes || 'Not available'}
                 />
               </Section>
             </TabsContent>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,6 +25,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmployeeFormValues } from '@/types/employee';
 
 // Form schema with validations
@@ -129,7 +131,6 @@ const Section = ({ title, children }: SectionProps) => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {children}
     </div>
-    <Separator className="mt-6" />
   </div>
 );
 
@@ -161,7 +162,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
     }
     
     try {
-      const employeeData = {
+      const employeeData: EmployeeFormValues = {
         user_id: user.id,
         full_name: data.full_name,
         email: data.email,
@@ -219,457 +220,520 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-4">
-        <Section title="Personal Information">
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Full Name*</FormLabel>
-                <FormControl>
-                  <Input placeholder="John Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Tabs defaultValue="personal" className="w-full">
+          <TabsList className="grid grid-cols-5 mb-6">
+            <TabsTrigger value="personal">Personal</TabsTrigger>
+            <TabsTrigger value="employment">Employment</TabsTrigger>
+            <TabsTrigger value="contact">Contact</TabsTrigger>
+            <TabsTrigger value="financial">Financial</TabsTrigger>
+            <TabsTrigger value="benefits">Benefits</TabsTrigger>
+          </TabsList>
           
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email Address*</FormLabel>
-                <FormControl>
-                  <Input placeholder="john.doe@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TabsContent value="personal" className="space-y-4">
+            <Section title="Personal Information">
+              <FormField
+                control={form.control}
+                name="full_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="john.doe@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="date_of_birth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Birth</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {genders.map((gender) => (
+                          <SelectItem key={gender} value={gender}>
+                            {gender}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="nationality"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nationality</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select nationality" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {nationalities.map((nationality) => (
+                          <SelectItem key={nationality} value={nationality}>
+                            {nationality}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
           
-          <FormField
-            control={form.control}
-            name="phone_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="+65 9123 4567" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TabsContent value="employment" className="space-y-4">
+            <Section title="Employment Details">
+              <FormField
+                control={form.control}
+                name="job_title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Title</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select job title" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {jobTitles.map((title) => (
+                          <SelectItem key={title} value={title}>
+                            {title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {departments.map((department) => (
+                          <SelectItem key={department} value={department}>
+                            {department}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="employment_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employment Type</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select employment type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {employmentTypes.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="employment_status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employment Status</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select employment status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {employmentStatuses.map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {status}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="date_of_hire"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date of Hire</FormLabel>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="employee_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employee Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="EMP001" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="probation_status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Probation Status</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select probation status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="In Probation">In Probation</SelectItem>
+                        <SelectItem value="Confirmed">Confirmed</SelectItem>
+                        <SelectItem value="Extended">Extended</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
           
-          <FormField
-            control={form.control}
-            name="date_of_birth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TabsContent value="contact" className="space-y-4">
+            <Section title="Contact & Address">
+              <FormField
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+65 9123 4567" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="home_address"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Home Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123 Main Street" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="postal_code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Postal Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="123456" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="emergency_contact_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Emergency Contact Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jane Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="emergency_contact_phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Emergency Contact Phone</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+65 9876 5432" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
           
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gender</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {genders.map((gender) => (
-                      <SelectItem key={gender} value={gender}>
-                        {gender}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <TabsContent value="financial" className="space-y-4">
+            <Section title="Salary & Financial Information">
+              <FormField
+                control={form.control}
+                name="salary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Salary (SGD)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="5000" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="bank_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bank Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="DBS Bank" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="bank_account_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bank Account Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="0123456789" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="cpf_contribution"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>CPF Contribution Eligible</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="cpf_account_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CPF Account Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="S1234567A" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="tax_identification_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax Identification Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="S9812345A" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
           
-          <FormField
-            control={form.control}
-            name="nationality"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nationality</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select nationality" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {nationalities.map((nationality) => (
-                      <SelectItem key={nationality} value={nationality}>
-                        {nationality}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
+          <TabsContent value="benefits" className="space-y-4">
+            <Section title="Leave & Benefits">
+              <FormField
+                control={form.control}
+                name="leave_entitlement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Annual Leave Entitlement (days)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="14" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="medical_entitlement"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Medical Leave Entitlement (days)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="14" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Any additional notes" 
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Section>
+          </TabsContent>
+        </Tabs>
         
-        <Section title="Employment Details">
-          <FormField
-            control={form.control}
-            name="job_title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Job Title</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select job title" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {jobTitles.map((title) => (
-                      <SelectItem key={title} value={title}>
-                        {title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {departments.map((department) => (
-                      <SelectItem key={department} value={department}>
-                        {department}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="employment_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Type</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select employment type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {employmentTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="employment_status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Status</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select employment status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {employmentStatuses.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="date_of_hire"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date of Hire</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="employee_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employee Code</FormLabel>
-                <FormControl>
-                  <Input placeholder="EMP001" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
-        
-        <Section title="Contact & Address">
-          <FormField
-            control={form.control}
-            name="home_address"
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Home Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="123 Main Street" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="postal_code"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Postal Code</FormLabel>
-                <FormControl>
-                  <Input placeholder="123456" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="emergency_contact_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Emergency Contact Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Jane Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="emergency_contact_phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Emergency Contact Phone</FormLabel>
-                <FormControl>
-                  <Input placeholder="+65 9876 5432" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
-        
-        <Section title="Salary & Financial Information">
-          <FormField
-            control={form.control}
-            name="salary"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Salary (SGD)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="5000" 
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="bank_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bank Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="DBS Bank" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="bank_account_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bank Account Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="0123456789" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="cpf_contribution"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>CPF Contribution Eligible</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="cpf_account_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CPF Account Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="S1234567A" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="tax_identification_number"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tax Identification Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="S9812345A" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
-        
-        <Section title="Leave & Benefits">
-          <FormField
-            control={form.control}
-            name="leave_entitlement"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Annual Leave Entitlement (days)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="14" 
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="medical_entitlement"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Medical Leave Entitlement (days)</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="number" 
-                    placeholder="14" 
-                    {...field} 
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </Section>
-        
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-4 border-t">
           {onCancel && (
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
