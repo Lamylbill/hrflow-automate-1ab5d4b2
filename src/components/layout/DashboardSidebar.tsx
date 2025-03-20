@@ -18,6 +18,8 @@ import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import DateTimeBar from '@/components/ui-custom/DateTimeBar';
+import { NotificationBell } from '@/components/ui-custom/NotificationBell';
+import { generateEmployeeTemplate } from '@/utils/excelUtils';
 
 const SidebarNavItem = ({ 
   item, 
@@ -112,15 +114,7 @@ export const DashboardSidebar = () => {
   };
 
   const downloadCSVTemplate = () => {
-    const csvHeader = "Full Name,Job Title,Department,Email,Phone Number,Date of Hire,Employment Type,Salary,Status,Profile Picture";
-    const csvContent = "data:text/csv;charset=utf-8," + csvHeader;
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "employee_template.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    generateEmployeeTemplate();
   };
 
   const navigateToSettings = () => {
@@ -249,6 +243,23 @@ export const DashboardSidebar = () => {
               isActive={location.pathname === '/settings'}
             />
           </TooltipProvider>
+
+          <div className={cn(
+            "my-2 px-3 py-2",
+            collapsed ? "flex justify-center" : "flex items-center justify-between"
+          )}>
+            {!collapsed && <span className="text-sm font-medium">Notifications</span>}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn(collapsed ? "" : "ml-auto")}>
+                  <NotificationBell />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
+                Notifications
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
           {location.pathname === '/employees' && !collapsed && (
             <div className="mt-4 px-2">

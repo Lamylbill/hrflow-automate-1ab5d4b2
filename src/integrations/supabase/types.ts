@@ -9,6 +9,226 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      employee_documents: {
+        Row: {
+          category: string
+          document_type: string
+          employee_id: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          document_type: string
+          employee_id: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          document_type?: string
+          employee_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_documents_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          bank_account_number: string | null
+          bank_name: string | null
+          benefits_enrolled: string[] | null
+          contract_signed: boolean | null
+          cpf_account_number: string | null
+          cpf_contribution: boolean | null
+          created_at: string
+          date_of_birth: string | null
+          date_of_exit: string | null
+          date_of_hire: string | null
+          department: string | null
+          email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          employee_code: string | null
+          employment_status: string | null
+          employment_type: string | null
+          full_name: string
+          gender: string | null
+          home_address: string | null
+          id: string
+          job_title: string | null
+          last_performance_review: string | null
+          leave_balance: number | null
+          leave_entitlement: number | null
+          medical_entitlement: number | null
+          nationality: string | null
+          notes: string | null
+          performance_score: number | null
+          phone_number: string | null
+          postal_code: string | null
+          probation_status: string | null
+          profile_picture: string | null
+          reporting_manager: string | null
+          salary: number | null
+          tax_identification_number: string | null
+          updated_at: string
+          user_id: string
+          work_pass_expiry_date: string | null
+          work_permit_number: string | null
+        }
+        Insert: {
+          bank_account_number?: string | null
+          bank_name?: string | null
+          benefits_enrolled?: string[] | null
+          contract_signed?: boolean | null
+          cpf_account_number?: string | null
+          cpf_contribution?: boolean | null
+          created_at?: string
+          date_of_birth?: string | null
+          date_of_exit?: string | null
+          date_of_hire?: string | null
+          department?: string | null
+          email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          employee_code?: string | null
+          employment_status?: string | null
+          employment_type?: string | null
+          full_name: string
+          gender?: string | null
+          home_address?: string | null
+          id?: string
+          job_title?: string | null
+          last_performance_review?: string | null
+          leave_balance?: number | null
+          leave_entitlement?: number | null
+          medical_entitlement?: number | null
+          nationality?: string | null
+          notes?: string | null
+          performance_score?: number | null
+          phone_number?: string | null
+          postal_code?: string | null
+          probation_status?: string | null
+          profile_picture?: string | null
+          reporting_manager?: string | null
+          salary?: number | null
+          tax_identification_number?: string | null
+          updated_at?: string
+          user_id: string
+          work_pass_expiry_date?: string | null
+          work_permit_number?: string | null
+        }
+        Update: {
+          bank_account_number?: string | null
+          bank_name?: string | null
+          benefits_enrolled?: string[] | null
+          contract_signed?: boolean | null
+          cpf_account_number?: string | null
+          cpf_contribution?: boolean | null
+          created_at?: string
+          date_of_birth?: string | null
+          date_of_exit?: string | null
+          date_of_hire?: string | null
+          department?: string | null
+          email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          employee_code?: string | null
+          employment_status?: string | null
+          employment_type?: string | null
+          full_name?: string
+          gender?: string | null
+          home_address?: string | null
+          id?: string
+          job_title?: string | null
+          last_performance_review?: string | null
+          leave_balance?: number | null
+          leave_entitlement?: number | null
+          medical_entitlement?: number | null
+          nationality?: string | null
+          notes?: string | null
+          performance_score?: number | null
+          phone_number?: string | null
+          postal_code?: string | null
+          probation_status?: string | null
+          profile_picture?: string | null
+          reporting_manager?: string | null
+          salary?: number | null
+          tax_identification_number?: string | null
+          updated_at?: string
+          user_id?: string
+          work_pass_expiry_date?: string | null
+          work_permit_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_reporting_manager_fkey"
+            columns: ["reporting_manager"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          related_entity: string | null
+          related_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          related_entity?: string | null
+          related_id?: string | null
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          related_entity?: string | null
+          related_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
