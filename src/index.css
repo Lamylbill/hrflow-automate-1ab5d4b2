@@ -116,7 +116,7 @@
     @apply leading-relaxed;
   }
   
-  /* Super aggressive button styling for maximum text visibility */
+  /* Simplified button styling for better consistency */
   button, 
   .button, 
   .button-high-contrast,
@@ -124,75 +124,47 @@
   [type="submit"],
   [type="reset"],
   a[role="button"] {
-    @apply font-extrabold uppercase;
-    color: white !important; /* Force visibility */
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
-    letter-spacing: 0.5px !important;
-    text-transform: uppercase !important;
-    border-width: 2px !important;
+    @apply font-bold;
+    text-transform: uppercase;
+    border-width: 2px;
   }
   
-  /* Only outline buttons should have blue text */
+  /* Outline buttons specific styling */
   button[data-variant="outline"]:not(:hover):not(:disabled),
   [data-variant="outline"]:not(:hover):not(:disabled) {
-    color: #2563EB !important;
-    text-shadow: none !important;
-    font-weight: 800 !important;
+    color: #2563EB;
+    background-color: transparent;
+    border: 2px solid #2563EB;
   }
   
-  /* Quick Actions buttons should not have all-caps text */
-  button[class*="normal-case"],
-  .normal-case {
-    text-transform: none !important;
-    letter-spacing: normal !important;
-  }
-  
-  /* When hovering outline button, force white text */
+  /* When hovering outline button styling */
   button[data-variant="outline"]:hover:not(:disabled),
   [data-variant="outline"]:hover:not(:disabled) {
-    color: white !important;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
-    background-color: #2563EB !important;
+    color: white;
+    background-color: #2563EB;
   }
 
-  /* Make switches more visible */
+  /* Simplified switch styling */
   button[role="switch"],
   [role="switch"] {
-    min-width: initial !important;
-    min-height: initial !important;
-    text-transform: none !important;
-    letter-spacing: normal !important;
-    border-radius: 9999px !important;
-    background-color: #d1d5db !important; /* gray-300 */
-    box-shadow: none !important;
-    height: 24px !important;
-    width: 44px !important;
-    padding: 0 !important;
-    border: none !important;
+    min-width: 44px;
+    min-height: 24px;
+    border-radius: 9999px;
+    background-color: #d1d5db;
+    border: none;
+    padding: 0;
   }
 
   button[role="switch"][data-state="checked"],
   [role="switch"][data-state="checked"] {
-    background-color: #2563EB !important; /* Blue-600 */
+    background-color: #2563EB;
   }
 
-  button[role="switch"]::before,
-  [role="switch"]::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 2px !important;
-    left: 2px !important;
-    height: 20px !important;
-    width: 20px !important;
-    border-radius: 50% !important;
-    background-color: white !important;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
-    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-
-  button[role="switch"][data-state="checked"]::before,
-  [role="switch"][data-state="checked"]::before {
-    transform: translateX(20px) !important;
+  /* Normal case for Quick Actions */
+  .normal-case, 
+  button.normal-case {
+    text-transform: none;
+    letter-spacing: normal;
   }
   
   /* Make date display non-clickable */
@@ -233,6 +205,18 @@
   [data-variant="outline"]:not(:hover):not(:disabled) {
     background-color: transparent !important;
     border: 2px solid #2563EB !important;
+  }
+  
+  /* Simplified quick action button styling */
+  button.justify-between, 
+  .justify-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    text-align: left;
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 
@@ -379,4 +363,27 @@ button.normal-case span,
 .normal-case span {
   display: inline-block !important;
   vertical-align: middle !important;
+}
+
+/* Simplified button overrides */
+button.normal-case, 
+.normal-case {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* Quick action button specific styles */
+button.justify-between, 
+.justify-between {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.75rem 1rem !important;
+  height: auto !important;
+}
+
+button.justify-between span, 
+.justify-between span {
+  display: inline-flex !important;
+  align-items: center !important;
 }
