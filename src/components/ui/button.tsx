@@ -10,15 +10,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 text-white font-bold shadow-sm",
+        default: "bg-hrflow-blue text-primary-foreground hover:bg-hrflow-blue/90 text-white font-bold shadow-sm",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 text-white font-bold shadow-sm",
         outline:
-          "border-2 border-input bg-background hover:bg-accent hover:text-accent-foreground font-bold",
+          "border-2 border-hrflow-blue bg-background hover:bg-hrflow-blue hover:text-white font-bold",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 text-white font-bold shadow-sm",
         ghost: "hover:bg-accent hover:text-accent-foreground font-bold",
-        link: "text-primary underline-offset-4 hover:underline font-bold",
+        link: "text-hrflow-blue underline-offset-4 hover:underline font-bold",
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -46,11 +46,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     // Ensure we have a fallback style for maximum text visibility
     const enhancedStyle = {
-      color: variant === 'outline' ? 'inherit' : 'white',
+      color: variant === 'outline' ? '#2563EB' : 'white',
       textShadow: variant === 'outline' ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
       fontWeight: 'bold',
       letterSpacing: '0.5px',
-      textTransform: 'uppercase' as const, // Fix: TypeScript textTransform property
+      textTransform: 'uppercase' as const,
       ...style,
     };
     

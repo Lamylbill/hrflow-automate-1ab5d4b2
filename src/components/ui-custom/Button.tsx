@@ -4,20 +4,20 @@ import { cn } from '@/lib/utils';
 import { cva, VariantProps } from 'class-variance-authority';
 import { Button as ShadcnButton } from '@/components/ui/button';
 
-// Simplify the button variants with more consistent styling
+// Simplify the button variants with more consistent styling and HRFlow color scheme
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold", 
-        secondary: "bg-secondary text-white hover:bg-secondary/80 font-bold", 
-        outline: "border-2 border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-bold", 
+        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold uppercase", 
+        secondary: "bg-secondary text-white hover:bg-secondary/80 font-bold uppercase", 
+        outline: "border-2 border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue hover:text-white font-bold uppercase", 
         ghost: "hover:bg-accent hover:text-accent-foreground text-hrflow-blue font-bold", 
         link: "text-hrflow-blue underline-offset-4 hover:underline font-bold", 
-        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-bold", 
-        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-bold", 
-        destructive: "bg-red-500 text-white hover:bg-red-600 font-bold", 
+        glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-bold uppercase", 
+        premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-bold uppercase", 
+        destructive: "bg-red-500 text-white hover:bg-red-600 font-bold uppercase", 
       },
       size: {
         default: "h-10 px-4 py-2",
@@ -54,14 +54,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonStyle = {
       color: variant === 'outline' && !props.disabled ? '#2563EB' : 'white',
       fontWeight: 'bold',
-      ...(isQuickAction ? {} : { textTransform: 'uppercase' as const }),
+      ...(isQuickAction ? { textTransform: 'none' } : {}),
       ...style,
     };
     
     // Special handling for quick actions to ensure proper styling
     const buttonClassName = cn(
       buttonVariants({ variant, size, className }),
-      isQuickAction ? "normal-case justify-between text-left" : "uppercase",
+      isQuickAction ? "normal-case justify-between text-left" : ""
     );
     
     return (

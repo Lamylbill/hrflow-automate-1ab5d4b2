@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,7 +27,6 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmployeeFormValues } from '@/types/employee';
 
-// Form schema with validations
 const employeeFormSchema = z.object({
   full_name: z.string().min(2, { message: "Full name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -193,9 +191,24 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
         notes: data.notes || null,
       };
       
-      const { error } = await supabase.from("employees").insert(employeeData);
+      const { data: employeeResult, error } = await supabase.from("employees").insert(employeeData).select();
       
       if (error) throw error;
+      
+      if (employeeResult && employeeResult.length > 0) {
+        try {
+          await supabase.from("notifications").insert({
+            user_id: user.id,
+            title: 'New Employee Added',
+            message: `Employee ${data.full_name} has been added successfully.`,
+            type: 'success',
+            related_entity: 'employee',
+            related_id: employeeResult[0].id
+          });
+        } catch (notificationError) {
+          console.log("Notification failed but employee was added", notificationError);
+        }
+      }
       
       toast({
         title: "Success",
