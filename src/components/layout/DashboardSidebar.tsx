@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -18,8 +17,8 @@ import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import DateTimeBar from '@/components/ui-custom/DateTimeBar';
 
-// Sidebar Navigation Item component
 const SidebarNavItem = ({ 
   item, 
   collapsed, 
@@ -55,7 +54,6 @@ const SidebarNavItem = ({
   );
 };
 
-// Main DashboardSidebar component
 export const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -63,29 +61,24 @@ export const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Auto-collapse on smaller screens
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
-      // Automatically collapse sidebar on smaller screens
       if (window.innerWidth < 768) {
         setCollapsed(true);
       } else if (window.innerWidth >= 1024) {
-        // Auto-expand on larger screens
         setCollapsed(false);
       }
     };
 
     window.addEventListener('resize', handleResize);
-    // Initial check
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Update CSS variable whenever collapsed state changes
   useEffect(() => {
     if (typeof document !== 'undefined') {
       document.documentElement.style.setProperty(
@@ -118,7 +111,6 @@ export const DashboardSidebar = () => {
     setCollapsed(!collapsed);
   };
 
-  // Function to download CSV template
   const downloadCSVTemplate = () => {
     const csvHeader = "Full Name,Job Title,Department,Email,Phone Number,Date of Hire,Employment Type,Salary,Status,Profile Picture";
     const csvContent = "data:text/csv;charset=utf-8," + csvHeader;
@@ -131,12 +123,10 @@ export const DashboardSidebar = () => {
     document.body.removeChild(link);
   };
 
-  // Function to navigate to settings
   const navigateToSettings = () => {
     navigate('/settings', { state: { from: location.pathname } });
   };
 
-  // Function to navigate to the landing page with better performance
   const navigateToLanding = () => {
     navigate('/');
   };
@@ -150,7 +140,6 @@ export const DashboardSidebar = () => {
         collapsed ? 'w-[70px]' : 'w-[250px]'
       )}
     >
-      {/* Sidebar Header with Logo */}
       <div className={cn(
         'h-16 flex items-center px-4 border-b border-gray-200',
         collapsed ? 'justify-center' : 'justify-between'
@@ -185,7 +174,6 @@ export const DashboardSidebar = () => {
         )}
       </div>
 
-      {/* Collapse Trigger (Only visible when collapsed) */}
       {collapsed && (
         <Button
           variant="ghost"
@@ -197,7 +185,10 @@ export const DashboardSidebar = () => {
         </Button>
       )}
 
-      {/* User Profile Section */}
+      <div className="border-b border-gray-200">
+        <DateTimeBar collapsed={collapsed} />
+      </div>
+
       <div className={cn(
         'p-4 border-b border-gray-200 flex items-center',
         collapsed ? 'justify-center' : 'gap-3'
@@ -235,7 +226,6 @@ export const DashboardSidebar = () => {
         )}
       </div>
 
-      {/* Navigation Items */}
       <div className="flex-1 overflow-y-auto py-4">
         <nav className={cn("space-y-1 px-2", collapsed ? "items-center" : "")}>
           <TooltipProvider delayDuration={0}>
@@ -248,7 +238,6 @@ export const DashboardSidebar = () => {
               />
             ))}
             
-            {/* Settings Navigation Item */}
             <SidebarNavItem 
               key="/settings"
               item={{ 
@@ -261,7 +250,6 @@ export const DashboardSidebar = () => {
             />
           </TooltipProvider>
 
-          {/* Template Download Button */}
           {location.pathname === '/employees' && !collapsed && (
             <div className="mt-4 px-2">
               <Button
@@ -276,7 +264,6 @@ export const DashboardSidebar = () => {
             </div>
           )}
           
-          {/* Template Download Button (Collapsed sidebar) */}
           {location.pathname === '/employees' && collapsed && (
             <Tooltip disableHoverableContent={!collapsed}>
               <TooltipTrigger asChild>
@@ -297,7 +284,6 @@ export const DashboardSidebar = () => {
         </nav>
       </div>
 
-      {/* Logout Button */}
       <div className={cn(
         "p-4 border-t border-gray-200",
         collapsed ? "flex justify-center" : ""
@@ -327,7 +313,6 @@ export const DashboardSidebar = () => {
   );
 };
 
-// Export a hook to get the current sidebar state for other components
 export const useSidebarWidth = () => {
   const [collapsed, setCollapsed] = useState(false);
   

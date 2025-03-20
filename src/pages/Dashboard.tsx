@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Clock, Users, CalendarDays, DollarSign, Shield, BarChart3, ChevronRight, CircleUser } from 'lucide-react';
@@ -19,14 +18,12 @@ const Dashboard = () => {
   });
   const [isDataLoading, setIsDataLoading] = useState(true);
   
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate('/login');
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  // Temporary display of user profile until employee tables are created
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user) {
@@ -41,7 +38,6 @@ const Dashboard = () => {
             console.error('Error fetching profile:', error);
           } else {
             console.log('Fetched profile:', data);
-            // For now, we'll just set employee count to 0 or 1 for demo
             setEmployeeCount(0);
           }
         } catch (error) {
@@ -79,33 +75,10 @@ const Dashboard = () => {
     { title: "View Reports", icon: <BarChart3 className="flex-shrink-0" />, path: "/compliance" },
   ];
 
-  // Add a new component for the fixed date-time bar
-  const DateTimeBar = () => {
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
-    
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentTime(new Date().toLocaleTimeString());
-      }, 1000);
-      
-      return () => clearInterval(interval);
-    }, []);
-    
-    return (
-      <div className="fixed top-0 right-0 z-50 flex items-center mr-6 mt-4">
-        <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-md text-sm font-medium">
-          {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} | {currentTime}
-        </span>
-      </div>
-    );
-  };
-
   return (
     <div className="flex-1 flex flex-col">
-      <DateTimeBar />
       <div className="min-h-screen pt-6 pb-12 px-6">
         <div className="max-w-7xl mx-auto">
-          {/* Welcome Header */}
           <AnimatedSection>
             <div className="mb-8">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -116,10 +89,6 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <span className="inline-block bg-gray-100 text-gray-700 py-2 px-3 rounded-md mr-2">
-                    <Clock className="inline-block mr-2 h-4 w-4" /> 
-                    {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </span>
                   <Button variant="primary" size="sm">
                     <BarChart className="mr-2 h-4 w-4" /> View Reports
                   </Button>
@@ -128,7 +97,6 @@ const Dashboard = () => {
             </div>
           </AnimatedSection>
 
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
             <AnimatedSection delay={100}>
               <PremiumCard className="h-full">
@@ -205,9 +173,7 @@ const Dashboard = () => {
             </AnimatedSection>
           </div>
 
-          {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content Area */}
             <AnimatedSection className="lg:col-span-2">
               <PremiumCard>
                 <CardHeader>
@@ -288,14 +254,14 @@ const Dashboard = () => {
                         <Button 
                           key={index} 
                           variant="outline" 
-                          className="justify-between text-blue-600 h-auto py-3 px-4 font-semibold normal-case"
+                          className="justify-between h-auto py-3 px-4 normal-case font-medium flex items-center"
                           onClick={() => action.path && navigate(action.path)}
                         >
                           <div className="flex items-center">
                             <span className="mr-3 text-blue-500">{action.icon}</span>
                             <span className="text-blue-600">{action.title}</span>
                           </div>
-                          <ChevronRight className="ml-2 h-5 w-5 text-blue-500" />
+                          <ChevronRight className="h-5 w-5 text-blue-500" />
                         </Button>
                       ))}
                     </div>
