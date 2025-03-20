@@ -29,33 +29,34 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { 
-    title: React.ReactNode;
-    children: React.ReactNode;
+interface ListItemProps extends React.ComponentPropsWithoutRef<"a"> {
+  title: React.ReactNode;
+  children: React.ReactNode;
+}
+
+const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps>(
+  ({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-hrflow-blue hover:text-white focus:bg-hrflow-blue focus:text-white",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
   }
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-hrflow-blue hover:text-white focus:bg-hrflow-blue focus:text-white",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
+);
 ListItem.displayName = "ListItem";
 
 export const Navbar = ({ showLogo = true }: NavbarProps) => {
@@ -149,12 +150,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                       {featuresItems.map((item, index) => (
                         <ListItem
                           key={index}
-                          title={(
+                          title={
                             <div className="flex items-center">
                               {item.icon}
                               <span className="ml-2 font-medium">{item.title}</span>
                             </div>
-                          )}
+                          }
                           href={item.href}
                           onClick={(e) => scrollToSection(e, item.href)}
                         >
