@@ -30,7 +30,7 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-// Completely revised ListItem component with proper typing
+// Completely rewritten ListItem component with correct typing
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { 
