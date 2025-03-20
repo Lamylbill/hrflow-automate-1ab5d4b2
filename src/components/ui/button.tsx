@@ -44,13 +44,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
-    // Ensure we have a fallback style with proper type for maximum text visibility
+    // Enhanced styling for maximum visibility
     const enhancedStyle = {
       color: variant === 'outline' ? '#2563EB' : 'white',
-      textShadow: variant === 'outline' ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
+      textShadow: variant === 'outline' ? 'none' : '0 1px 2px rgba(0,0,0,0.3)',
       fontWeight: 'bold',
-      letterSpacing: '0.5px',
-      textTransform: 'uppercase' as const,
+      letterSpacing: '0.25px',
+      opacity: 1,
       ...style,
     };
     

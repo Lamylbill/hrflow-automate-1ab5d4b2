@@ -1,6 +1,7 @@
 
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
+import { Employee } from '@/types/employee';
 
 /**
  * Generates and downloads an Excel file with the provided data
@@ -29,6 +30,56 @@ export function generateExcel(
   
   // Download the file
   saveAs(data, `${filename}.xlsx`);
+}
+
+/**
+ * Export all employee data to Excel including all fields
+ * @param employees Array of employee objects
+ */
+export function exportEmployeesToExcel(employees: Employee[]) {
+  if (!employees || employees.length === 0) {
+    return false;
+  }
+  
+  // Get all possible field names from all employees
+  const allFields = new Set<string>();
+  employees.forEach(employee => {
+    Object.keys(employee).forEach(key => {
+      if (key !== 'id' && key !== 'user_id') { // Skip internal IDs
+        allFields.add(key);
+      }
+    });
+  });
+  
+  // Create header row with readable field names
+  const headers = Array.from(allFields).map(field => {
+    // Convert field_name to Field Name format
+    return field.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  });
+  
+  // Create data rows with all fields
+  const data = employees.map(employee => {
+    return Array.from(allFields).map(field => {
+      const value = employee[field as keyof Employee];
+      
+      // Handle different data types appropriately
+      if (value === null || value === undefined) {
+        return '';
+      } else if (Array.isArray(value)) {
+        return value.join(', ');
+      } else if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+      } else {
+        return value;
+      }
+    });
+  });
+  
+  // Combine headers and data
+  const exportData = [headers, ...data];
+  
+  generateExcel("employees_export", [{ name: "Employees", data: exportData }]);
+  return true;
 }
 
 /**

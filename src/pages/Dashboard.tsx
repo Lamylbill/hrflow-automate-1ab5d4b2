@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Clock, Users, CalendarDays, DollarSign, Shield, BarChart3, ChevronRight, CircleUser } from 'lucide-react';
@@ -6,12 +7,16 @@ import { PremiumCard, CardContent, CardHeader, CardTitle, CardDescription } from
 import { useAuth } from '@/context/AuthContext';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
+import { Employee } from '@/types/employee';
 
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const [employeeCount, setEmployeeCount] = useState(0);
+  const [recentEmployees, setRecentEmployees] = useState<Employee[]>([]);
   const [dashboardData, setDashboardData] = useState({
+    activeEmployees: 0,
+    onLeaveCount: 0,
     pendingApprovals: 0,
     payrollTotal: 0,
     complianceScore: 0
@@ -24,31 +29,54 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
+  // Fetch employee data for dashboard metrics
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user) {
-        try {
-          console.log('Fetching profile for user:', user.id);
-          const { data, error, count } = await supabase
-            .from('profiles')
-            .select('*', { count: 'exact' })
-            .eq('id', user.id);
-            
-          if (error) {
-            console.error('Error fetching profile:', error);
-          } else {
-            console.log('Fetched profile:', data);
-            setEmployeeCount(0);
-          }
-        } catch (error) {
-          console.error('Error in profile fetch:', error);
-        } finally {
-          setIsDataLoading(false);
+    const fetchEmployeeData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsDataLoading(true);
+        
+        // Get all employees to calculate metrics
+        const { data: employeesData, error: employeesError } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('date_of_hire', { ascending: false });
+          
+        if (employeesError) {
+          throw employeesError;
         }
+        
+        // Calculate dashboard metrics from employee data
+        const employees = employeesData as Employee[];
+        const activeCount = employees.filter(e => e.employment_status === 'Active').length;
+        const onLeaveCount = employees.filter(e => e.employment_status === 'On Leave').length;
+        
+        // Calculate total payroll based on active employees' salaries
+        const totalPayroll = employees
+          .filter(e => e.employment_status === 'Active' && e.salary)
+          .reduce((sum, emp) => sum + (emp.salary || 0), 0);
+          
+        setEmployeeCount(employees.length);
+        setRecentEmployees(employees.slice(0, 3)); // Get 3 most recent employees
+        
+        setDashboardData({
+          activeEmployees: activeCount,
+          onLeaveCount: onLeaveCount, 
+          pendingApprovals: 0, // This would come from a leave requests table
+          payrollTotal: totalPayroll,
+          complianceScore: employees.length > 0 ? 100 : 0
+        });
+        
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+      } finally {
+        setIsDataLoading(false);
       }
     };
     
-    fetchUserProfile();
+    fetchEmployeeData();
   }, [user]);
 
   if (isLoading) {
@@ -74,6 +102,16 @@ const Dashboard = () => {
     { title: "Manage Leave Requests", icon: <CalendarDays className="flex-shrink-0" />, path: "/leave" },
     { title: "View Reports", icon: <BarChart3 className="flex-shrink-0" />, path: "/compliance" },
   ];
+
+  // Format currency with commas
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-SG', { 
+      style: 'currency', 
+      currency: 'SGD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0 
+    }).format(amount);
+  };
 
   return (
     <div className="flex-1 flex flex-col">
@@ -110,7 +148,7 @@ const Dashboard = () => {
                   <div className="flex items-baseline mt-1">
                     <div className="text-2xl font-semibold">{isDataLoading ? '...' : employeeCount}</div>
                     <div className="ml-2 text-xs text-gray-500">
-                      {employeeCount === 0 ? 'No employees yet' : 'Employees'}
+                      {isDataLoading ? '' : dashboardData.activeEmployees} active
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Employees managed in the system</p>
@@ -122,16 +160,16 @@ const Dashboard = () => {
               <PremiumCard className="h-full">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
-                    <CardTitle className="text-sm font-medium text-gray-500">Pending Approvals</CardTitle>
+                    <CardTitle className="text-sm font-medium text-gray-500">On Leave Today</CardTitle>
                     <div className="p-2 rounded-full bg-gray-50"><Clock className="h-5 w-5 text-yellow-500" /></div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-baseline mt-1">
-                    <div className="text-2xl font-semibold">0</div>
-                    <div className="ml-2 text-xs text-gray-500">Requests</div>
+                    <div className="text-2xl font-semibold">{isDataLoading ? '...' : dashboardData.onLeaveCount}</div>
+                    <div className="ml-2 text-xs text-gray-500">Employees</div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">Leave and requests waiting for review</p>
+                  <p className="text-xs text-gray-500 mt-2">Employees currently on leave</p>
                 </CardContent>
               </PremiumCard>
             </AnimatedSection>
@@ -146,7 +184,9 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-baseline mt-1">
-                    <div className="text-2xl font-semibold">${isDataLoading ? '0' : employeeCount > 0 ? employeeCount * 1000 : 0}</div>
+                    <div className="text-2xl font-semibold">
+                      {isDataLoading ? '...' : formatCurrency(dashboardData.payrollTotal)}
+                    </div>
                     <div className="ml-2 text-xs text-gray-500">Estimated</div>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Total estimated for next payroll run</p>
@@ -164,7 +204,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-baseline mt-1">
-                    <div className="text-2xl font-semibold">100%</div>
+                    <div className="text-2xl font-semibold">{dashboardData.complianceScore}%</div>
                     <div className="ml-2 text-xs text-green-500">Compliant</div>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Overall regulatory compliance score</p>
@@ -229,15 +269,37 @@ const Dashboard = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <div className="flex items-center">
-                          <div className="bg-gray-100 rounded-full h-8 w-8 flex items-center justify-center text-gray-500 mr-3">
-                            <Users className="h-4 w-4" />
+                        {isDataLoading ? (
+                          <div className="animate-pulse space-y-3">
+                            {[1, 2, 3].map(i => (
+                              <div key={i} className="flex items-center">
+                                <div className="bg-gray-200 rounded-full h-8 w-8 mr-3"></div>
+                                <div className="flex-1">
+                                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+                                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                          <div>
-                            <p className="text-sm font-medium">Loading employees...</p>
-                            <p className="text-xs text-gray-500">View the Employees page for details</p>
-                          </div>
-                        </div>
+                        ) : (
+                          recentEmployees.length > 0 ? (
+                            recentEmployees.map((employee) => (
+                              <div className="flex items-center" key={employee.id}>
+                                <div className="bg-hrflow-blue rounded-full h-8 w-8 flex items-center justify-center text-white mr-3">
+                                  {employee.full_name?.charAt(0) || 'E'}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">{employee.full_name}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {employee.job_title || 'No title'} • {employee.date_of_hire ? new Date(employee.date_of_hire).toLocaleDateString() : 'No date'}
+                                  </p>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-center text-gray-500">No recent employees</p>
+                          )
+                        )}
                       </div>
                     )}
                   </CardContent>
@@ -302,7 +364,7 @@ const Dashboard = () => {
                         <div>
                           <h4 className="text-sm font-medium">Payroll Processing</h4>
                           <p className="text-xs text-gray-500">{new Date(new Date().setDate(new Date().getDate() + 10)).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} • All Day</p>
-                          <p className="text-xs text-gray-500 mt-1">Monthly salary processing</p>
+                          <p className="text-xs text-gray-500 mt-1">Monthly salary processing for {dashboardData.activeEmployees} active employees</p>
                         </div>
                       </div>
                     </div>

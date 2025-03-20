@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -51,22 +50,12 @@ import {
   DialogFooter 
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { generateEmployeeTemplate, generateExcel } from '@/utils/excelUtils';
-import { NotificationBell } from '@/components/ui-custom/NotificationBell';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetDescription, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetTrigger, 
-  SheetFooter 
-} from '@/components/ui/sheet';
+import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
 import { Employee } from '@/types/employee';
 
-// Employee Card Component for Card View
 const EmployeeCard = ({ 
   employee,
   onViewDetails,
@@ -310,7 +299,6 @@ const ImportEmployeesDialog = ({ onImportSuccess }: { onImportSuccess?: () => vo
   );
 };
 
-// Main Employees Page Component
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -369,42 +357,11 @@ const EmployeesPage = () => {
       return;
     }
     
-    const headers = [
-      "Full Name",
-      "Email",
-      "Job Title",
-      "Department",
-      "Employment Type",
-      "Employment Status",
-      "Date of Hire",
-      "Phone Number",
-      "Employee Code"
-    ];
-    
-    const data = employees.map(employee => [
-      employee.full_name,
-      employee.email,
-      employee.job_title || "",
-      employee.department || "",
-      employee.employment_type || "",
-      employee.employment_status || "",
-      employee.date_of_hire || "",
-      employee.phone_number || "",
-      employee.employee_code || ""
-    ]);
-    
-    data.unshift(headers);
-    
-    generateExcel("employees_export", [
-      {
-        name: "Employees",
-        data: data
-      }
-    ]);
+    exportEmployeesToExcel(employees);
     
     toast({
       title: "Export Successful",
-      description: "Employees exported successfully.",
+      description: "Employees exported successfully with all fields.",
       duration: 3000,
     });
   };
@@ -517,7 +474,6 @@ const EmployeesPage = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
-            <NotificationBell className="text-hrflow-blue hover:text-hrflow-blue-light" />
             <p className="mt-1 text-gray-600">
               Manage your organization's employees
             </p>
@@ -828,7 +784,6 @@ const EmployeesPage = () => {
         )}
       </AnimatedSection>
 
-      {/* Sheet for adding/editing employees */}
       <Sheet 
         open={isAddEmployeeOpen} 
         onOpenChange={setIsAddEmployeeOpen}
@@ -854,7 +809,6 @@ const EmployeesPage = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Employee Details Dialog */}
       {selectedEmployee && (
         <EmployeeDetailsDialog 
           employee={selectedEmployee}
