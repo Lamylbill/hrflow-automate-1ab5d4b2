@@ -57,8 +57,6 @@ const employeeFormSchema = z.object({
   notes: z.string().optional(),
 });
 
-type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
-
 const employmentTypes = [
   "Full-time",
   "Part-time",
@@ -144,7 +142,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const form = useForm<EmployeeFormValues>({
+  const form = useForm<z.infer<typeof employeeFormSchema>>({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: {
       employment_status: "Active",
@@ -152,7 +150,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
     },
   });
   
-  const onSubmit = async (data: EmployeeFormValues) => {
+  const onSubmit = async (data: z.infer<typeof employeeFormSchema>) => {
     if (!user) {
       toast({
         title: "Authentication Error",
