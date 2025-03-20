@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -13,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui-custom/Button';
 import { LoadingSpinner } from '@/components/ui-custom/LoadingSpinner';
-import { User, Shield, Image, Settings as SettingsIcon } from 'lucide-react';
+import { User, Shield, Image, Settings as SettingsIcon, Camera } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
@@ -49,10 +48,8 @@ const Settings = () => {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
-  // Load user data when component mounts
   useEffect(() => {
     if (user) {
-      // Fetch profile data from Supabase or use metadata
       const metadata = user.user_metadata || {};
       setProfileForm({
         fullName: metadata.full_name || '',
@@ -61,14 +58,12 @@ const Settings = () => {
         jobTitle: metadata.job_title || '',
       });
       
-      // Set avatar URL if available
       if (metadata.avatar_url) {
         setAvatarUrl(metadata.avatar_url);
       }
     }
   }, [user]);
 
-  // Handle profile form changes
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileForm(prev => ({
@@ -77,7 +72,6 @@ const Settings = () => {
     }));
   };
 
-  // Handle password form changes
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordForm(prev => ({
@@ -86,26 +80,22 @@ const Settings = () => {
     }));
   };
 
-  // Handle avatar file selection
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setAvatarFile(file);
       
-      // Create a temporary URL for preview
       const objectUrl = URL.createObjectURL(file);
       setAvatarUrl(objectUrl);
     }
   };
 
-  // Update profile information
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
     
     setIsUpdating(true);
     try {
-      // Update user metadata
       const { error } = await supabase.auth.updateUser({
         data: {
           full_name: profileForm.fullName,
@@ -116,22 +106,17 @@ const Settings = () => {
       
       if (error) throw error;
       
-      // Upload avatar if selected
       if (avatarFile) {
-        // Check if storage bucket exists, create a unique file name
         const fileName = `avatar-${user.id}-${Date.now()}.${avatarFile.name.split('.').pop()}`;
         
-        // Upload to Storage
         const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(fileName, avatarFile, { upsert: true });
           
         if (uploadError) throw uploadError;
         
-        // Get public URL for the uploaded file
         const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
         
-        // Update user metadata with avatar URL
         if (data) {
           const { error: updateError } = await supabase.auth.updateUser({
             data: { avatar_url: data.publicUrl }
@@ -150,11 +135,9 @@ const Settings = () => {
     }
   };
 
-  // Update password
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate passwords
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error("New passwords don't match");
       return;
@@ -173,7 +156,6 @@ const Settings = () => {
       
       if (error) throw error;
       
-      // Reset form
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
