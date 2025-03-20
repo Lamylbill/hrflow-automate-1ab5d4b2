@@ -106,12 +106,23 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
         });
         setIsMobileMenuOpen(false); // Close mobile menu after navigation
       } else {
-        navigate('/' + sectionId);
-        toast.info(`Navigating to ${targetId} section`);
+        // If we're not on the home page, navigate to home with the hash
+        if (location.pathname !== '/') {
+          navigate('/' + sectionId);
+          toast.info(`Navigating to ${targetId} section`);
+        } else {
+          // If we are on the home page but section doesn't exist, just notify
+          toast.info(`Navigating to ${targetId} section`);
+        }
       }
     } else {
       navigate(sectionId);
     }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    navigate('/');
   };
 
   return (
@@ -136,39 +147,25 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link 
-                    to="/" 
+                  <a 
+                    href="/" 
+                    onClick={handleHomeClick}
                     className={navigationMenuTriggerStyle()}
                   >
                     <Home className="h-4 w-4 mr-2" />
                     <span className="font-medium">Home</span>
-                  </Link>
+                  </a>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="font-medium">
+                  <a 
+                    href="#features" 
+                    onClick={(e) => scrollToSection(e, '#features')}
+                    className={navigationMenuTriggerStyle()}
+                  >
                     <BarChart className="h-4 w-4 mr-2" />
                     <span className="font-medium">Features</span>
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      {featuresItems.map((item, index) => (
-                        <ListItem
-                          key={index}
-                          title={
-                            <div className="flex items-center">
-                              {item.icon}
-                              <span className="ml-2 font-medium">{item.title}</span>
-                            </div>
-                          }
-                          href={item.href}
-                          onClick={(e) => scrollToSection(e, item.href)}
-                        >
-                          {item.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
+                  </a>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
@@ -270,7 +267,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                 <a
                   key={item.name}
                   href={item.href}
-                  onClick={(e) => scrollToSection(e, item.href)}
+                  onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
