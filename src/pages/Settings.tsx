@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui-custom/Button';
 import { LoadingSpinner } from '@/components/ui-custom/LoadingSpinner';
-import { User, Shield, Image, Settings as SettingsIcon, Camera, ArrowLeft, ChevronLeft } from 'lucide-react';
+import { User, Shield, Camera, Settings as SettingsIcon, ChevronLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
@@ -201,7 +201,7 @@ const Settings = () => {
             className="flex items-center gap-2"
           >
             <ChevronLeft className="h-4 w-4" />
-            <span>Back</span>
+            <span>Back to {returnPath === '/dashboard' ? 'Dashboard' : 'Home'}</span>
           </Button>
         </div>
         

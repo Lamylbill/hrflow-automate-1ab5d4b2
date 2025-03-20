@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   LayoutDashboard, 
@@ -11,11 +11,12 @@ import {
   LogOut, 
   ChevronLeft,
   ChevronRight,
-  Download
+  Download,
+  Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Sidebar Navigation Item component
@@ -60,6 +61,7 @@ export const DashboardSidebar = () => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Auto-collapse on smaller screens
   useEffect(() => {
@@ -103,6 +105,12 @@ export const DashboardSidebar = () => {
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
+    
+    const metadata = user.user_metadata || {};
+    if (metadata.full_name) {
+      return metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+    }
+    
     return user.email.substring(0, 2).toUpperCase();
   };
 
@@ -123,10 +131,17 @@ export const DashboardSidebar = () => {
     document.body.removeChild(link);
   };
 
-  // Function to navigate to the landing page
-  const navigateToLanding = () => {
-    window.location.href = "/";
+  // Function to navigate to settings
+  const navigateToSettings = () => {
+    navigate('/settings', { state: { from: location.pathname } });
   };
+
+  // Function to navigate to the landing page with better performance
+  const navigateToLanding = () => {
+    navigate('/');
+  };
+
+  const avatarImageUrl = user?.user_metadata?.avatar_url || null;
 
   return (
     <aside
@@ -187,16 +202,31 @@ export const DashboardSidebar = () => {
         'p-4 border-b border-gray-200 flex items-center',
         collapsed ? 'justify-center' : 'gap-3'
       )}>
-        <Avatar className={cn("bg-hrflow-blue", collapsed ? "h-10 w-10" : "h-12 w-12")}>
-          <AvatarFallback className="text-white font-medium">
-            {getUserInitials()}
-          </AvatarFallback>
-        </Avatar>
+        <div 
+          className="cursor-pointer" 
+          onClick={navigateToSettings}
+          aria-label="Go to settings"
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Avatar className={cn("bg-hrflow-blue", collapsed ? "h-10 w-10" : "h-12 w-12")}>
+                {avatarImageUrl ? (
+                  <AvatarImage src={avatarImageUrl} alt="Profile" />
+                ) : (
+                  <AvatarFallback className="text-white font-medium">
+                    {getUserInitials()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>Go to Settings</TooltipContent>
+          </Tooltip>
+        </div>
         
         {!collapsed && (
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {user?.email ? user.email.split('@')[0] : 'User'}
+              {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
             </p>
             <p className="text-xs text-gray-500 truncate">
               {user?.email || 'user@example.com'}
@@ -217,6 +247,18 @@ export const DashboardSidebar = () => {
                 isActive={location.pathname === item.path}
               />
             ))}
+            
+            {/* Settings Navigation Item */}
+            <SidebarNavItem 
+              key="/settings"
+              item={{ 
+                name: 'Settings', 
+                path: '/settings', 
+                icon: <Settings className="h-5 w-5" /> 
+              }} 
+              collapsed={collapsed} 
+              isActive={location.pathname === '/settings'}
+            />
           </TooltipProvider>
 
           {/* Template Download Button */}

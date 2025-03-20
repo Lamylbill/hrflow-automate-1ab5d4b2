@@ -90,7 +90,7 @@ const Dashboard = () => {
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
                   <p className="mt-1 text-gray-600">
-                    {user?.email ? user.email.split('@')[0] : 'User'}'s HR Dashboard
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}'s HR Dashboard
                   </p>
                 </div>
                 <div className="mt-4 md:mt-0">
@@ -265,12 +265,14 @@ const Dashboard = () => {
                         <Button 
                           key={index} 
                           variant="outline" 
-                          className="justify-start text-gray-700"
+                          className="justify-start text-gray-700 h-auto py-2 overflow-hidden whitespace-normal"
                           onClick={() => action.path && navigate(action.path)}
                         >
-                          {action.icon}
-                          <span>{action.title}</span>
-                          <ChevronRight className="ml-auto h-4 w-4" />
+                          <span className="flex items-center flex-shrink-0">
+                            <span className="mr-2">{action.icon}</span>
+                            <span className="truncate">{action.title}</span>
+                          </span>
+                          <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0" />
                         </Button>
                       ))}
                     </div>
