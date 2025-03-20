@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Users, Clock, Calendar, BarChart, ShieldCheck, Briefcase, ChevronRight } from 'lucide-react';
@@ -6,9 +7,11 @@ import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
+import { getFeaturesItems } from '@/components/layout/NavItems';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
+  const featuresItems = getFeaturesItems();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -19,31 +22,37 @@ const Index = () => {
       icon: <Users className="h-10 w-10 text-hrflow-blue" />,
       title: "Employee Management",
       description: "Centralized database for all employee records with self-service portal and digital profiles.",
+      id: "features-employee"
     },
     {
       icon: <Briefcase className="h-10 w-10 text-hrflow-blue" />,
       title: "Recruitment & Onboarding",
       description: "AI-powered job matching with automated document collection for seamless onboarding.",
+      id: "features-recruitment"
     },
     {
       icon: <Clock className="h-10 w-10 text-hrflow-blue" />,
       title: "Leave & Attendance",
       description: "Streamlined leave management with approval workflows and time tracking capabilities.",
+      id: "features-leave"
     },
     {
       icon: <BarChart className="h-10 w-10 text-hrflow-blue" />,
       title: "Performance Management",
       description: "Set and track performance goals with AI-driven productivity insights.",
+      id: "features-performance"
     },
     {
       icon: <Calendar className="h-10 w-10 text-hrflow-blue" />,
       title: "Payroll & Compensation",
       description: "Automated calculations with Singapore/Malaysia compliance for CPF, MOM, and IRAS.",
+      id: "features-payroll"
     },
     {
       icon: <ShieldCheck className="h-10 w-10 text-hrflow-blue" />,
       title: "Compliance & Security",
       description: "Meet regulatory requirements with secure document storage and automated compliance.",
+      id: "features-compliance"
     },
   ];
 
@@ -118,7 +127,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <AnimatedSection delay={100 * index} key={index}>
-                <PremiumCard variant="feature" className="h-full">
+                <PremiumCard variant="feature" className="h-full" id={feature.id}>
                   <CardContent className="pt-6">
                     <div className="mb-4">{feature.icon}</div>
                     <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
@@ -131,7 +140,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-20 px-6 bg-gray-50 border-t border-b border-gray-100">
+      <section id="pricing" className="py-20 px-6 bg-gray-50 border-t border-b border-gray-100">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <AnimatedSection>
@@ -180,7 +189,7 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-24 px-6 bg-white">
+      <section id="contact" className="py-24 px-6 bg-white">
         <div className="container mx-auto max-w-5xl">
           <AnimatedSection>
             <div className="bg-gradient-to-r from-hrflow-blue to-blue-500 rounded-3xl p-12 text-white text-center">
@@ -202,7 +211,7 @@ const Index = () => {
         </div>
       </section>
 
-      <footer className="py-12 px-6 bg-gray-50 border-t border-gray-200">
+      <footer id="about" className="py-12 px-6 bg-gray-50 border-t border-gray-200">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
@@ -220,7 +229,7 @@ const Index = () => {
               <ul className="space-y-2">
                 {['Features', 'Pricing', 'Demo', 'Security'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-600 hover:text-hrflow-blue">
+                    <a href={`#${item.toLowerCase()}`} className="text-gray-600 hover:text-hrflow-blue">
                       {item}
                     </a>
                   </li>
@@ -233,7 +242,7 @@ const Index = () => {
               <ul className="space-y-2">
                 {['About', 'Careers', 'Blog', 'Legal'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-600 hover:text-hrflow-blue">
+                    <a href={`#${item.toLowerCase()}`} className="text-gray-600 hover:text-hrflow-blue">
                       {item}
                     </a>
                   </li>
@@ -246,7 +255,7 @@ const Index = () => {
               <ul className="space-y-2">
                 {['Help Center', 'Contact', 'Status', 'Guides'].map((item) => (
                   <li key={item}>
-                    <a href="#" className="text-gray-600 hover:text-hrflow-blue">
+                    <a href={`#${item.toLowerCase().replace(' ', '-')}`} className="text-gray-600 hover:text-hrflow-blue">
                       {item}
                     </a>
                   </li>
@@ -261,7 +270,7 @@ const Index = () => {
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               {['Privacy', 'Terms', 'Cookies'].map((item) => (
-                <a key={item} href="#" className="text-gray-500 text-sm hover:text-hrflow-blue">
+                <a key={item} href={`#${item.toLowerCase()}`} className="text-gray-500 text-sm hover:text-hrflow-blue">
                   {item}
                 </a>
               ))}

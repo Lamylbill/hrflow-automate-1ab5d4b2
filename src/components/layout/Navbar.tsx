@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -22,6 +23,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getNavItems, getFeaturesItems } from './NavItems';
+import { toast } from "sonner";
 
 interface NavbarProps {
   showLogo?: boolean;
@@ -29,7 +32,10 @@ interface NavbarProps {
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a"> & { title: React.ReactNode }
+  React.ComponentPropsWithoutRef<"a"> & { 
+    title: React.ReactNode;
+    children: React.ReactNode;
+  }
 >(({ className, title, children, ...props }, ref) => {
   return (
     <li>
@@ -37,7 +43,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-hrflow-blue hover:text-white focus:bg-hrflow-blue focus:text-white",
             className
           )}
           {...props}
@@ -58,6 +64,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -72,40 +79,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const publicNavItems = [
-    { name: 'Home', href: '/', icon: <Home className="h-4 w-4 mr-2" /> },
-    { name: 'Features', href: '#features', icon: <BarChart className="h-4 w-4 mr-2" /> },
-    { name: 'Pricing', href: '#pricing', icon: <FileText className="h-4 w-4 mr-2" /> },
-    { name: 'Contact', href: '#contact', icon: <Phone className="h-4 w-4 mr-2" /> },
-    { name: 'About', href: '#about', icon: <Info className="h-4 w-4 mr-2" /> },
-  ];
-
-  const featuresItems = [
-    { 
-      title: "Employee Management", 
-      description: "Centralized database for employee records",
-      icon: <Users className="h-5 w-5 text-hrflow-blue" />,
-      href: "#features"
-    },
-    { 
-      title: "Payroll & Compliance", 
-      description: "Automated calculations with Singapore compliance",
-      icon: <Calendar className="h-5 w-5 text-hrflow-blue" />,
-      href: "#features"
-    },
-    { 
-      title: "Leave Management", 
-      description: "Streamlined approval workflows",
-      icon: <Calendar className="h-5 w-5 text-hrflow-blue" />,
-      href: "#features"
-    },
-    { 
-      title: "Performance Tracking", 
-      description: "Set and track performance goals",
-      icon: <BarChart className="h-5 w-5 text-hrflow-blue" />,
-      href: "#features"
-    },
-  ];
+  const publicNavItems = getNavItems();
+  const featuresItems = getFeaturesItems();
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
@@ -113,12 +88,26 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
   };
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    
     if (sectionId.startsWith('#')) {
-      e.preventDefault();
-      const element = document.getElementById(sectionId.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+      const targetId = sectionId.substring(1);
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 100, // Offset for header
+          behavior: 'smooth'
+        });
+        setIsMobileMenuOpen(false); // Close mobile menu after navigation
+      } else {
+        // If element doesn't exist on current page, navigate to home with hash
+        navigate('/' + sectionId);
+        toast.info(`Navigating to ${targetId} section`);
       }
+    } else {
+      // For regular routes
+      navigate(sectionId);
     }
   };
 
@@ -128,7 +117,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled || isAuthenticated || location.pathname !== '/' 
           ? 'bg-white/95 backdrop-blur-md shadow-sm' 
-          : 'bg-transparent'
+          : 'bg-white/80 backdrop-blur-sm'
       )}
     >
       <nav className="container mx-auto px-6 py-3">
@@ -144,16 +133,19 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <Link to="/" className={navigationMenuTriggerStyle()}>
+                  <Link 
+                    to="/" 
+                    className={navigationMenuTriggerStyle()}
+                  >
                     <Home className="h-4 w-4 mr-2" />
-                    Home
+                    <span className="font-medium">Home</span>
                   </Link>
                 </NavigationMenuItem>
                 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="font-medium">
                     <BarChart className="h-4 w-4 mr-2" />
-                    Features
+                    <span className="font-medium">Features</span>
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -163,7 +155,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                           title={
                             <div className="flex items-center">
                               {item.icon}
-                              <span className="ml-2">{item.title}</span>
+                              <span className="ml-2 font-medium">{item.title}</span>
                             </div>
                           }
                           href={item.href}
@@ -183,7 +175,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     className={navigationMenuTriggerStyle()}
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    Pricing
+                    <span className="font-medium">Pricing</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -194,7 +186,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     className={navigationMenuTriggerStyle()}
                   >
                     <Phone className="h-4 w-4 mr-2" />
-                    Contact
+                    <span className="font-medium">Contact</span>
                   </a>
                 </NavigationMenuItem>
                 
@@ -205,7 +197,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     className={navigationMenuTriggerStyle()}
                   >
                     <Info className="h-4 w-4 mr-2" />
-                    About
+                    <span className="font-medium">About</span>
                   </a>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -280,7 +272,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
                       ? "bg-hrflow-blue/10 text-hrflow-blue"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-hrflow-blue"
+                      : "text-gray-700 hover:bg-hrflow-blue hover:text-white"
                   )}
                 >
                   {item.icon}
