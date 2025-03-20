@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { EmployeeFormValues } from '@/types/employee';
+import { Employee, EmployeeFormValues } from '@/types/employee';
 
 const employeeFormSchema = z.object({
   full_name: z.string().min(2, { message: "Full name is required" }),
@@ -136,9 +135,10 @@ const Section = ({ title, children }: SectionProps) => (
 interface AddEmployeeFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  employeeData?: Employee | null;
 }
 
-export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) => {
+export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmployeeFormProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -149,6 +149,40 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
       cpf_contribution: false,
     },
   });
+  
+  useEffect(() => {
+    if (employeeData) {
+      form.reset({
+        full_name: employeeData.full_name,
+        email: employeeData.email,
+        job_title: employeeData.job_title || undefined,
+        department: employeeData.department || undefined,
+        employment_type: employeeData.employment_type || undefined,
+        employment_status: employeeData.employment_status || "Active",
+        date_of_hire: employeeData.date_of_hire || undefined,
+        phone_number: employeeData.phone_number || undefined,
+        date_of_birth: employeeData.date_of_birth || undefined,
+        nationality: employeeData.nationality || undefined,
+        gender: employeeData.gender || undefined,
+        home_address: employeeData.home_address || undefined,
+        postal_code: employeeData.postal_code || undefined,
+        emergency_contact_name: employeeData.emergency_contact_name || undefined,
+        emergency_contact_phone: employeeData.emergency_contact_phone || undefined,
+        salary: employeeData.salary || undefined,
+        bank_name: employeeData.bank_name || undefined,
+        bank_account_number: employeeData.bank_account_number || undefined,
+        cpf_contribution: employeeData.cpf_contribution || false,
+        cpf_account_number: employeeData.cpf_account_number || undefined,
+        tax_identification_number: employeeData.tax_identification_number || undefined,
+        leave_entitlement: employeeData.leave_entitlement || undefined,
+        medical_entitlement: employeeData.medical_entitlement || undefined,
+        employee_code: employeeData.employee_code || undefined,
+        reporting_manager: employeeData.reporting_manager || undefined,
+        probation_status: employeeData.probation_status || undefined,
+        notes: employeeData.notes || undefined,
+      });
+    }
+  }, [employeeData, form]);
   
   const onSubmit = async (data: z.infer<typeof employeeFormSchema>) => {
     if (!user) {
@@ -192,31 +226,51 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
         notes: data.notes || null,
       };
       
-      const { data: employeeResult, error } = await supabase.from("employees").insert(employeeData).select();
+      let result;
       
-      if (error) throw error;
-      
-      // Create a notification for the employee creation
-      if (employeeResult && employeeResult.length > 0) {
-        // Add a notification using the new RLS policy
-        const { error: notificationError } = await supabase.from("notifications").insert({
-          user_id: user.id,
-          title: 'New Employee Added',
-          message: `Employee ${data.full_name} has been added successfully.`,
-          type: 'success',
-          related_entity: 'employee',
-          related_id: employeeResult[0].id
-        });
+      if (form.formState.defaultValues && "id" in form.formState.defaultValues) {
+        const { data: updatedEmployee, error } = await supabase
+          .from("employees")
+          .update(employeeData)
+          .eq("id", form.formState.defaultValues.id)
+          .select();
+          
+        if (error) throw error;
+        result = updatedEmployee;
         
-        if (notificationError) {
-          console.error("Error creating notification:", notificationError);
+        toast({
+          title: "Success",
+          description: "Employee updated successfully",
+        });
+      } else {
+        const { data: newEmployee, error } = await supabase
+          .from("employees")
+          .insert(employeeData)
+          .select();
+          
+        if (error) throw error;
+        result = newEmployee;
+        
+        if (result && result.length > 0) {
+          const { error: notificationError } = await supabase.from("notifications").insert({
+            user_id: user.id,
+            title: 'New Employee Added',
+            message: `Employee ${data.full_name} has been added successfully.`,
+            type: 'success',
+            related_entity: 'employee',
+            related_id: result[0].id
+          });
+          
+          if (notificationError) {
+            console.error("Error creating notification:", notificationError);
+          }
         }
+        
+        toast({
+          title: "Success",
+          description: "Employee added successfully",
+        });
       }
-      
-      toast({
-        title: "Success",
-        description: "Employee added successfully",
-      });
       
       form.reset();
       
@@ -224,11 +278,11 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
         onSuccess();
       }
     } catch (error: any) {
-      console.error("Error adding employee:", error);
+      console.error("Error saving employee:", error);
       
       toast({
         title: "Error",
-        description: error.message || "An error occurred while adding the employee",
+        description: error.message || "An error occurred while saving the employee",
         variant: "destructive",
       });
     }
@@ -756,10 +810,11 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
             </Button>
           )}
           <Button type="submit" variant="primary">
-            Save Employee
+            {employeeData ? 'Update Employee' : 'Save Employee'}
           </Button>
         </div>
       </form>
     </Form>
   );
 };
+
