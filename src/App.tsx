@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./context/AuthContext";
@@ -52,6 +52,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
     </div>
+  );
+};
+
+// Settings wrapper to track originating location
+const SettingsWrapper = () => {
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
+  
+  return (
+    <Settings />
   );
 };
 
@@ -128,7 +138,7 @@ const App = () => {
               {/* Settings page */}
               <Route path="/settings" element={
                 <ProtectedRoute>
-                  <Settings />
+                  <SettingsWrapper />
                 </ProtectedRoute>
               } />
               

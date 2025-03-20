@@ -88,8 +88,19 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
   const featuresItems = getFeaturesItems();
 
   const getUserInitials = () => {
-    if (!user?.email) return 'U';
-    return user.email.substring(0, 2).toUpperCase();
+    if (user?.user_metadata?.full_name) {
+      const nameParts = user.user_metadata.full_name.split(' ');
+      if (nameParts.length >= 2) {
+        return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+      }
+      return user.user_metadata.full_name.substring(0, 2).toUpperCase();
+    }
+    if (user?.email) return user.email.substring(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  const getUserAvatar = () => {
+    return user?.user_metadata?.avatar_url || null;
   };
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
@@ -160,7 +171,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="/" 
                     onClick={handleHomeClick}
-                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                    )}
                   >
                     <Home className="h-4 w-4 mr-2" />
                     <span>Home</span>
@@ -171,7 +185,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#features" 
                     onClick={(e) => scrollToSection(e, '#features')}
-                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                    )}
                   >
                     <BarChart className="h-4 w-4 mr-2" />
                     <span>Features</span>
@@ -182,7 +199,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#pricing" 
                     onClick={(e) => scrollToSection(e, '#pricing')}
-                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                    )}
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     <span>Pricing</span>
@@ -193,7 +213,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#contact" 
                     onClick={(e) => scrollToSection(e, '#contact')}
-                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                    )}
                   >
                     <Phone className="h-4 w-4 mr-2" />
                     <span>Contact</span>
@@ -204,7 +227,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <a 
                     href="#about" 
                     onClick={(e) => scrollToSection(e, '#about')}
-                    className={cn(navigationMenuTriggerStyle(), "font-semibold")}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                    )}
                   >
                     <Info className="h-4 w-4 mr-2" />
                     <span>About</span>
@@ -220,9 +246,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative rounded-full p-0">
                     <div className="flex items-center gap-2 border border-hrflow-gray-medium p-1 pl-3 pr-2 rounded-full bg-white hover:bg-hrflow-gray-light">
-                      <span className="text-sm font-medium text-hrflow-dark">{user?.email}</span>
                       <Avatar className="h-8 w-8 border-2 border-hrflow-blue/20">
-                        <AvatarImage src="/avatar-placeholder.png" />
+                        <AvatarImage src={getUserAvatar()} />
                         <AvatarFallback className="bg-hrflow-blue text-white">
                           {getUserInitials()}
                         </AvatarFallback>
@@ -234,7 +259,11 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Link to="/settings" className="flex w-full items-center">
+                    <Link 
+                      to="/settings" 
+                      state={{ from: location.pathname }}
+                      className="flex w-full items-center"
+                    >
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </Link>
@@ -285,8 +314,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
-                      ? "bg-hrflow-blue/10 text-hrflow-blue"
-                      : "text-gray-700 hover:bg-hrflow-blue hover:text-white"
+                      ? "bg-hrflow-blue text-white"
+                      : "bg-hrflow-blue/90 text-white hover:bg-hrflow-blue"
                   )}
                 >
                   {item.icon}
@@ -309,7 +338,11 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               )}
               {isAuthenticated && (
                 <div className="pt-2 border-t border-gray-200 mt-2">
-                  <Link to="/settings" className="w-full">
+                  <Link 
+                    to="/settings" 
+                    state={{ from: location.pathname }}
+                    className="w-full"
+                  >
                     <Button variant="outline" className="w-full mb-2">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>

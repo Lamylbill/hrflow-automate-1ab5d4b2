@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -12,10 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui-custom/Button';
 import { LoadingSpinner } from '@/components/ui-custom/LoadingSpinner';
-import { User, Shield, Image, Settings as SettingsIcon, Camera } from 'lucide-react';
+import { User, Shield, Image, Settings as SettingsIcon, Camera, ArrowLeft, ChevronLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ProfileForm {
   fullName: string;
@@ -47,6 +49,11 @@ const Settings = () => {
   });
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determine return path - if user came from dashboard, return there, otherwise go home
+  const returnPath = location.state?.from || '/dashboard';
 
   useEffect(() => {
     if (user) {
@@ -171,6 +178,10 @@ const Settings = () => {
     }
   };
 
+  const handleGoBack = () => {
+    navigate(returnPath);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -182,7 +193,17 @@ const Settings = () => {
   return (
     <div className="container mx-auto px-4 pb-8 pt-24">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Account Settings</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">Account Settings</h1>
+          <Button 
+            variant="outline"
+            onClick={handleGoBack}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            <span>Back</span>
+          </Button>
+        </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 mb-8">
@@ -218,7 +239,7 @@ const Settings = () => {
                             <AvatarImage src={avatarUrl} alt="Profile" />
                           ) : (
                             <AvatarFallback className="bg-hrflow-blue text-white text-4xl">
-                              {user?.email ? user.email.substring(0, 2).toUpperCase() : 'U'}
+                              {profileForm.fullName ? profileForm.fullName.substring(0, 2).toUpperCase() : user?.email ? user.email.substring(0, 2).toUpperCase() : 'U'}
                             </AvatarFallback>
                           )}
                         </Avatar>
