@@ -195,21 +195,6 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
       
       if (error) throw error;
       
-      if (employeeResult && employeeResult.length > 0) {
-        try {
-          await supabase.from("notifications").insert({
-            user_id: user.id,
-            title: 'New Employee Added',
-            message: `Employee ${data.full_name} has been added successfully.`,
-            type: 'success',
-            related_entity: 'employee',
-            related_id: employeeResult[0].id
-          });
-        } catch (notificationError) {
-          console.log("Notification failed but employee was added", notificationError);
-        }
-      }
-      
       toast({
         title: "Success",
         description: "Employee added successfully",

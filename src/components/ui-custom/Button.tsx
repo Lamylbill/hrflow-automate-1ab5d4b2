@@ -50,11 +50,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const isQuickAction = props['className']?.includes('normal-case') || 
                           props['className']?.includes('justify-between');
     
-    // Different styling based on button type
+    // Different styling based on button type, fixed by using proper CSS type
     const buttonStyle = {
       color: variant === 'outline' && !props.disabled ? '#2563EB' : 'white',
       fontWeight: 'bold',
-      ...(isQuickAction ? { textTransform: 'none' } : {}),
+      ...(isQuickAction ? { textTransform: 'none' as const } : { textTransform: 'uppercase' as const }),
       ...style,
     };
     

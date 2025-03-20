@@ -44,7 +44,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
-    // Ensure we have a fallback style for maximum text visibility
+    // Ensure we have a fallback style for maximum text visibility with proper type
     const enhancedStyle = {
       color: variant === 'outline' ? '#2563EB' : 'white',
       textShadow: variant === 'outline' ? 'none' : '0 1px 2px rgba(0,0,0,0.5)',
