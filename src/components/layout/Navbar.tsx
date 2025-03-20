@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -29,12 +30,16 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-interface ListItemProps extends React.ComponentPropsWithoutRef<"a"> {
+// Fixed interface definition to properly handle ReactNode type for title
+interface ListItemProps {
   title: React.ReactNode;
   children: React.ReactNode;
+  href?: string;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
 }
 
-const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps>(
+const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'title' | 'children'>>(
   ({ className, title, children, ...props }, ref) => {
     return (
       <li>
