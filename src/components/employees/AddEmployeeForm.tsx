@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -194,6 +195,23 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
       const { data: employeeResult, error } = await supabase.from("employees").insert(employeeData).select();
       
       if (error) throw error;
+      
+      // Create a notification for the employee creation
+      if (employeeResult && employeeResult.length > 0) {
+        // Add a notification using the new RLS policy
+        const { error: notificationError } = await supabase.from("notifications").insert({
+          user_id: user.id,
+          title: 'New Employee Added',
+          message: `Employee ${data.full_name} has been added successfully.`,
+          type: 'success',
+          related_entity: 'employee',
+          related_id: employeeResult[0].id
+        });
+        
+        if (notificationError) {
+          console.error("Error creating notification:", notificationError);
+        }
+      }
       
       toast({
         title: "Success",

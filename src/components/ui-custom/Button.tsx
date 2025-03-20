@@ -40,7 +40,7 @@ export interface ButtonProps
   asChild?: boolean;
 }
 
-// Button component with consistent styling for all buttons
+// Button component with enhanced styling for better visibility
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, children, style, ...props }, ref) => {
     // Default placeholder text if no children provided
@@ -50,10 +50,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const isQuickAction = props['className']?.includes('normal-case') || 
                           props['className']?.includes('justify-between');
     
-    // Different styling based on button type, fixed by using proper CSS type
+    // Different styling based on button type with proper TypeScript typing
     const buttonStyle = {
       color: variant === 'outline' && !props.disabled ? '#2563EB' : 'white',
       fontWeight: 'bold',
+      opacity: 1, // Ensure buttons are fully visible
+      textShadow: variant !== 'outline' ? '0 1px 2px rgba(0,0,0,0.2)' : 'none',
+      letterSpacing: '0.5px',
       ...(isQuickAction ? { textTransform: 'none' as const } : { textTransform: 'uppercase' as const }),
       ...style,
     };
