@@ -73,10 +73,10 @@ const Dashboard = () => {
   }
 
   const quickActions = [
-    { title: "Add New Employee", icon: <CircleUser />, path: "/employees" },
-    { title: "Process Payroll", icon: <DollarSign />, path: "/payroll" },
-    { title: "Manage Leave Requests", icon: <CalendarDays />, path: "/leave" },
-    { title: "View Reports", icon: <BarChart3 /> },
+    { title: "Add New Employee", icon: <CircleUser className="flex-shrink-0" />, path: "/employees" },
+    { title: "Process Payroll", icon: <DollarSign className="flex-shrink-0" />, path: "/payroll" },
+    { title: "Manage Leave Requests", icon: <CalendarDays className="flex-shrink-0" />, path: "/leave" },
+    { title: "View Reports", icon: <BarChart3 className="flex-shrink-0" />, path: "/compliance" },
   ];
 
   return (
@@ -265,14 +265,14 @@ const Dashboard = () => {
                         <Button 
                           key={index} 
                           variant="outline" 
-                          className="justify-start text-gray-700 h-auto py-2 overflow-hidden whitespace-normal"
+                          className="justify-start text-gray-700 h-auto py-2 px-3"
                           onClick={() => action.path && navigate(action.path)}
                         >
-                          <span className="flex items-center flex-shrink-0">
+                          <div className="flex items-center w-full">
                             <span className="mr-2">{action.icon}</span>
                             <span className="truncate">{action.title}</span>
-                          </span>
-                          <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0" />
+                            <ChevronRight className="ml-auto h-4 w-4" />
+                          </div>
                         </Button>
                       ))}
                     </div>

@@ -1,412 +1,418 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from '@/components/ui-custom/Button';
-import { LoadingSpinner } from '@/components/ui-custom/LoadingSpinner';
-import { User, Shield, Camera, Settings as SettingsIcon, ChevronLeft } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { toast } from "sonner";
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
+import { Camera, ArrowLeft } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui-custom/LoadingSpinner";
+import { useNavigate } from 'react-router-dom';
 
-interface ProfileForm {
-  fullName: string;
-  email: string;
-  phone: string;
-  jobTitle: string;
+interface SettingsProps {
+  returnTo?: string;
 }
 
-interface PasswordForm {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-const Settings = () => {
-  const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [profileForm, setProfileForm] = useState<ProfileForm>({
-    fullName: '',
-    email: '',
-    phone: '',
-    jobTitle: '',
-  });
-  const [passwordForm, setPasswordForm] = useState<PasswordForm>({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+const Settings = ({ returnTo = '/dashboard' }: SettingsProps) => {
+  const { user, updateUserProfile } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
   
-  // Determine return path - if user came from dashboard, return there, otherwise go home
-  const returnPath = location.state?.from || '/dashboard';
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  // Notification settings
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  
   useEffect(() => {
     if (user) {
-      const metadata = user.user_metadata || {};
-      setProfileForm({
-        fullName: metadata.full_name || '',
-        email: user.email || '',
-        phone: metadata.phone || '',
-        jobTitle: metadata.job_title || '',
-      });
+      setEmail(user.email || '');
+      setFullName(user.user_metadata?.full_name || '');
       
-      if (metadata.avatar_url) {
-        setAvatarUrl(metadata.avatar_url);
-      }
+      // Fetch user avatar if available
+      const fetchAvatar = async () => {
+        try {
+          if (user.id) {
+            const { data, error } = await supabase
+              .storage
+              .from('avatars')
+              .list(user.id, {
+                limit: 1,
+                offset: 0,
+                sortBy: { column: 'created_at', order: 'desc' }
+              });
+            
+            if (error) {
+              console.error('Error fetching avatar:', error);
+              return;
+            }
+            
+            if (data && data.length > 0) {
+              const { data: avatarData } = supabase
+                .storage
+                .from('avatars')
+                .getPublicUrl(`${user.id}/${data[0].name}`);
+                
+              setAvatarUrl(avatarData.publicUrl);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching avatar:', error);
+        }
+      };
+      
+      fetchAvatar();
     }
   }, [user]);
-
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswordForm(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setAvatarFile(file);
+  
+  const handleSaveProfile = async () => {
+    try {
+      setIsSaving(true);
       
+      // Update profile data first
+      const { error: updateError } = await updateUserProfile({ full_name: fullName });
+      
+      if (updateError) {
+        toast({
+          variant: "destructive",
+          title: "Update failed",
+          description: updateError.message,
+        });
+        return;
+      }
+      
+      // Handle avatar upload if available
+      if (avatar) {
+        const fileExt = avatar.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${user?.id}/${fileName}`;
+        
+        // Upload the new avatar
+        const { error: uploadError } = await supabase
+          .storage
+          .from('avatars')
+          .upload(filePath, avatar, {
+            upsert: true
+          });
+          
+        if (uploadError) {
+          toast({
+            variant: "destructive",
+            title: "Avatar upload failed",
+            description: uploadError.message,
+          });
+          return;
+        }
+        
+        // Get the public URL for the avatar
+        const { data } = supabase
+          .storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+          
+        setAvatarUrl(data.publicUrl);
+      }
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: error.message || "Failed to update profile",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleSavePassword = async () => {
+    try {
+      setIsSaving(true);
+      
+      if (newPassword !== confirmPassword) {
+        toast({
+          variant: "destructive",
+          title: "Passwords don't match",
+          description: "New password and confirmation password do not match.",
+        });
+        return;
+      }
+      
+      // Call Supabase auth API to update password
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Update failed",
+          description: error.message,
+        });
+        return;
+      }
+      
+      // Clear password fields
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      
+      toast({
+        title: "Password updated",
+        description: "Your password has been updated successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: error.message || "Failed to update password",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      // Preview the selected image
       const objectUrl = URL.createObjectURL(file);
       setAvatarUrl(objectUrl);
     }
   };
-
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-    
-    setIsUpdating(true);
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          full_name: profileForm.fullName,
-          phone: profileForm.phone,
-          job_title: profileForm.jobTitle,
-        }
-      });
-      
-      if (error) throw error;
-      
-      if (avatarFile) {
-        const fileName = `avatar-${user.id}-${Date.now()}.${avatarFile.name.split('.').pop()}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, avatarFile, { upsert: true });
-          
-        if (uploadError) throw uploadError;
-        
-        const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-        
-        if (data) {
-          const { error: updateError } = await supabase.auth.updateUser({
-            data: { avatar_url: data.publicUrl }
-          });
-          
-          if (updateError) throw updateError;
-        }
-      }
-      
-      toast.success("Profile updated successfully!");
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast.error(`Failed to update profile: ${error.message}`);
-    } finally {
-      setIsUpdating(false);
-    }
+  
+  const handleNavigateBack = () => {
+    navigate(returnTo);
   };
-
-  const handlePasswordUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords don't match");
-      return;
-    }
-    
-    if (passwordForm.newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-    
-    setIsUpdating(true);
-    try {
-      const { error } = await supabase.auth.updateUser({ 
-        password: passwordForm.newPassword 
-      });
-      
-      if (error) throw error;
-      
-      setPasswordForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-      
-      toast.success("Password updated successfully!");
-    } catch (error: any) {
-      console.error('Error updating password:', error);
-      toast.error(`Failed to update password: ${error.message}`);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleGoBack = () => {
-    navigate(returnPath);
-  };
-
+  
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex justify-center items-center h-screen">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
-
+  
   return (
-    <div className="container mx-auto px-4 pb-8 pt-24">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">Account Settings</h1>
+        <div className="flex items-center mb-6">
           <Button 
-            variant="outline"
-            onClick={handleGoBack}
-            className="flex items-center gap-2"
+            variant="outline" 
+            size="sm" 
+            className="mr-4"
+            onClick={handleNavigateBack}
           >
-            <ChevronLeft className="h-4 w-4" />
-            <span>Back to {returnPath === '/dashboard' ? 'Dashboard' : 'Home'}</span>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
           </Button>
+          <h1 className="text-3xl font-bold">Account Settings</h1>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-8">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              <span>Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              <span>Security</span>
-            </TabsTrigger>
-            <TabsTrigger value="preferences" className="flex items-center gap-2">
-              <SettingsIcon className="h-4 w-4" />
-              <span>Preferences</span>
-            </TabsTrigger>
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="preferences">Preferences</TabsTrigger>
           </TabsList>
           
+          {/* Profile Settings */}
           <TabsContent value="profile">
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
-                <CardDescription>
-                  Update your personal information and profile picture
-                </CardDescription>
+                <CardDescription>Update your profile information and avatar.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleProfileUpdate} className="space-y-6">
-                  <div className="flex flex-col md:flex-row gap-8 items-start">
-                    <div className="w-full max-w-[150px] mx-auto md:mx-0">
-                      <div className="relative group">
-                        <Avatar className="h-32 w-32 border-4 border-hrflow-gray-light">
-                          {avatarUrl ? (
-                            <AvatarImage src={avatarUrl} alt="Profile" />
-                          ) : (
-                            <AvatarFallback className="bg-hrflow-blue text-white text-4xl">
-                              {profileForm.fullName ? profileForm.fullName.substring(0, 2).toUpperCase() : user?.email ? user.email.substring(0, 2).toUpperCase() : 'U'}
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                        <div className="absolute bottom-0 right-0">
-                          <label htmlFor="avatar-upload" className="cursor-pointer">
-                            <div className="rounded-full bg-hrflow-blue text-white p-2 shadow-md hover:bg-hrflow-blue-light">
-                              <Camera className="h-5 w-5" />
-                            </div>
-                            <input 
-                              id="avatar-upload" 
-                              type="file" 
-                              accept="image/*" 
-                              className="hidden"
-                              onChange={handleAvatarChange}
-                            />
-                          </label>
+              <CardContent className="space-y-6">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                      {avatarUrl ? (
+                        <img 
+                          src={avatarUrl} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-gray-500 bg-gray-100">
+                          {user?.user_metadata?.full_name ? 
+                            user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() :
+                            user?.email?.charAt(0).toUpperCase()}
                         </div>
-                      </div>
-                      <p className="text-xs text-center mt-2 text-gray-500">
-                        Click the camera icon to update your profile picture
-                      </p>
+                      )}
                     </div>
-                    
-                    <div className="flex-1 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="fullName">Full Name</Label>
-                          <Input
-                            id="fullName"
-                            name="fullName"
-                            placeholder="Your full name"
-                            value={profileForm.fullName}
-                            onChange={handleProfileChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
-                          <Input
-                            id="email"
-                            name="email"
-                            type="email"
-                            placeholder="Your email"
-                            value={profileForm.email}
-                            disabled
-                            className="bg-gray-50"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="phone">Phone</Label>
-                          <Input
-                            id="phone"
-                            name="phone"
-                            placeholder="Your phone number"
-                            value={profileForm.phone}
-                            onChange={handleProfileChange}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="jobTitle">Job Title</Label>
-                          <Input
-                            id="jobTitle"
-                            name="jobTitle"
-                            placeholder="Your job title"
-                            value={profileForm.jobTitle}
-                            onChange={handleProfileChange}
-                          />
-                        </div>
-                      </div>
-                    </div>
+                    <Label 
+                      htmlFor="avatar-upload" 
+                      className="absolute bottom-0 right-0 bg-hrflow-blue text-white rounded-full p-2 cursor-pointer shadow-md hover:bg-blue-700 transition-colors"
+                    >
+                      <Camera className="h-4 w-4" />
+                    </Label>
+                    <Input 
+                      type="file" 
+                      id="avatar-upload" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                    />
                   </div>
                   
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={isUpdating} className="min-w-[120px]">
-                      {isUpdating ? <LoadingSpinner size="sm" /> : 'Save Changes'}
-                    </Button>
+                  <div className="flex-1 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Full Name</Label>
+                      <Input 
+                        id="fullName" 
+                        value={fullName} 
+                        onChange={(e) => setFullName(e.target.value)} 
+                        placeholder="Your full name"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        value={email} 
+                        disabled
+                        className="bg-gray-50"
+                      />
+                      <p className="text-sm text-gray-500">Email cannot be changed</p>
+                    </div>
                   </div>
-                </form>
+                </div>
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  onClick={handleSaveProfile} 
+                  className="bg-hrflow-blue text-white hover:bg-blue-700"
+                  disabled={isSaving}
+                >
+                  {isSaving ? <LoadingSpinner size="sm" color="white" /> : "Save Changes"}
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
           
+          {/* Security Settings */}
           <TabsContent value="security">
             <Card>
               <CardHeader>
                 <CardTitle>Security Settings</CardTitle>
-                <CardDescription>
-                  Update your password and security preferences
-                </CardDescription>
+                <CardDescription>Manage your password and authentication settings.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePasswordUpdate} className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Current Password</Label>
-                      <Input
-                        id="currentPassword"
-                        name="currentPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={passwordForm.currentPassword}
-                        onChange={handlePasswordChange}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
-                      <Input
-                        id="newPassword"
-                        name="newPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={passwordForm.newPassword}
-                        onChange={handlePasswordChange}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={passwordForm.confirmPassword}
-                        onChange={handlePasswordChange}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-end">
-                    <Button 
-                      type="submit" 
-                      disabled={isUpdating || !passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword}
-                      className="min-w-[120px]"
-                    >
-                      {isUpdating ? <LoadingSpinner size="sm" /> : 'Update Password'}
-                    </Button>
-                  </div>
-                </form>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Input 
+                    id="currentPassword" 
+                    type="password" 
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Enter your current password"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">New Password</Label>
+                  <Input 
+                    id="newPassword" 
+                    type="password" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter a new password"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input 
+                    id="confirmPassword" 
+                    type="password" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your new password"
+                  />
+                </div>
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  onClick={handleSavePassword} 
+                  className="bg-hrflow-blue text-white hover:bg-blue-700"
+                  disabled={isSaving || !currentPassword || !newPassword || !confirmPassword}
+                >
+                  {isSaving ? <LoadingSpinner size="sm" color="white" /> : "Change Password"}
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
           
+          {/* Preferences Settings */}
           <TabsContent value="preferences">
             <Card>
               <CardHeader>
-                <CardTitle>System Preferences</CardTitle>
-                <CardDescription>
-                  Customize your application experience
-                </CardDescription>
+                <CardTitle>Notification Preferences</CardTitle>
+                <CardDescription>Manage how you receive notifications.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Theme & Display</h3>
-                    <p className="text-sm text-gray-500 mb-4">Coming soon! Theme preferences will be available in a future update.</p>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Email Notifications</p>
+                    <p className="text-sm text-gray-500">Receive updates and alerts via email</p>
                   </div>
-                  
-                  <div className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Notifications</h3>
-                    <p className="text-sm text-gray-500 mb-4">Coming soon! Notification preferences will be available in a future update.</p>
+                  <Switch 
+                    checked={emailNotifications} 
+                    onCheckedChange={setEmailNotifications} 
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">SMS Notifications</p>
+                    <p className="text-sm text-gray-500">Receive updates and alerts via SMS</p>
                   </div>
+                  <Switch 
+                    checked={smsNotifications} 
+                    onCheckedChange={setSmsNotifications} 
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Push Notifications</p>
+                    <p className="text-sm text-gray-500">Receive updates and alerts via push notifications</p>
+                  </div>
+                  <Switch 
+                    checked={pushNotifications} 
+                    onCheckedChange={setPushNotifications} 
+                  />
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button 
+                  className="bg-hrflow-blue text-white hover:bg-blue-700"
+                >
+                  Save Preferences
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
