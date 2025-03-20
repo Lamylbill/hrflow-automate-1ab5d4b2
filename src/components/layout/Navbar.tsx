@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield } from 'lucide-react';
@@ -30,7 +29,6 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-// Completely rewritten ListItem component with correct typing
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { 
@@ -102,12 +100,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
         });
         setIsMobileMenuOpen(false); // Close mobile menu after navigation
       } else {
-        // If element doesn't exist on current page, navigate to home with hash
         navigate('/' + sectionId);
         toast.info(`Navigating to ${targetId} section`);
       }
     } else {
-      // For regular routes
       navigate(sectionId);
     }
   };
@@ -153,12 +149,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                       {featuresItems.map((item, index) => (
                         <ListItem
                           key={index}
-                          title={
+                          title={(
                             <div className="flex items-center">
                               {item.icon}
                               <span className="ml-2 font-medium">{item.title}</span>
                             </div>
-                          }
+                          )}
                           href={item.href}
                           onClick={(e) => scrollToSection(e, item.href)}
                         >
