@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
-import { DashboardSidebar } from "./components/layout/DashboardSidebar";
+import { TopNavbar } from "./components/layout/TopNavbar";
 import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
@@ -54,14 +54,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : null;
 };
 
-// Dashboard layout with sidebar
+// Dashboard layout with top navbar
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col transition-all duration-300 overflow-auto"
-           style={{ marginLeft: 'var(--sidebar-width, 250px)' }}>
-        {children}
+    <div className="flex flex-col h-screen bg-gray-50">
+      <TopNavbar />
+      <div className="flex-1 overflow-auto pt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -79,19 +80,6 @@ const SettingsWrapper = () => {
 
 // App component that sets up providers and routes
 const App = () => {
-  // Set up the CSS variable for sidebar width
-  useEffect(() => {
-    const updateSidebarVar = () => {
-      const width = window.innerWidth < 768 ? '70px' : '250px';
-      document.documentElement.style.setProperty('--sidebar-width', width);
-    };
-    
-    window.addEventListener('resize', updateSidebarVar);
-    updateSidebarVar();
-    
-    return () => window.removeEventListener('resize', updateSidebarVar);
-  }, []);
-  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -123,8 +111,8 @@ const App = () => {
               <Route path="/payroll" element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Payroll</h1>
-                    <p className="px-6">Manage employee compensation and payments.</p>
+                    <h1 className="text-3xl font-bold mb-6">Payroll</h1>
+                    <p>Manage employee compensation and payments.</p>
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
@@ -132,17 +120,17 @@ const App = () => {
               <Route path="/leave" element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Leave Management</h1>
-                    <p className="px-6">Track and approve employee time off and absences.</p>
+                    <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
+                    <p>Track and approve employee time off and absences.</p>
                   </DashboardLayout>
                 </ProtectedRoute>
               } />
               
-              <Route path="/compliance" element={
+              <Route path="/activity" element={
                 <ProtectedRoute>
                   <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6 pt-6 px-6">Compliance</h1>
-                    <p className="px-6">Ensure regulatory compliance and manage company policies.</p>
+                    <h1 className="text-3xl font-bold mb-6">Activity Log</h1>
+                    <p>Track all activities and changes in the system.</p>
                   </DashboardLayout>
                 </ProtectedRoute>
               } />

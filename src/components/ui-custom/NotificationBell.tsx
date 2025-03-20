@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Bell, Check } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Popover,
@@ -32,7 +31,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch notifications from Supabase
   const fetchNotifications = async () => {
     if (!user) return;
 
@@ -45,7 +43,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
 
       if (error) throw error;
       
-      // Cast the data to ensure it matches our Notification interface
       const typedNotifications = (data || []).map((notification: any): Notification => ({
         ...notification,
         type: notification.type as 'info' | 'success' | 'warning' | 'error',
@@ -58,7 +55,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
     }
   };
 
-  // Mark notification as read
   const markAsRead = async (id: string) => {
     try {
       const { error } = await supabase
@@ -68,7 +64,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
 
       if (error) throw error;
       
-      // Update local state
       setNotifications(prev => 
         prev.map(n => n.id === id ? { ...n, read: true } : n)
       );
@@ -78,7 +73,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
     }
   };
 
-  // Mark all as read
   const markAllAsRead = async () => {
     if (!user || unreadCount === 0) return;
 
@@ -91,7 +85,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
 
       if (error) throw error;
       
-      // Update local state
       setNotifications(prev => 
         prev.map(n => ({ ...n, read: true }))
       );
@@ -105,13 +98,11 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
     }
   };
 
-  // Set up realtime subscription for new notifications
   useEffect(() => {
     if (!user) return;
 
     fetchNotifications();
 
-    // Subscribe to changes
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -123,7 +114,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          // Add new notification to the list
           const newNotification = {
             ...payload.new as Omit<Notification, 'type'>,
             type: (payload.new as any).type as 'info' | 'success' | 'warning' | 'error'
@@ -132,7 +122,6 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
           setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
           
-          // Show toast for new notification
           toast({
             title: newNotification.title,
             description: newNotification.message,
@@ -146,24 +135,9 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
     };
   }, [user, toast]);
 
-  // Function to format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // Function to get notification style based on type
-  const getNotificationStyle = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-50 border-green-200';
-      case 'warning':
-        return 'bg-yellow-50 border-yellow-200';
-      case 'error':
-        return 'bg-red-50 border-red-200';
-      default:
-        return 'bg-blue-50 border-blue-200';
-    }
   };
 
   return (
@@ -173,7 +147,7 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge 
-              className="absolute -top-2 -right-2 h-4 min-w-4 p-0 flex items-center justify-center bg-red-500 border-none text-[10px]"
+              className="absolute -top-2 -right-2 h-5 min-w-5 p-0 flex items-center justify-center bg-red-500 border-none text-white text-[10px] rounded-full"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
@@ -182,7 +156,7 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="p-2 border-b flex items-center justify-between">
-          <h3 className="font-semibold">Notifications</h3>
+          <h3 className="font-medium">Notifications</h3>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
@@ -204,29 +178,16 @@ export const NotificationBell = ({ className = "" }: { className?: string }) => 
               {notifications.map(notification => (
                 <div 
                   key={notification.id}
-                  className={`${getNotificationStyle(notification.type)} p-2 rounded-md border relative ${notification.read ? 'opacity-70' : ''}`}
+                  className={`p-3 ${notification.read ? 'bg-gray-50' : 'bg-blue-50'} hover:bg-gray-100 cursor-pointer`}
                   onClick={() => !notification.read && markAsRead(notification.id)}
                 >
                   <div className="flex justify-between items-start">
                     <h4 className="font-medium text-sm">{notification.title}</h4>
-                    {!notification.read && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-5 w-5 bg-white/80 rounded-full -mr-1 -mt-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markAsRead(notification.id);
-                        }}
-                      >
-                        <Check className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <span className="text-xs text-gray-500">
+                      {formatDate(notification.created_at)}
+                    </span>
                   </div>
-                  <p className="text-xs text-gray-700">{notification.message}</p>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {formatDate(notification.created_at)}
-                  </div>
+                  <p className="text-xs text-gray-700 mt-1">{notification.message}</p>
                 </div>
               ))}
             </div>
