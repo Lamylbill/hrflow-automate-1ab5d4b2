@@ -41,3 +41,5 @@ export interface Employee {
   created_at?: string;
   updated_at?: string;
 }
+
+export type EmployeeFormValues = Omit<Employee, 'id' | 'created_at' | 'updated_at'>;

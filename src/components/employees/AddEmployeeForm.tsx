@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +24,7 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { EmployeeFormValues } from '@/types/employee';
 
 // Form schema with validations
 const employeeFormSchema = z.object({
@@ -163,10 +163,35 @@ export const AddEmployeeForm = ({ onSuccess, onCancel }: AddEmployeeFormProps) =
     }
     
     try {
-      // Add the user_id to the data
       const employeeData = {
-        ...data,
         user_id: user.id,
+        full_name: data.full_name,
+        email: data.email,
+        job_title: data.job_title || null,
+        department: data.department || null,
+        employment_type: data.employment_type || null,
+        employment_status: data.employment_status || null,
+        date_of_hire: data.date_of_hire || null,
+        phone_number: data.phone_number || null,
+        date_of_birth: data.date_of_birth || null,
+        nationality: data.nationality || null,
+        gender: data.gender || null,
+        home_address: data.home_address || null,
+        postal_code: data.postal_code || null,
+        emergency_contact_name: data.emergency_contact_name || null,
+        emergency_contact_phone: data.emergency_contact_phone || null,
+        salary: data.salary || null,
+        bank_name: data.bank_name || null,
+        bank_account_number: data.bank_account_number || null,
+        cpf_contribution: data.cpf_contribution || null,
+        cpf_account_number: data.cpf_account_number || null,
+        tax_identification_number: data.tax_identification_number || null,
+        leave_entitlement: data.leave_entitlement || null,
+        medical_entitlement: data.medical_entitlement || null,
+        employee_code: data.employee_code || null,
+        reporting_manager: data.reporting_manager || null,
+        probation_status: data.probation_status || null,
+        notes: data.notes || null,
       };
       
       const { error } = await supabase.from("employees").insert(employeeData);
