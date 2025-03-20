@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from '@/components/ui-custom/Button';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
@@ -28,6 +27,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Employee, EmployeeFormValues } from '@/types/employee';
 
+// Define the schema with proper types
 const employeeFormSchema = z.object({
   full_name: z.string().min(2, { message: "Full name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
@@ -57,6 +57,9 @@ const employeeFormSchema = z.object({
   probation_status: z.string().optional(),
   notes: z.string().optional(),
 });
+
+// Define the form data type based on the schema
+type EmployeeFormData = z.infer<typeof employeeFormSchema>;
 
 const employmentTypes = [
   "Full-time",
@@ -143,7 +146,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const form = useForm<z.infer<typeof employeeFormSchema>>({
+  const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: {
       employment_status: "Active",
@@ -153,8 +156,8 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
   
   useEffect(() => {
     if (employeeData) {
-      // Safely type cast each field
-      const formData = {
+      // Create properly typed form data from employee data
+      const formData: EmployeeFormData = {
         full_name: employeeData.full_name || '',
         email: employeeData.email || '',
         job_title: employeeData.job_title || undefined,
@@ -188,7 +191,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     }
   }, [employeeData, form]);
   
-  const onSubmit = async (data: z.infer<typeof employeeFormSchema>) => {
+  const onSubmit = async (data: EmployeeFormData) => {
     if (!user) {
       toast({
         title: "Authentication Error",
@@ -232,11 +235,12 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
       
       let result;
       
-      if (form.formState.defaultValues && "id" in form.formState.defaultValues) {
+      // Check if we're updating an existing employee
+      if (employeeData && employeeData.id) {
         const { data: updatedEmployee, error } = await supabase
           .from("employees")
           .update(employeeData)
-          .eq("id", form.formState.defaultValues.id)
+          .eq("id", employeeData.id)
           .select();
           
         if (error) throw error;
@@ -813,7 +817,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
               Cancel
             </Button>
           )}
-          <Button type="submit" variant="primary">
+          <Button type="submit">
             {employeeData ? 'Update Employee' : 'Save Employee'}
           </Button>
         </div>
