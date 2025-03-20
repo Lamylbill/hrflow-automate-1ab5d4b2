@@ -58,12 +58,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ...style,
     };
     
+    // Special handling for quick actions to ensure proper styling
+    const buttonClassName = cn(
+      buttonVariants({ variant, size, className }),
+      isQuickAction ? "normal-case justify-between text-left" : "uppercase",
+    );
+    
     return (
       <ShadcnButton
-        className={cn(
-          buttonVariants({ variant, size, className }),
-          isQuickAction ? "normal-case" : "uppercase",
-        )}
+        className={buttonClassName}
         ref={ref}
         data-variant={variant || "premium"}
         style={buttonStyle}

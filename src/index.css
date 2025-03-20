@@ -157,7 +157,7 @@
 
   button[role="switch"][data-state="checked"],
   [role="switch"][data-state="checked"] {
-    background-color: #2563EB;
+    background-color: #22c55e;
   }
 
   /* Normal case for Quick Actions */
@@ -386,4 +386,50 @@ button.justify-between span,
 .justify-between span {
   display: inline-flex !important;
   align-items: center !important;
+}
+
+/* Custom styles for toggle switches */
+[role="switch"] {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  border-radius: 34px;
+  background-color: #d1d5db;
+  transition: .3s;
+  cursor: pointer;
+}
+
+[role="switch"] [data-state="checked"] {
+  background-color: #22c55e;
+}
+
+[role="switch"] [data-state="unchecked"] {
+  background-color: #d1d5db;
+}
+
+[role="switch"] span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+/* Custom Button override for quick actions */
+button.normal-case.justify-between,
+.normal-case.justify-between {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  text-transform: none !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: normal !important;
+  text-shadow: none !important;
+  letter-spacing: normal !important;
+  height: auto !important;
 }

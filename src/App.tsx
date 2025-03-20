@@ -17,11 +17,29 @@ import { useEffect } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient with better retry settings for Netlify
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
-// Create a component for protected routes
+// Create a component for protected routes with better loading handling
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  
+  // Use useEffect to handle the navigation after state is confirmed
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      console.log("Not authenticated, redirecting to login");
+      navigate("/login", { replace: true });
+    }
+  }, [isLoading, isAuthenticated, navigate]);
   
   // Always show loading state while auth is being checked
   if (isLoading) {
@@ -32,14 +50,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  // Redirect to login if not authenticated
-  if (!isAuthenticated) {
-    console.log("Not authenticated, redirecting to login");
-    return <Navigate to="/login" replace />;
-  }
-  
-  // If authenticated, render children
-  return <>{children}</>;
+  // Only render children if authenticated
+  return isAuthenticated ? <>{children}</> : null;
 };
 
 // Dashboard layout with sidebar
