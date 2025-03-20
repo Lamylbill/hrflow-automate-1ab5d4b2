@@ -54,8 +54,8 @@ interface Employee {
   email: string;
   phone_number?: string | null;
   date_of_hire?: string | null;
-  employment_type?: 'Full-time' | 'Part-time' | 'Contract' | null;
-  employment_status?: 'Active' | 'On Leave' | 'Resigned' | null;
+  employment_type?: string | null;
+  employment_status?: string | null;
   date_of_exit?: string | null;
   employee_code?: string | null;
   gender?: string | null;
@@ -408,7 +408,8 @@ const EmployeesPage = () => {
           throw error;
         }
         
-        setEmployees(data || []);
+        // Cast the data to Employee[] to satisfy TypeScript
+        setEmployees(data as Employee[]);
       } catch (err: any) {
         console.error('Error fetching employees:', err);
         setError(err.message || 'An unexpected error occurred. Please try again.');

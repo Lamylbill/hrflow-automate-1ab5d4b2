@@ -1,4 +1,3 @@
-
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
@@ -11,8 +10,7 @@ export function generateExcel(
   filename: string, 
   sheets: { 
     name: string, 
-    data: any[][], 
-    header?: boolean 
+    data: any[][] 
   }[]
 ) {
   // Create a new workbook
