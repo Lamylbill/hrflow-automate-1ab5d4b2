@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -152,7 +153,8 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
   
   useEffect(() => {
     if (employeeData) {
-      form.reset({
+      // Safely type cast each field
+      const formData = {
         full_name: employeeData.full_name || '',
         email: employeeData.email || '',
         job_title: employeeData.job_title || undefined,
@@ -171,7 +173,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
         salary: typeof employeeData.salary === 'number' ? employeeData.salary : undefined,
         bank_name: employeeData.bank_name || undefined,
         bank_account_number: employeeData.bank_account_number || undefined,
-        cpf_contribution: employeeData.cpf_contribution || false,
+        cpf_contribution: Boolean(employeeData.cpf_contribution),
         cpf_account_number: employeeData.cpf_account_number || undefined,
         tax_identification_number: employeeData.tax_identification_number || undefined,
         leave_entitlement: typeof employeeData.leave_entitlement === 'number' ? employeeData.leave_entitlement : undefined,
@@ -180,7 +182,9 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
         reporting_manager: employeeData.reporting_manager || undefined,
         probation_status: employeeData.probation_status || undefined,
         notes: employeeData.notes || undefined,
-      });
+      };
+      
+      form.reset(formData);
     }
   }, [employeeData, form]);
   
