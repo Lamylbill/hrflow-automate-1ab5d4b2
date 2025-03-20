@@ -30,11 +30,11 @@ interface NavbarProps {
   showLogo?: boolean;
 }
 
-// Update the ListItem interface to make title accept ReactNode instead of string & ReactNode
+// Fix the ListItem interface to accept ReactNode for title
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a"> & { 
-    title: React.ReactNode; // Changed from string to ReactNode
+    title: React.ReactNode; // This needs to be just ReactNode, not string & ReactNode
     children: React.ReactNode;
   }
 >(({ className, title, children, ...props }, ref) => {

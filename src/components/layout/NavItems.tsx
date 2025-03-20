@@ -17,6 +17,7 @@ export const getNavItems = () => [
   { name: 'About', href: '#about', icon: <Info className="h-4 w-4 mr-2" /> },
 ];
 
+// Update feature items to ensure icon is properly typed as ReactNode
 export const getFeaturesItems = () => [
   { 
     title: "Employee Management", 
