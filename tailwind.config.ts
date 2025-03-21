@@ -53,7 +53,7 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// HRFlow custom colors - simplified
+				// HRFlow custom colors - updated
 				hrflow: {
 					'blue': '#2563EB',
 					'blue-light': '#60A5FA',
@@ -67,6 +67,12 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'sm': '0 1px 3px rgba(0,0,0,0.05)',
+				DEFAULT: '0 1px 3px rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)',
+				'md': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)',
+				'lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -112,11 +118,11 @@ export default {
 			},
 			fontFamily: {
 				'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'display': ['SF Pro Display', 'Inter', 'sans-serif'],
+				'display': ['Inter', 'sans-serif'],
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'hero-pattern': 'linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(37, 99, 235, 0.1))'
+				'hero-pattern': 'linear-gradient(to right bottom, rgba(255, 255, 255, 0.9), rgba(37, 99, 235, 0.05))'
 			}
 		}
 	},

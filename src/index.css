@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 210 40% 99%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -35,7 +35,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
 
   .dark {
@@ -80,7 +80,7 @@
 
   /* Typography styles */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display font-medium tracking-tight;
+    @apply font-display font-medium tracking-tight text-gray-800;
   }
 
   h1 {
@@ -96,18 +96,65 @@
   }
 
   p {
-    @apply leading-relaxed;
+    @apply leading-relaxed text-gray-600;
+  }
+
+  label {
+    @apply font-medium text-gray-700;
   }
 }
 
 /* Custom component styles */
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm;
+    @apply bg-white/90 backdrop-blur-lg border border-gray-100 shadow-sm;
   }
   
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Updated form styling */
+  .form-control {
+    @apply mb-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-hrflow-blue focus:border-hrflow-blue;
+  }
+
+  /* Card and section styling */
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden;
+  }
+
+  .section {
+    @apply py-12 px-4 md:px-6;
+  }
+
+  /* Table styling */
+  .table-modern {
+    @apply w-full border-collapse;
+  }
+
+  .table-modern th {
+    @apply bg-gray-50 text-left text-sm font-medium text-gray-700 py-3 px-4;
+  }
+
+  .table-modern td {
+    @apply border-t border-gray-100 py-3 px-4;
+  }
+
+  .table-modern tr:nth-child(even) {
+    @apply bg-gray-50/50;
+  }
+
+  .table-modern tr:hover {
+    @apply bg-blue-50/50;
   }
 }
 
@@ -119,6 +166,14 @@
   
   .animation-delay-1000 {
     animation-delay: 1000ms;
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300 hover:translate-y-[-2px];
+  }
+  
+  .hover-grow {
+    @apply transition-transform duration-300 hover:scale-[1.02];
   }
 }
 

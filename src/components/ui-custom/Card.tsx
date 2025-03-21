@@ -3,12 +3,12 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Card as ShadcnCard, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-// Premium Card variants
+// Modern card variants
 const cardVariants = {
-  default: "bg-card text-card-foreground shadow-sm hover:shadow transition-shadow duration-200",
-  glass: "glass-card bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm",
+  default: "bg-white text-card-foreground shadow-sm border border-gray-100 hover:shadow transition-shadow duration-200",
+  glass: "bg-white/90 backdrop-blur-lg border border-gray-100 shadow-sm",
   premium: "bg-gradient-to-br from-white to-gray-50 border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300",
-  feature: "border border-hrflow-gray-medium bg-white p-6 rounded-xl hover:shadow-md transition-all duration-300",
+  feature: "border border-gray-100 bg-white p-6 rounded-xl hover:shadow-md transition-all duration-300",
 };
 
 export interface PremiumCardProps extends React.ComponentProps<typeof ShadcnCard> {
@@ -27,7 +27,7 @@ const PremiumCard = React.forwardRef<
       ref={ref}
       className={cn(
         cardVariants[variant],
-        withHover && "hover:scale-[1.02] transition-transform duration-300",
+        withHover && "hover:translate-y-[-2px] transition-transform duration-300",
         isAnimated && "animate-fade-in-up",
         className
       )}

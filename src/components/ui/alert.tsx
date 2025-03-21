@@ -1,16 +1,23 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground shadow-sm",
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
+        default: "bg-background text-foreground border-gray-200",
         destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+          "border-red-200 bg-red-50 text-red-600 dark:border-red-500/30 [&>svg]:text-red-500",
+        warning: 
+          "border-amber-200 bg-amber-50 text-amber-700 [&>svg]:text-amber-500",
+        success: 
+          "border-green-200 bg-green-50 text-green-700 [&>svg]:text-green-500",
+        info: 
+          "border-blue-200 bg-blue-50 text-blue-700 [&>svg]:text-blue-500",
       },
     },
     defaultVariants: {
