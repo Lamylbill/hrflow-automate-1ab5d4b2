@@ -6,11 +6,11 @@ import { Button as ShadcnButton } from '@/components/ui/button';
 
 // Completely redesigned button variants with modern, vibrant styles
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 text-base tracking-wide",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 text-base tracking-wide",
   {
     variants: {
       variant: {
-        primary: "bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:shadow-lg hover:translate-y-[-2px]", 
+        primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm", 
         secondary: "bg-white text-indigo-800 hover:text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 shadow-sm", 
         outline: "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50",
         ghost: "text-indigo-700 hover:bg-indigo-50",
@@ -22,11 +22,11 @@ const buttonVariants = cva(
         default: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
       },
       size: {
-        default: "h-12 px-6 py-3",
-        sm: "h-10 rounded-full px-4 py-2 text-sm",
-        lg: "h-14 rounded-full px-8 py-4 text-lg",
-        xl: "h-16 rounded-full px-10 py-4 text-xl font-semibold",
-        icon: "h-11 w-11 rounded-full p-0",
+        default: "h-11 px-5 py-2.5",
+        sm: "h-9 rounded-md px-3 py-2 text-sm",
+        lg: "h-12 rounded-lg px-6 py-3 text-base",
+        xl: "h-14 rounded-lg px-8 py-4 text-lg font-semibold",
+        icon: "h-10 w-10 rounded-lg p-0",
       },
     },
     defaultVariants: {
@@ -58,7 +58,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       fontWeight: 600,
       opacity: 1,
       transition: 'all 0.3s ease',
-      // Fix: Use proper CSS type for transformStyle
+      // Fixed TypeScript error by using const assertion
       transformStyle: 'preserve-3d' as const,
       ...(style as React.CSSProperties),
     };
@@ -66,7 +66,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // Add appropriate spacing for icons
     const buttonClassName = cn(
       buttonVariants({ variant, size, className }),
-      hasIcons ? "gap-3" : ""
+      hasIcons ? "gap-2" : ""
     );
     
     return (

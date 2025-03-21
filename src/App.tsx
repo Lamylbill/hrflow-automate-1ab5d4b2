@@ -13,7 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { TopNavbar } from "./components/layout/TopNavbar";
 import EmployeesPage from "./pages/EmployeesPage";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 
@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // Always show loading state while auth is being checked
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -61,7 +61,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       <TopNavbar />
       <div className="flex-1 overflow-auto pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {children}
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-[calc(100vh-128px)]">
+              <LoadingSpinner size="lg" />
+            </div>
+          }>
+            {children}
+          </Suspense>
         </div>
       </div>
     </div>

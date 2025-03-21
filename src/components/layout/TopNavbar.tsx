@@ -29,11 +29,11 @@ export const TopNavbar = () => {
   const location = useLocation();
   
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4 mr-2" /> },
-    { name: 'Employees', path: '/employees', icon: <Users className="h-4 w-4 mr-2" /> },
-    { name: 'Leave', path: '/leave', icon: <Calendar className="h-4 w-4 mr-2" /> },
-    { name: 'Payroll', path: '/payroll', icon: <FileText className="h-4 w-4 mr-2" /> },
-    { name: 'Activity Log', path: '/activity', icon: <BarChart className="h-4 w-4 mr-2" /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+    { name: 'Employees', path: '/employees', icon: <Users className="h-5 w-5" /> },
+    { name: 'Leave', path: '/leave', icon: <Calendar className="h-5 w-5" /> },
+    { name: 'Payroll', path: '/payroll', icon: <FileText className="h-5 w-5" /> },
+    { name: 'Activity Log', path: '/activity', icon: <BarChart className="h-5 w-5" /> },
   ];
 
   const getUserInitials = () => {
@@ -56,38 +56,38 @@ export const TopNavbar = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center gap-2">
-                <span className="font-display font-bold text-xl text-hrflow-blue">HR Flow</span>
+                <span className="font-display font-bold text-xl text-indigo-800">HR Flow</span>
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md",
+                    "inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg",
                     location.pathname === item.path
-                      ? "bg-hrflow-blue text-white"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-hrflow-blue"
+                      ? "bg-indigo-600 text-white"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-700"
                   )}
                 >
-                  {item.icon}
+                  <span className="mr-2">{item.icon}</span>
                   {item.name}
                 </Link>
               ))}
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-            <NotificationBell className="text-hrflow-blue hover:text-hrflow-blue-light" />
+            <NotificationBell className="text-indigo-700 hover:text-indigo-500" />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full p-0">
-                  <Avatar className="h-8 w-8 cursor-pointer">
+                  <Avatar className="h-9 w-9 cursor-pointer">
                     {avatarImageUrl ? (
                       <AvatarImage src={avatarImageUrl} alt="Profile" />
                     ) : (
-                      <AvatarFallback className="bg-hrflow-blue text-white">
+                      <AvatarFallback className="bg-indigo-600 text-white">
                         {getUserInitials()}
                       </AvatarFallback>
                     )}
@@ -96,6 +96,55 @@ export const TopNavbar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link to="/settings" className="flex w-full items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => logout()} className="text-red-500">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {/* Mobile menu button */}
+          <div className="sm:hidden flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Avatar className="h-8 w-8">
+                    {avatarImageUrl ? (
+                      <AvatarImage src={avatarImageUrl} alt="Profile" />
+                    ) : (
+                      <AvatarFallback className="bg-indigo-600 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {navItems.map((item) => (
+                  <DropdownMenuItem key={item.path}>
+                    <Link 
+                      to={item.path} 
+                      className={cn(
+                        "flex w-full items-center",
+                        location.pathname === item.path ? "text-indigo-600 font-medium" : ""
+                      )}
+                    >
+                      <span className="mr-2">{item.icon}</span>
+                      {item.name}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Link to="/settings" className="flex w-full items-center">
