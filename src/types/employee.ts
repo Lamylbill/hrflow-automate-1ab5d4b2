@@ -42,4 +42,5 @@ export interface Employee {
   updated_at?: string;
 }
 
-export type EmployeeFormValues = Omit<Employee, 'id' | 'created_at' | 'updated_at'>;
+// Updated to include id for editing existing employees
+export type EmployeeFormValues = Omit<Employee, 'created_at' | 'updated_at'>;

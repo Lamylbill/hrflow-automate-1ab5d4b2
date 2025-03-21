@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +12,7 @@ import {
   FormMessage 
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -158,6 +160,8 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     if (employeeData) {
       // Create properly typed form data from employee data
       const formData: EmployeeFormData = {
+        // Include id for editing existing employees
+        id: employeeData.id,
         full_name: employeeData.full_name || '',
         email: employeeData.email || '',
         job_title: employeeData.job_title || undefined,
@@ -203,6 +207,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     
     try {
       const employeeData: EmployeeFormValues = {
+        id: data.id, // Include id for update operations
         user_id: user.id,
         full_name: data.full_name,
         email: data.email,
@@ -251,9 +256,11 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
           description: "Employee updated successfully",
         });
       } else {
+        // For new employee, remove the id field from the data
+        const { id, ...newEmployeeData } = employeeData;
         const { data: newEmployee, error } = await supabase
           .from("employees")
-          .insert(employeeData)
+          .insert(newEmployeeData)
           .select();
           
         if (error) throw error;
