@@ -5,14 +5,14 @@ import { Card as ShadcnCard, CardContent, CardDescription, CardFooter, CardHeade
 
 // Completely redesigned card variants
 const cardVariants = {
-  default: "bg-white text-card-foreground shadow-md border-0 rounded-xl hover:shadow-lg transition-all duration-300",
-  glass: "bg-white/80 backdrop-blur-xl border border-white/30 shadow-lg rounded-xl",
-  premium: "bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl",
-  feature: "border-0 bg-white p-7 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300",
-  flat: "bg-blue-50 border-0 rounded-xl",
-  elevated: "bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl",
-  outlined: "bg-white border border-blue-100 rounded-xl",
-  interactive: "bg-white border-0 shadow-md hover:shadow-xl hover:translate-y-[-3px] transition-all duration-300 cursor-pointer rounded-xl",
+  default: "bg-white text-card-foreground shadow-xl border-0 rounded-3xl hover:shadow-2xl transition-all duration-300",
+  glass: "bg-white/80 backdrop-blur-xl border border-white/30 shadow-xl rounded-3xl",
+  premium: "bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-3xl",
+  feature: "border-0 bg-white p-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300",
+  flat: "bg-indigo-50 border-0 rounded-3xl",
+  elevated: "bg-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-3xl",
+  outlined: "bg-white border border-indigo-100 rounded-3xl",
+  interactive: "bg-white border-0 shadow-xl hover:shadow-2xl hover:translate-y-[-6px] transition-all duration-300 cursor-pointer rounded-3xl",
 };
 
 export interface PremiumCardProps extends React.ComponentProps<typeof ShadcnCard> {
@@ -31,7 +31,7 @@ const PremiumCard = React.forwardRef<
       ref={ref}
       className={cn(
         cardVariants[variant],
-        withHover && "hover:translate-y-[-3px] transition-transform duration-300",
+        withHover && "hover:translate-y-[-6px] transition-transform duration-300",
         isAnimated && "animate-fade-in-up",
         className
       )}
@@ -51,9 +51,9 @@ const EnhancedCardHeader = React.forwardRef<
   HTMLDivElement, 
   EnhancedCardHeaderProps
 >(({ className, subtitle, children, ...props }, ref) => (
-  <CardHeader ref={ref} className={cn("px-7 pt-7", className)} {...props}>
+  <CardHeader ref={ref} className={cn("px-8 pt-8", className)} {...props}>
     {children}
-    {subtitle && <p className="text-sm text-blue-600 mt-2 font-medium">{subtitle}</p>}
+    {subtitle && <p className="text-sm text-indigo-600 mt-2 font-medium">{subtitle}</p>}
   </CardHeader>
 ));
 
@@ -64,7 +64,7 @@ const EnhancedCardContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof CardContent>
 >(({ className, ...props }, ref) => (
-  <CardContent ref={ref} className={cn("px-7 py-5", className)} {...props} />
+  <CardContent ref={ref} className={cn("px-8 py-6", className)} {...props} />
 ));
 
 EnhancedCardContent.displayName = "EnhancedCardContent";
