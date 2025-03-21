@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,8 +28,8 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Employee, EmployeeFormValues } from '@/types/employee';
 
-// Define the schema with proper types
 const employeeFormSchema = z.object({
+  id: z.string().uuid().optional(),
   full_name: z.string().min(2, { message: "Full name is required" }),
   email: z.string().email({ message: "Please enter a valid email" }),
   job_title: z.string().optional(),
@@ -60,7 +59,6 @@ const employeeFormSchema = z.object({
   notes: z.string().optional(),
 });
 
-// Define the form data type based on the schema
 type EmployeeFormData = z.infer<typeof employeeFormSchema>;
 
 const employmentTypes = [
@@ -158,9 +156,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
   
   useEffect(() => {
     if (employeeData) {
-      // Create properly typed form data from employee data
       const formData: EmployeeFormData = {
-        // Include id for editing existing employees
         id: employeeData.id,
         full_name: employeeData.full_name || '',
         email: employeeData.email || '',
@@ -207,7 +203,7 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     
     try {
       const employeeData: EmployeeFormValues = {
-        id: data.id, // Include id for update operations
+        id: data.id,
         user_id: user.id,
         full_name: data.full_name,
         email: data.email,
@@ -240,7 +236,6 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
       
       let result;
       
-      // Check if we're updating an existing employee
       if (employeeData && employeeData.id) {
         const { data: updatedEmployee, error } = await supabase
           .from("employees")
@@ -256,7 +251,6 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
           description: "Employee updated successfully",
         });
       } else {
-        // For new employee, remove the id field from the data
         const { id, ...newEmployeeData } = employeeData;
         const { data: newEmployee, error } = await supabase
           .from("employees")
@@ -832,3 +826,4 @@ export const AddEmployeeForm = ({ onSuccess, onCancel, employeeData }: AddEmploy
     </Form>
   );
 };
+
