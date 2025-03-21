@@ -16,15 +16,17 @@ const buttonVariants = cva(
         outline:
           "border-2 border-hrflow-blue bg-transparent text-hrflow-blue hover:bg-hrflow-blue/10",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+          "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200",
+        ghost: "hover:bg-gray-100 text-gray-700 hover:text-hrflow-blue",
         link: "text-hrflow-blue underline-offset-4 hover:underline",
         primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm",
+        success: "bg-green-500 text-white hover:bg-green-600/90 shadow-sm",
       },
       size: {
-        default: "h-10 px-5 py-2",
+        default: "h-11 px-5 py-2.5",
         sm: "h-9 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-md px-8 text-base",
+        lg: "h-12 rounded-md px-6 text-base",
+        xl: "h-14 rounded-md px-8 text-lg",
         icon: "h-10 w-10 flex items-center justify-center rounded-full",
       },
     },
@@ -47,7 +49,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     // Enhanced styling with proper typing
     const enhancedStyle: React.CSSProperties = {
-      fontWeight: 'medium',
+      fontWeight: 500,
       letterSpacing: '0.01em',
       opacity: 1,
       ...(style as React.CSSProperties),
