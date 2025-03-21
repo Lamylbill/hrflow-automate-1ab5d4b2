@@ -18,6 +18,7 @@ const buttonVariants = cva(
         glass: "bg-white/20 backdrop-blur-md border border-white/30 text-white hover:bg-white/30 font-bold uppercase", 
         premium: "bg-gradient-to-r from-hrflow-blue to-hrflow-blue-light text-white shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] font-bold uppercase", 
         destructive: "bg-red-500 text-white hover:bg-red-600 font-bold uppercase", 
+        default: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm font-bold uppercase", // Alias for primary
       },
       size: {
         default: "h-10 px-4 py-2",

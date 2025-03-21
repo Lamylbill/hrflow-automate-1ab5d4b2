@@ -45,14 +45,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
-    // Enhanced styling for maximum visibility
-    const enhancedStyle = {
+    // Enhanced styling for maximum visibility with proper typing
+    const enhancedStyle: React.CSSProperties = {
       color: variant === 'outline' ? '#2563EB' : 'white',
       textShadow: variant === 'outline' ? 'none' : '0 1px 2px rgba(0,0,0,0.3)',
       fontWeight: 'bold',
       letterSpacing: '0.25px',
       opacity: 1,
-      ...style,
+      ...(style as React.CSSProperties),
     };
     
     return (
