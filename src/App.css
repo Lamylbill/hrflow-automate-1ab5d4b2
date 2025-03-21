@@ -8,7 +8,7 @@
 body {
   background-color: #f8fafc;
   color: #1e293b;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .logo {
@@ -18,10 +18,10 @@ body {
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #2563ebaa);
+  filter: drop-shadow(0 0 2em #3b82f6aa);
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #2563ebaa);
+  filter: drop-shadow(0 0 2em #3b82f6aa);
 }
 
 @keyframes logo-spin {
@@ -42,15 +42,15 @@ body {
 .card {
   padding: 2em;
   background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: none;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .card:hover {
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
 }
 
 .read-the-docs {
@@ -59,82 +59,84 @@ body {
 
 /* Modern Form Styling */
 input, select, textarea {
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   border: 1px solid #e2e8f0;
-  padding: 0.75rem 1rem;
-  font-size: 0.9375rem;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   width: 100%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Label styling */
 label {
   display: block;
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   margin-bottom: 0.5rem;
-  color: #4b5563;
+  color: #334155;
+  letter-spacing: 0.02em;
 }
 
 /* Container layouts */
 .container-fluid {
   width: 100%;
-  padding-right: 1.5rem;
-  padding-left: 1.5rem;
+  padding-right: 2rem;
+  padding-left: 2rem;
   margin-right: auto;
   margin-left: auto;
 }
 
 @media (min-width: 640px) {
   .container-fluid {
-    padding-right: 2rem;
-    padding-left: 2rem;
+    padding-right: 3rem;
+    padding-left: 3rem;
   }
 }
 
 @media (min-width: 1024px) {
   .container-fluid {
-    padding-right: 2.5rem;
-    padding-left: 2.5rem;
+    padding-right: 4rem;
+    padding-left: 4rem;
   }
 }
 
 /* Modern button styles */
 button {
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
   font-weight: 500;
 }
 
 /* Modal styling */
 .modal-content {
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.1);
+  border: none;
   overflow: hidden;
 }
 
 .modal-header {
   border-bottom: 1px solid #f1f5f9;
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem 2rem;
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: 2rem;
 }
 
 .modal-footer {
   border-top: 1px solid #f1f5f9;
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 /* Table styling */
@@ -142,25 +144,30 @@ table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 thead {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
 }
 
 th {
-  padding: 0.75rem 1rem;
-  font-weight: 500;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
   text-align: left;
-  color: #4b5563;
+  color: #334155;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid #e2e8f0;
 }
 
 td {
-  padding: 0.75rem 1rem;
+  padding: 1rem 1.5rem;
   border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
 tr:last-child td {
@@ -187,7 +194,7 @@ tr:hover {
 
 @keyframes slideUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(30px);
     opacity: 0;
   }
   to {
@@ -196,10 +203,25 @@ tr:hover {
   }
 }
 
+@keyframes slideInRight {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 .fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.6s ease-out forwards;
 }
 
 .slide-up {
-  animation: slideUp 0.5s ease-out forwards;
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
 }
