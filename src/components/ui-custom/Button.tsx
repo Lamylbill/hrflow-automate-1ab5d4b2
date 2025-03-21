@@ -54,11 +54,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const hasIcons = leftIcon || rightIcon;
     
     // Enhanced styling with depth effects
-    const buttonStyle = {
+    const buttonStyle: React.CSSProperties = {
       fontWeight: 600,
       opacity: 1,
       transition: 'all 0.3s ease',
-      transformStyle: 'preserve-3d',
+      // Fix: Use proper CSS type for transformStyle
+      transformStyle: 'preserve-3d' as const,
       ...(style as React.CSSProperties),
     };
     
