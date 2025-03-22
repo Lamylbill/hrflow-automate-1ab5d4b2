@@ -51,24 +51,24 @@ export const TopNavbar = () => {
 
   return (
     <nav className="bg-white border-b border-gray-200 fixed w-full z-30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="flex items-center gap-2">
-                <span className="font-display font-bold text-xl text-indigo-800">HR Flow</span>
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-2">
+      <div className="container mx-auto px-6">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center gap-2 mr-10">
+              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+              <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
+            </Link>
+            
+            <div className="hidden md:flex space-x-1">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg",
+                    "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
                     location.pathname === item.path
                       ? "bg-indigo-600 text-white"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-700"
+                      : "text-indigo-800 hover:bg-indigo-50"
                   )}
                 >
                   <span className="mr-2">{item.icon}</span>
@@ -77,24 +77,28 @@ export const TopNavbar = () => {
               ))}
             </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+          
+          <div className="hidden md:flex items-center space-x-4">
             <NotificationBell className="text-indigo-700 hover:text-indigo-500" />
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full p-0">
-                  <Avatar className="h-9 w-9 cursor-pointer">
-                    {avatarImageUrl ? (
-                      <AvatarImage src={avatarImageUrl} alt="Profile" />
-                    ) : (
-                      <AvatarFallback className="bg-indigo-600 text-white">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
+                <Button variant="ghost" size="icon" className="relative rounded-full p-0">
+                  <div className="flex items-center gap-2 border border-indigo-100 p-1 pl-3 pr-2 rounded-full bg-white hover:bg-indigo-50">
+                    <span className="text-indigo-800 font-medium text-sm">My Account</span>
+                    <Avatar className="h-8 w-8 border-2 border-indigo-600/20">
+                      {avatarImageUrl ? (
+                        <AvatarImage src={avatarImageUrl} alt="Profile" />
+                      ) : (
+                        <AvatarFallback className="bg-indigo-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                  </div>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
@@ -113,7 +117,7 @@ export const TopNavbar = () => {
           </div>
           
           {/* Mobile menu button */}
-          <div className="sm:hidden flex items-center">
+          <div className="md:hidden flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">

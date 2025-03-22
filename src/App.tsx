@@ -60,7 +60,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex flex-col h-screen bg-gray-50">
       <TopNavbar />
       <div className="flex-1 overflow-auto pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="container mx-auto px-6 py-6">
           <Suspense fallback={
             <div className="flex items-center justify-center h-[calc(100vh-128px)]">
               <LoadingSpinner size="lg" />
