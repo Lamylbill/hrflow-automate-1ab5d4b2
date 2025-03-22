@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { cva, VariantProps } from 'class-variance-authority';
 import { Button as ShadcnButton } from '@/components/ui/button';
 
-// Completely redesigned button variants with modern, vibrant styles
+// Completely redesigned button variants with modern, vibrant styles and subtle color shifts
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 text-base tracking-wide",
   {
@@ -12,10 +12,10 @@ const buttonVariants = cva(
       variant: {
         primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm", 
         secondary: "bg-white text-indigo-800 hover:text-indigo-600 border border-indigo-200 hover:bg-indigo-50 hover:border-indigo-300 shadow-sm", 
-        outline: "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50",
-        ghost: "text-indigo-700 hover:bg-indigo-50",
-        link: "text-indigo-600 underline-offset-4 hover:underline p-0 h-auto",
-        glass: "bg-white/70 backdrop-blur-xl border border-white/30 text-indigo-900 hover:bg-white/90 shadow-sm",
+        outline: "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700",
+        ghost: "text-indigo-700 hover:bg-indigo-50 hover:text-indigo-800",
+        link: "text-indigo-600 underline-offset-4 hover:underline hover:text-indigo-700 p-0 h-auto",
+        glass: "bg-white/70 backdrop-blur-xl border border-white/30 text-indigo-900 hover:bg-white/90 hover:text-indigo-800 shadow-sm",
         premium: "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-md hover:shadow-xl hover:translate-y-[-2px]",
         destructive: "bg-red-500 text-white hover:bg-red-600", 
         success: "bg-emerald-500 text-white hover:bg-emerald-600",

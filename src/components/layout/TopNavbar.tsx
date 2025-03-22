@@ -68,7 +68,7 @@ export const TopNavbar = () => {
                     "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
                     location.pathname === item.path
                       ? "bg-indigo-600 text-white"
-                      : "text-indigo-800 hover:bg-indigo-50"
+                      : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-600"
                   )}
                 >
                   <span className="mr-2">{item.icon}</span>

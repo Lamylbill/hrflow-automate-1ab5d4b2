@@ -723,9 +723,6 @@ const EmployeesPage = () => {
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex justify-end gap-1">
-                            <DialogTrigger asChild className="hidden">
-                              <button id={`view-employee-${employee.id}`}></button>
-                            </DialogTrigger>
                             <Button 
                               variant="ghost" 
                               size="sm" 
@@ -819,13 +816,15 @@ const EmployeesPage = () => {
       </Sheet>
 
       <Dialog>
-        {selectedEmployee && (
-          <EmployeeDetailsDialog 
-            employee={selectedEmployee}
-            onEdit={handleEditEmployee}
-            onDelete={() => fetchEmployees()}
-          />
-        )}
+        <DialogContent className="max-w-3xl">
+          {selectedEmployee && (
+            <EmployeeDetailsDialog 
+              employee={selectedEmployee}
+              onEdit={handleEditEmployee}
+              onDelete={() => fetchEmployees()}
+            />
+          )}
+        </DialogContent>
       </Dialog>
     </div>
   );
