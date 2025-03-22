@@ -28,10 +28,12 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-3 mb-6">
-        <TabsTrigger value="personal">Personal Info</TabsTrigger>
+      <TabsList className="grid grid-cols-5 mb-6">
+        <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="employment">Employment</TabsTrigger>
-        <TabsTrigger value="documents">Documents</TabsTrigger>
+        <TabsTrigger value="contact">Contact</TabsTrigger>
+        <TabsTrigger value="financial">Financial</TabsTrigger>
+        <TabsTrigger value="benefits">Benefits</TabsTrigger>
       </TabsList>
       
       <TabsContent value="personal" className="pt-2">
@@ -51,6 +53,36 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
           onCancel={onCancel}
           isTabbed={true}
           activeTab="employment"
+        />
+      </TabsContent>
+      
+      <TabsContent value="contact" className="pt-2">
+        <AddEmployeeForm 
+          employeeData={employee}
+          onSuccess={onSuccess}
+          onCancel={onCancel}
+          isTabbed={true}
+          activeTab="contact"
+        />
+      </TabsContent>
+      
+      <TabsContent value="financial" className="pt-2">
+        <AddEmployeeForm 
+          employeeData={employee}
+          onSuccess={onSuccess}
+          onCancel={onCancel}
+          isTabbed={true}
+          activeTab="financial"
+        />
+      </TabsContent>
+      
+      <TabsContent value="benefits" className="pt-2">
+        <AddEmployeeForm 
+          employeeData={employee}
+          onSuccess={onSuccess}
+          onCancel={onCancel}
+          isTabbed={true}
+          activeTab="benefits"
         />
       </TabsContent>
       

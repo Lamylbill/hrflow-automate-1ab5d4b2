@@ -205,7 +205,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           </div>
         </>
       ) : (
-        <div className="mt-4">
+        <div className="mt-4 max-h-[calc(90vh-12rem)] overflow-y-auto">
           <EmployeeDetailsTabs
             employee={employee}
             onSuccess={() => {

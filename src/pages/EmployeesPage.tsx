@@ -49,7 +49,6 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
 import { Employee } from '@/types/employee';
@@ -312,13 +311,12 @@ const EmployeesPage = () => {
 
   const handleAddEmployee = () => {
     setSelectedEmployee(null);
-    setIsAddEmployeeOpen(true);
+    setIsDetailsOpen(true);
   };
 
   const handleEditEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
-    setIsAddEmployeeOpen(true);
-    setIsDetailsOpen(false); // Close the details dialog if open
+    setIsDetailsOpen(true);
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
@@ -569,35 +567,15 @@ const EmployeesPage = () => {
         )}
       </AnimatedSection>
 
-      <Sheet 
-        open={isAddEmployeeOpen} 
-        onOpenChange={setIsAddEmployeeOpen}
+      <Dialog 
+        open={isDetailsOpen || isAddEmployeeOpen} 
+        onOpenChange={(open) => {
+          setIsDetailsOpen(open);
+          setIsAddEmployeeOpen(open);
+        }}
       >
-        <SheetContent side="right" className="w-full md:max-w-xl overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>{selectedEmployee ? 'Edit Employee' : 'Add New Employee'}</SheetTitle>
-            <SheetDescription>
-              {selectedEmployee 
-                ? 'Update employee information in the form below.' 
-                : 'Fill out the form below to add a new employee.'}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6">
-            <AddEmployeeForm 
-              employeeData={selectedEmployee}
-              onSuccess={() => {
-                fetchEmployees();
-                setIsAddEmployeeOpen(false);
-              }}
-              onCancel={() => setIsAddEmployeeOpen(false)}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-          {selectedEmployee && (
+          {selectedEmployee ? (
             <EmployeeDetailsDialog 
               employee={selectedEmployee}
               onEdit={() => {
@@ -609,6 +587,25 @@ const EmployeesPage = () => {
                 setIsDetailsOpen(false);
               }}
             />
+          ) : (
+            <div>
+              <DialogHeader>
+                <DialogTitle>Add New Employee</DialogTitle>
+              </DialogHeader>
+              <div className="mt-6">
+                <AddEmployeeForm 
+                  onSuccess={() => {
+                    fetchEmployees();
+                    setIsAddEmployeeOpen(false);
+                    setIsDetailsOpen(false);
+                  }}
+                  onCancel={() => {
+                    setIsAddEmployeeOpen(false);
+                    setIsDetailsOpen(false);
+                  }}
+                />
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
@@ -617,4 +614,3 @@ const EmployeesPage = () => {
 };
 
 export default EmployeesPage;
-
