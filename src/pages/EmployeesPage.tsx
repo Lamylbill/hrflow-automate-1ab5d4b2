@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -41,7 +40,6 @@ import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog, 
   DialogContent,
@@ -50,255 +48,166 @@ import {
   DialogTitle,
   DialogFooter
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
 import { Employee } from '@/types/employee';
+import { EmployeeCard } from '@/components/employees/EmployeeCard';
+import { ImportEmployeesDialog } from '@/components/employees/ImportEmployeesDialog';
 
-const EmployeeCard = ({ 
-  employee,
-  onViewDetails,
-  onEdit,
-  onDelete
-}: { 
-  employee: Employee,
-  onViewDetails: (employee: Employee) => void,
-  onEdit: (employee: Employee) => void,
-  onDelete: (employee: Employee) => void
+const EmployeeFilters = ({
+  departments,
+  statuses,
+  selectedDepartments,
+  selectedStatuses,
+  setSelectedDepartments,
+  setSelectedStatuses
 }) => {
+  const toggleDepartment = (department: string) => {
+    setSelectedDepartments(prev => 
+      prev.includes(department)
+        ? prev.filter(d => d !== department)
+        : [...prev, department]
+    );
+  };
+  
+  const toggleStatus = (status: string) => {
+    setSelectedStatuses(prev => 
+      prev.includes(status)
+        ? prev.filter(s => s !== status)
+        : [...prev, status]
+    );
+  };
+
   return (
-    <div 
-      className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => onViewDetails(employee)}
-    >
-      <div className="flex items-center mb-3">
-        <Avatar className="h-12 w-12 border">
-          <AvatarImage src={employee.profile_picture || undefined} />
-          <AvatarFallback className="bg-hrflow-blue text-white">
-            {employee.full_name?.split(' ').map(n => n?.[0]).join('') || '?'}
-          </AvatarFallback>
-        </Avatar>
-        <div className="ml-3">
-          <h3 className="font-medium">{employee.full_name}</h3>
-          <p className="text-sm text-gray-500">{employee.job_title || 'No Job Title'}</p>
-        </div>
-      </div>
-      
-      <div className="space-y-2 mb-3">
-        <div className="text-sm">
-          <span className="text-gray-500">Department:</span> {employee.department || 'N/A'}
-        </div>
-        <div className="text-sm">
-          <span className="text-gray-500">Email:</span> {employee.email}
-        </div>
-        <div className="text-sm">
-          <span className="text-gray-500">Status:</span> <Badge variant={
-            employee.employment_status === 'Active' ? 'success' :
-            employee.employment_status === 'On Leave' ? 'warning' :
-            employee.employment_status === 'Resigned' ? 'destructive' : 'outline'
-          }>
-            {employee.employment_status || 'Unknown'}
+    <div className="flex flex-wrap gap-2 items-center justify-between w-full sm:w-auto">
+      <div className="flex flex-wrap gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              Department
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[200px]">
+            {departments.length > 0 ? (
+              departments.map(department => (
+                <DropdownMenuItem 
+                  key={department}
+                  className="flex items-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleDepartment(department);
+                  }}
+                >
+                  <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
+                    {selectedDepartments.includes(department) ? 
+                      <Check className="h-3 w-3" /> : null}
+                  </div>
+                  <span>{department}</span>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>
+                No departments available
+              </DropdownMenuItem>
+            )}
+            {selectedDepartments.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setSelectedDepartments([])}
+                >
+                  Clear filters
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              Status
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[200px]">
+            {statuses.length > 0 ? (
+              statuses.map(status => (
+                <DropdownMenuItem 
+                  key={status}
+                  className="flex items-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleStatus(status);
+                  }}
+                >
+                  <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
+                    {selectedStatuses.includes(status) ? 
+                      <Check className="h-3 w-3" /> : null}
+                  </div>
+                  <span>{status}</span>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>
+                No statuses available
+              </DropdownMenuItem>
+            )}
+            {selectedStatuses.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setSelectedStatuses([])}
+                >
+                  Clear filters
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        {selectedDepartments.length > 0 && (
+          <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
+            Departments: {selectedDepartments.length}
+            <X
+              className="h-3 w-3 cursor-pointer" 
+              onClick={() => setSelectedDepartments([])}
+            />
           </Badge>
-        </div>
-      </div>
-      
-      <div className="flex justify-end gap-1 border-t pt-2">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="px-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(employee);
-          }}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="px-2 text-red-500 hover:text-red-700"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(employee);
-          }}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        )}
+        
+        {selectedStatuses.length > 0 && (
+          <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
+            Statuses: {selectedStatuses.length}
+            <X
+              className="h-3 w-3 cursor-pointer" 
+              onClick={() => setSelectedStatuses([])}
+            />
+          </Badge>
+        )}
       </div>
     </div>
   );
 };
 
-const ImportEmployeesDialog = ({ onImportSuccess }: { onImportSuccess?: () => void }) => {
-  const [isImporting, setIsImporting] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const { toast } = useToast();
-  const { user } = useAuth();
+const StatusBadge = ({ status }: { status: string | null | undefined }) => {
+  if (!status) return <Badge variant="outline">Unknown</Badge>;
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-  
-  const downloadTemplate = () => {
-    generateEmployeeTemplate();
-    toast({
-      title: "Template Downloaded",
-      description: "The employee template has been downloaded to your device.",
-    });
-  };
-  
-  const importEmployees = async () => {
-    if (!file || !user) return;
-    
-    setIsImporting(true);
-    
-    try {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          
-          const worksheetName = workbook.SheetNames[1];
-          const worksheet = workbook.Sheets[worksheetName];
-          
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-            header: 1,
-            range: 2
-          }) as any[][];
-          
-          const filteredData = jsonData.filter(row => 
-            row.length > 0 && row.some(cell => cell !== undefined && cell !== '')
-          );
-          
-          if (filteredData.length === 0) {
-            throw new Error("No valid data found in the import file");
-          }
-          
-          const headers = workbook.Sheets[worksheetName] ? 
-            XLSX.utils.sheet_to_json(workbook.Sheets[worksheetName], { 
-              header: 1, 
-              range: 0, 
-              blankrows: false 
-            })[0] as string[] : [];
-          
-          const employees = filteredData.map(row => {
-            const employee: any = { user_id: user.id };
-            
-            headers.forEach((header, index) => {
-              if (header && row[index] !== undefined) {
-                if (header === 'benefits_enrolled' && row[index]) {
-                  employee[header] = row[index].toString().split(',').map((s: string) => s.trim());
-                } else if (header === 'cpf_contribution' || header === 'contract_signed') {
-                  const value = row[index].toString().toLowerCase();
-                  employee[header] = value === 'true' || value === 'yes';
-                } else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score'].includes(header) && row[index]) {
-                  employee[header] = Number(row[index]);
-                } else {
-                  employee[header] = row[index];
-                }
-              }
-            });
-            
-            if (!employee.full_name || !employee.email) {
-              throw new Error("All employees must have a full name and email");
-            }
-            
-            return employee;
-          });
-          
-          for (const employee of employees) {
-            const { error } = await supabase.from('employees').insert(employee);
-            if (error) throw error;
-          }
-          
-          toast({
-            title: "Import Successful",
-            description: `Successfully imported ${employees.length} employees.`,
-          });
-          
-          if (onImportSuccess) onImportSuccess();
-        } catch (error: any) {
-          console.error("Error importing employees:", error);
-          toast({
-            title: "Import Failed",
-            description: error.message || "An error occurred while importing employees.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsImporting(false);
-          setFile(null);
-        }
-      };
-      
-      reader.readAsArrayBuffer(file);
-    } catch (error: any) {
-      console.error("Error reading file:", error);
-      toast({
-        title: "Import Failed",
-        description: error.message || "An error occurred while reading the file.",
-        variant: "destructive",
-      });
-      setIsImporting(false);
-    }
-  };
-  
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Upload className="mr-2 h-4 w-4" />
-          Import
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Import Employees</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-6">
-          <div className="flex flex-col items-center justify-center py-4 gap-4">
-            <Button variant="outline" onClick={downloadTemplate} className="w-full">
-              <Download className="mr-2 h-4 w-4" />
-              Download Template
-            </Button>
-            
-            <div className="border rounded-md p-6 w-full">
-              <div className="flex flex-col items-center gap-2">
-                <FileUp className="h-10 w-10 text-gray-400" />
-                <p className="text-sm text-gray-500">
-                  {file ? file.name : "Upload your employee data Excel file"}
-                </p>
-                <Input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  onChange={handleFileChange}
-                  className="max-w-xs"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" disabled={isImporting}>
-            Cancel
-          </Button>
-          <Button 
-            variant="primary" 
-            onClick={importEmployees} 
-            disabled={!file || isImporting}
-          >
-            {isImporting ? "Importing..." : "Import Employees"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+  switch (status) {
+    case 'Active':
+      return <Badge variant="success" className="font-medium">Active</Badge>;
+    case 'On Leave':
+      return <Badge variant="warning" className="font-medium">On Leave</Badge>;
+    case 'Resigned':
+      return <Badge variant="destructive" className="font-medium">Resigned</Badge>;
+    default:
+      return <Badge>{status}</Badge>;
+  }
 };
 
 const EmployeesPage = () => {
@@ -387,38 +296,7 @@ const EmployeesPage = () => {
       
     return matchesSearch && matchesDepartment && matchesStatus;
   });
-  
-  const toggleDepartment = (department: string) => {
-    setSelectedDepartments(prev => 
-      prev.includes(department)
-        ? prev.filter(d => d !== department)
-        : [...prev, department]
-    );
-  };
-  
-  const toggleStatus = (status: string) => {
-    setSelectedStatuses(prev => 
-      prev.includes(status)
-        ? prev.filter(s => s !== status)
-        : [...prev, status]
-    );
-  };
-  
-  const StatusBadge = ({ status }: { status: string | null | undefined }) => {
-    if (!status) return <Badge variant="outline">Unknown</Badge>;
-    
-    switch (status) {
-      case 'Active':
-        return <Badge variant="success" className="font-medium">Active</Badge>;
-      case 'On Leave':
-        return <Badge variant="warning" className="font-medium">On Leave</Badge>;
-      case 'Resigned':
-        return <Badge variant="destructive" className="font-medium">Resigned</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-  
+
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return 'N/A';
     try {
@@ -477,7 +355,7 @@ const EmployeesPage = () => {
     <div className="px-4 sm:px-6 py-6">
       <AnimatedSection>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-          <div className="flex items-center gap-3">
+          <div>
             <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
             <p className="mt-1 text-gray-600">
               Manage your organization's employees
@@ -510,134 +388,33 @@ const EmployeesPage = () => {
           </div>
           
           <div className="flex flex-wrap gap-2 items-center justify-between w-full sm:w-auto">
-            <div className="flex flex-wrap gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={toggleViewMode}
-                className="flex gap-2 items-center"
-              >
-                {viewMode === 'list' ? (
-                  <>
-                    <Grid className="h-4 w-4" />
-                    <span>Card View</span>
-                  </>
-                ) : (
-                  <>
-                    <ListFilter className="h-4 w-4" />
-                    <span>List View</span>
-                  </>
-                )}
-              </Button>
-            
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Department
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
-                  {departments.length > 0 ? (
-                    departments.map(department => (
-                      <DropdownMenuItem 
-                        key={department}
-                        className="flex items-center gap-2"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleDepartment(department);
-                        }}
-                      >
-                        <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
-                          {selectedDepartments.includes(department) ? 
-                            <Check className="h-3 w-3" /> : null}
-                        </div>
-                        <span>{department}</span>
-                      </DropdownMenuItem>
-                    ))
-                  ) : (
-                    <DropdownMenuItem disabled>
-                      No departments available
-                    </DropdownMenuItem>
-                  )}
-                  {selectedDepartments.length > 0 && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setSelectedDepartments([])}
-                      >
-                        Clear filters
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Status
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[200px]">
-                  {statuses.length > 0 ? (
-                    statuses.map(status => (
-                      <DropdownMenuItem 
-                        key={status}
-                        className="flex items-center gap-2"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleStatus(status);
-                        }}
-                      >
-                        <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
-                          {selectedStatuses.includes(status) ? 
-                            <Check className="h-3 w-3" /> : null}
-                        </div>
-                        <span>{status}</span>
-                      </DropdownMenuItem>
-                    ))
-                  ) : (
-                    <DropdownMenuItem disabled>
-                      No statuses available
-                    </DropdownMenuItem>
-                  )}
-                  {selectedStatuses.length > 0 && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => setSelectedStatuses([])}
-                      >
-                        Clear filters
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              {selectedDepartments.length > 0 && (
-                <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
-                  Departments: {selectedDepartments.length}
-                  <X
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedDepartments([])}
-                  />
-                </Badge>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={toggleViewMode}
+              className="flex gap-2 items-center"
+            >
+              {viewMode === 'list' ? (
+                <>
+                  <Grid className="h-4 w-4" />
+                  <span>Card View</span>
+                </>
+              ) : (
+                <>
+                  <ListFilter className="h-4 w-4" />
+                  <span>List View</span>
+                </>
               )}
-              
-              {selectedStatuses.length > 0 && (
-                <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
-                  Statuses: {selectedStatuses.length}
-                  <X
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedStatuses([])}
-                  />
-                </Badge>
-              )}
-            </div>
+            </Button>
+          
+            <EmployeeFilters 
+              departments={departments}
+              statuses={statuses}
+              selectedDepartments={selectedDepartments}
+              selectedStatuses={selectedStatuses}
+              setSelectedDepartments={setSelectedDepartments}
+              setSelectedStatuses={setSelectedStatuses}
+            />
           </div>
         </div>
       </AnimatedSection>
@@ -823,7 +600,10 @@ const EmployeesPage = () => {
           {selectedEmployee && (
             <EmployeeDetailsDialog 
               employee={selectedEmployee}
-              onEdit={handleEditEmployee}
+              onEdit={() => {
+                fetchEmployees();
+                setIsDetailsOpen(false);
+              }}
               onDelete={() => {
                 fetchEmployees();
                 setIsDetailsOpen(false);
@@ -837,3 +617,4 @@ const EmployeesPage = () => {
 };
 
 export default EmployeesPage;
+
