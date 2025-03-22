@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   DialogHeader,
@@ -8,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { EmployeeDetailsTabs } from './EmployeeDetailsTabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee } from '@/types/employee';
-import { formatPhoneNumber, formatSalary } from '@/utils/formatters';
+import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { DocumentManager } from './documents/DocumentManager';
@@ -49,15 +50,6 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         description: error.message || "Failed to delete employee",
         variant: "destructive"
       });
-    }
-  };
-
-  const formatDate = (dateString?: string | null) => {
-    if (!dateString) return 'N/A';
-    try {
-      return new Date(dateString).toLocaleDateString();
-    } catch (error) {
-      return 'Invalid date';
     }
   };
 
@@ -116,24 +108,12 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
                     <h3 className="font-medium text-lg mb-4">Address</h3>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-sm text-gray-500">Street Address</p>
-                        <p className="font-medium">{employee.address_street || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">City</p>
-                        <p className="font-medium">{employee.address_city || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">State/Province</p>
-                        <p className="font-medium">{employee.address_state || 'N/A'}</p>
+                        <p className="text-sm text-gray-500">Home Address</p>
+                        <p className="font-medium">{employee.home_address || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Postal Code</p>
-                        <p className="font-medium">{employee.address_postal || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Country</p>
-                        <p className="font-medium">{employee.address_country || 'N/A'}</p>
+                        <p className="font-medium">{employee.postal_code || 'N/A'}</p>
                       </div>
                     </div>
                   </div>

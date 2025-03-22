@@ -11,6 +11,12 @@ import {
 } from "@/components/ui/select";
 import { DOCUMENT_CATEGORIES, DOCUMENT_TYPES } from './DocumentCategoryTypes';
 
+interface DocumentType {
+  value: string;
+  label: string;
+  description?: string;
+}
+
 interface DocumentSelectorProps {
   selectedCategory: string;
   selectedType: string;
@@ -24,7 +30,7 @@ export const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   onCategoryChange,
   onTypeChange
 }) => {
-  const [availableTypes, setAvailableTypes] = useState<Array<{value: string, label: string}>>([]);
+  const [availableTypes, setAvailableTypes] = useState<DocumentType[]>([]);
   
   useEffect(() => {
     if (selectedCategory && DOCUMENT_TYPES[selectedCategory]) {

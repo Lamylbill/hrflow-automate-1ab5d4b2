@@ -60,8 +60,13 @@ export const DOCUMENT_TYPES = {
   ]
 };
 
+export interface DocumentType {
+  value: string;
+  label: string;
+  description?: string;
+}
+
 export type DocumentCategory = keyof typeof DOCUMENT_TYPES;
-export type DocumentType = { value: string; label: string; description: string };
 
 export const getCategoryFromValue = (value: string): string | undefined => {
   return Object.values(DOCUMENT_CATEGORIES).find(category => 

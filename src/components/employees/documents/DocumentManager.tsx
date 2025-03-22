@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -44,6 +43,19 @@ interface Document {
   tags?: string[];
 }
 
+interface DbDocument {
+  id: string;
+  employee_id: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  file_path: string;
+  uploaded_at: string;
+  category: string;
+  document_type: string;
+  user_id: string;
+}
+
 interface DocumentManagerProps {
   employeeId: string;
   refreshTrigger?: number;
@@ -81,7 +93,20 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         
       if (error) throw error;
       
-      setDocuments(data || []);
+      const mappedDocuments: Document[] = (data || []).map((doc: DbDocument) => ({
+        id: doc.id,
+        employee_id: doc.employee_id,
+        file_name: doc.file_name,
+        file_type: doc.file_type || '',
+        file_size: doc.file_size || 0,
+        file_url: doc.file_path,
+        upload_date: doc.uploaded_at,
+        document_category: doc.category,
+        document_type: doc.document_type,
+        description: '',
+      }));
+      
+      setDocuments(mappedDocuments);
     } catch (error: any) {
       console.error('Error fetching documents:', error);
       toast({
@@ -111,9 +136,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         .from('employee_documents')
         .update({
           file_name: editDocumentName,
-          document_category: editDocumentCategory,
-          document_type: editDocumentType,
-          description: editDocumentDescription
+          category: editDocumentCategory,
+          document_type: editDocumentType
         })
         .eq('id', currentDocument.id);
         
@@ -138,14 +162,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   
   const handleDeleteDocument = async (document: Document) => {
     try {
-      // First delete from storage
       const { error: storageError } = await supabase.storage
         .from('employee-documents')
         .remove([`${employeeId}/${document.file_name}`]);
       
       if (storageError) throw storageError;
       
-      // Then delete the record
       const { error } = await supabase
         .from('employee_documents')
         .delete()
