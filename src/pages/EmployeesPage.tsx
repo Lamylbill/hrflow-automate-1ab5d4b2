@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
@@ -43,15 +44,12 @@ import { useAuth } from '@/context/AuthContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger, 
-  DialogFooter 
+  DialogContent,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
 import { Employee } from '@/types/employee';
@@ -310,6 +308,7 @@ const EmployeesPage = () => {
   const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -438,6 +437,7 @@ const EmployeesPage = () => {
   const handleEditEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
     setIsAddEmployeeOpen(true);
+    setIsDetailsOpen(false); // Close the details dialog if open
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
@@ -467,7 +467,7 @@ const EmployeesPage = () => {
 
   const handleViewDetails = (employee: Employee) => {
     setSelectedEmployee(employee);
-    document.getElementById(`view-employee-${employee.id}`)?.click();
+    setIsDetailsOpen(true);
   };
   
   return (
@@ -815,13 +815,16 @@ const EmployeesPage = () => {
         </SheetContent>
       </Sheet>
 
-      <Dialog>
-        <DialogContent className="max-w-3xl">
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           {selectedEmployee && (
             <EmployeeDetailsDialog 
               employee={selectedEmployee}
               onEdit={handleEditEmployee}
-              onDelete={() => fetchEmployees()}
+              onDelete={() => {
+                fetchEmployees();
+                setIsDetailsOpen(false);
+              }}
             />
           )}
         </DialogContent>

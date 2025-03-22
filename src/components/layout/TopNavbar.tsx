@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -8,7 +8,9 @@ import {
   Calendar, 
   BarChart,
   LogOut,
-  Settings
+  Settings,
+  Menu,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -23,10 +25,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
 
 export const TopNavbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
@@ -50,31 +59,36 @@ export const TopNavbar = () => {
   const avatarImageUrl = user?.user_metadata?.avatar_url || null;
 
   return (
-    <nav className="bg-white border-b border-gray-200 fixed w-full z-30">
-      <div className="container mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-white border-b border-gray-200 fixed w-full z-30">
+      <nav className="container mx-auto px-6 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2 mr-10">
               <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
               <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
             </Link>
             
-            <div className="hidden md:flex space-x-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                    location.pathname === item.path
-                      ? "bg-indigo-600 text-white"
-                      : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-600"
-                  )}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.name}
-                </Link>
-              ))}
+            <div className="hidden md:block">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {navItems.map((item) => (
+                    <NavigationMenuItem key={item.path}>
+                      <Link
+                        to={item.path}
+                        className={cn(
+                          "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
+                          location.pathname === item.path
+                            ? "bg-indigo-600 text-white"
+                            : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-600"
+                        )}
+                      >
+                        <span className="mr-2">{item.icon}</span>
+                        {item.name}
+                      </Link>
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
           </div>
           
@@ -102,7 +116,7 @@ export const TopNavbar = () => {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
-                  <Link to="/settings" className="flex w-full items-center">
+                  <Link to="/settings" className="flex w-full items-center" state={{ from: location.pathname }}>
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </Link>
@@ -117,55 +131,60 @@ export const TopNavbar = () => {
           </div>
           
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Avatar className="h-8 w-8">
-                    {avatarImageUrl ? (
-                      <AvatarImage src={avatarImageUrl} alt="Profile" />
-                    ) : (
-                      <AvatarFallback className="bg-indigo-600 text-white">
-                        {getUserInitials()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Navigation</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {navItems.map((item) => (
-                  <DropdownMenuItem key={item.path}>
-                    <Link 
-                      to={item.path} 
-                      className={cn(
-                        "flex w-full items-center",
-                        location.pathname === item.path ? "text-indigo-600 font-medium" : ""
-                      )}
-                    >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.name}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link to="/settings" className="flex w-full items-center">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => logout()} className="text-red-500">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="text-indigo-800"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
-      </div>
-    </nav>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden pt-4 pb-3 border-t mt-3 animate-fade-in-up">
+            <div className="flex flex-col space-y-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-base font-medium flex items-center",
+                    location.pathname === item.path
+                      ? "bg-indigo-600 text-white"
+                      : "bg-indigo-600/90 text-white hover:bg-indigo-700"
+                  )}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  {item.icon}
+                  <span className="ml-2">{item.name}</span>
+                </Link>
+              ))}
+              
+              <div className="pt-2 border-t border-gray-200 mt-2">
+                <Link 
+                  to="/settings" 
+                  state={{ from: location.pathname }}
+                  className="w-full"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Button variant="outline" className="w-full mb-2 text-indigo-800 border-indigo-200">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Button>
+                </Link>
+                <Button onClick={() => logout()} variant="outline" className="w-full text-red-500 border-red-200">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
   );
 };
