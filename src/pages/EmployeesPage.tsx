@@ -45,7 +45,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Dialog, 
   DialogContent,
-  DialogTrigger
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
