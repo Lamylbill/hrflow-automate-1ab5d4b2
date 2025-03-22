@@ -12,7 +12,6 @@ import { Employee } from '@/types/employee';
 import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { DocumentManager } from './documents/DocumentManager';
 
 interface EmployeeDetailsDialogProps {
   employee: Employee;
@@ -182,7 +181,11 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
               
               <TabsContent value="documents">
                 <div className="py-2">
-                  <DocumentManager employeeId={employee.id || ''} />
+                  <EmployeeDetailsTabs 
+                    employee={employee}
+                    onSuccess={() => onEdit(employee)}
+                    onCancel={() => {}}
+                    />
                 </div>
               </TabsContent>
             </Tabs>

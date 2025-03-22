@@ -28,12 +28,13 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-5 mb-6">
+      <TabsList className="grid grid-cols-6 mb-6">
         <TabsTrigger value="personal">Personal</TabsTrigger>
         <TabsTrigger value="employment">Employment</TabsTrigger>
         <TabsTrigger value="contact">Contact</TabsTrigger>
         <TabsTrigger value="financial">Financial</TabsTrigger>
         <TabsTrigger value="benefits">Benefits</TabsTrigger>
+        <TabsTrigger value="documents">Documents</TabsTrigger>
       </TabsList>
       
       <TabsContent value="personal" className="pt-2">
