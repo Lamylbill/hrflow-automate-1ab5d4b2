@@ -159,8 +159,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
         <div className="flex items-center justify-between">
           {showLogo && (
             <Link to="/" className="flex items-center gap-2">
-              <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
-              <span className="font-display font-bold text-xl">Flow</span>
+              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+              <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
             </Link>
           )}
 
@@ -173,7 +173,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={handleHomeClick}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                      "font-medium text-indigo-800 hover:bg-indigo-600 hover:text-white"
                     )}
                   >
                     <Home className="h-4 w-4 mr-2" />
@@ -187,7 +187,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#features')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                      "font-medium text-indigo-800 hover:bg-indigo-600 hover:text-white"
                     )}
                   >
                     <BarChart className="h-4 w-4 mr-2" />
@@ -201,7 +201,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#pricing')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                      "font-medium text-indigo-800 hover:bg-indigo-600 hover:text-white"
                     )}
                   >
                     <FileText className="h-4 w-4 mr-2" />
@@ -215,7 +215,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#contact')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                      "font-medium text-indigo-800 hover:bg-indigo-600 hover:text-white"
                     )}
                   >
                     <Phone className="h-4 w-4 mr-2" />
@@ -229,7 +229,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#about')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-semibold bg-hrflow-blue text-white hover:bg-hrflow-blue-light"
+                      "font-medium text-indigo-800 hover:bg-indigo-600 hover:text-white"
                     )}
                   >
                     <Info className="h-4 w-4 mr-2" />
@@ -245,10 +245,11 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="relative rounded-full p-0">
-                    <div className="flex items-center gap-2 border border-hrflow-gray-medium p-1 pl-3 pr-2 rounded-full bg-white hover:bg-hrflow-gray-light">
-                      <Avatar className="h-8 w-8 border-2 border-hrflow-blue/20">
+                    <div className="flex items-center gap-2 border border-indigo-100 p-1 pl-3 pr-2 rounded-full bg-white hover:bg-indigo-50">
+                      <span className="text-indigo-800 font-medium text-sm">My Account</span>
+                      <Avatar className="h-8 w-8 border-2 border-indigo-600/20">
                         <AvatarImage src={getUserAvatar()} />
-                        <AvatarFallback className="bg-hrflow-blue text-white">
+                        <AvatarFallback className="bg-indigo-600 text-white">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
@@ -278,12 +279,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" className="text-indigo-800 border-indigo-200 hover:bg-indigo-50">
                     Log In
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
                     Sign Up <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </Link>
@@ -297,6 +298,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               size="icon" 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="text-indigo-800"
             >
               {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -314,8 +316,8 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
                     location.pathname === item.href
-                      ? "bg-hrflow-blue text-white"
-                      : "bg-hrflow-blue/90 text-white hover:bg-hrflow-blue"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-indigo-600/90 text-white hover:bg-indigo-700"
                   )}
                 >
                   {item.icon}
@@ -325,12 +327,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
               {!isAuthenticated && (
                 <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 mt-2">
                   <Link to="/login" className="w-full">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full text-indigo-800 border-indigo-200">
                       Log In
                     </Button>
                   </Link>
                   <Link to="/signup" className="w-full">
-                    <Button className="w-full">
+                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
                       Sign Up
                     </Button>
                   </Link>
@@ -343,12 +345,12 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     state={{ from: location.pathname }}
                     className="w-full"
                   >
-                    <Button variant="outline" className="w-full mb-2">
+                    <Button variant="outline" className="w-full mb-2 text-indigo-800 border-indigo-200">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </Button>
                   </Link>
-                  <Button onClick={() => logout()} variant="outline" className="w-full text-red-500">
+                  <Button onClick={() => logout()} variant="outline" className="w-full text-red-500 border-red-200">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </Button>
