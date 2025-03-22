@@ -25,11 +25,12 @@ import { Button } from '@/components/ui-custom/Button';
 import { Employee } from '@/types/employee';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Edit, Trash, Upload, FileText, Download, X } from 'lucide-react';
+import { Edit, Trash, Upload, FileText, Download, X, Pencil } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AddEmployeeForm } from './AddEmployeeForm';
 
 interface DetailsItemProps {
   label: string;
@@ -61,14 +62,19 @@ const Section = ({ title, children }: SectionProps) => (
 interface EmployeeDocumentProps {
   employeeId: string;
   userId: string;
+  isEditable?: boolean;
+  onDocumentsChange?: () => void;
 }
 
-const EmployeeDocuments = ({ employeeId, userId }: EmployeeDocumentProps) => {
+const EmployeeDocuments = ({ employeeId, userId, isEditable = false, onDocumentsChange }: EmployeeDocumentProps) => {
   const { toast } = useToast();
   const [documents, setDocuments] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [documentType, setDocumentType] = useState('contract');
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [editedFileName, setEditedFileName] = useState('');
+  const [editedDocType, setEditedDocType] = useState('');
 
   const documentTypes = [
     { id: 'contract', name: 'Employment Contract', category: 'HR' },
@@ -154,6 +160,7 @@ const EmployeeDocuments = ({ employeeId, userId }: EmployeeDocumentProps) => {
       });
       
       fetchDocuments();
+      if (onDocumentsChange) onDocumentsChange();
     } catch (error: any) {
       console.error('Error uploading document:', error);
       toast({
@@ -191,11 +198,55 @@ const EmployeeDocuments = ({ employeeId, userId }: EmployeeDocumentProps) => {
         title: 'Document Deleted',
         description: 'The document has been successfully deleted.',
       });
+      
+      if (onDocumentsChange) onDocumentsChange();
     } catch (error: any) {
       console.error('Error deleting document:', error);
       toast({
         title: 'Deletion Failed',
         description: error.message || 'Failed to delete document',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEditStart = (document: any) => {
+    setIsEditing(document.id);
+    setEditedFileName(document.file_name);
+    setEditedDocType(document.document_type);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(null);
+    setEditedFileName('');
+    setEditedDocType('');
+  };
+
+  const handleEditSave = async (documentId: string) => {
+    try {
+      const { error } = await supabase
+        .from('employee_documents')
+        .update({
+          file_name: editedFileName,
+          document_type: editedDocType
+        })
+        .eq('id', documentId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Document Updated',
+        description: 'The document has been successfully updated.',
+      });
+      
+      setIsEditing(null);
+      fetchDocuments();
+      if (onDocumentsChange) onDocumentsChange();
+    } catch (error: any) {
+      console.error('Error updating document:', error);
+      toast({
+        title: 'Update Failed',
+        description: error.message || 'Failed to update document',
         variant: 'destructive',
       });
     }
@@ -312,38 +363,81 @@ const EmployeeDocuments = ({ employeeId, userId }: EmployeeDocumentProps) => {
         <div className="space-y-3">
           {documents.map((doc) => (
             <div key={doc.id} className="flex items-center justify-between p-3 border rounded-md">
-              <div className="flex items-center">
-                <div className="p-2 bg-indigo-100 rounded-md">
-                  <FileText className="h-5 w-5 text-indigo-600" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium">{doc.file_name}</p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>{doc.document_type}</span>
-                    <span>•</span>
-                    <span>{formatFileSize(doc.file_size)}</span>
-                    <span>•</span>
-                    <span>{new Date(doc.uploaded_at).toLocaleDateString()}</span>
+              {isEditing === doc.id ? (
+                <div className="flex flex-col w-full gap-2">
+                  <Input 
+                    value={editedFileName}
+                    onChange={(e) => setEditedFileName(e.target.value)}
+                    placeholder="File name"
+                    className="mb-1"
+                  />
+                  <select
+                    className="p-2 border rounded w-full mb-2"
+                    value={editedDocType}
+                    onChange={(e) => setEditedDocType(e.target.value)}
+                  >
+                    {documentTypes.map(type => (
+                      <option key={type.name} value={type.name}>
+                        {type.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" size="sm" onClick={handleEditCancel}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={() => handleEditSave(doc.id)}>
+                      Save
+                    </Button>
                   </div>
                 </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-500 hover:text-red-700"
-                  onClick={() => handleDocumentDelete(doc.id, doc.file_path)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              ) : (
+                <>
+                  <div className="flex items-center">
+                    <div className="p-2 bg-indigo-100 rounded-md">
+                      <FileText className="h-5 w-5 text-indigo-600" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium">{doc.file_name}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span>{doc.document_type}</span>
+                        <span>•</span>
+                        <span>{formatFileSize(doc.file_size)}</span>
+                        <span>•</span>
+                        <span>{new Date(doc.uploaded_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownload(doc.file_path, doc.file_name)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    
+                    {isEditable && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditStart(doc)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => handleDocumentDelete(doc.id, doc.file_path)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
@@ -367,11 +461,31 @@ export const EmployeeDetailsDialog = ({
 }: EmployeeDetailsDialogProps) => {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   
   const handleEdit = () => {
+    setIsEditing(true);
+    setEditOpen(true);
+  };
+  
+  const handleEditCancel = () => {
+    setIsEditing(false);
+    setEditOpen(false);
+  };
+  
+  const handleEditSuccess = () => {
+    setIsEditing(false);
+    setEditOpen(false);
+    
     if (onEdit) {
       onEdit(employee);
     }
+    
+    toast({
+      title: "Employee Updated",
+      description: `${employee.full_name}'s information has been updated.`,
+    });
   };
   
   const handleDelete = async () => {
@@ -622,6 +736,36 @@ export const EmployeeDetailsDialog = ({
           </AlertDialog>
         </DialogFooter>
       </div>
+
+      {/* Edit Employee Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Edit Employee: {employee.full_name}</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1 pr-4">
+            <AddEmployeeForm 
+              employeeData={employee} 
+              onSuccess={handleEditSuccess} 
+              onCancel={handleEditCancel} 
+            />
+            
+            <div className="mt-8 border-t pt-6">
+              <EmployeeDocuments 
+                employeeId={employee.id} 
+                userId={employee.user_id} 
+                isEditable={true}
+                onDocumentsChange={() => {
+                  toast({
+                    title: "Documents Updated",
+                    description: "Employee documents have been updated successfully."
+                  });
+                }}
+              />
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
