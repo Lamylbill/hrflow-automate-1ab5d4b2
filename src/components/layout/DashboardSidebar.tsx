@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -38,8 +39,8 @@ const SidebarNavItem = ({
           className={cn(
             "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors my-1",
             isActive 
-              ? "bg-hrflow-blue text-white" 
-              : "text-gray-700 hover:bg-hrflow-blue/10 hover:text-hrflow-blue",
+              ? "bg-indigo-600 text-white" 
+              : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700",
             collapsed ? "justify-center" : ""
           )}
         >
@@ -143,8 +144,8 @@ export const DashboardSidebar = () => {
             onClick={navigateToLanding} 
             className="flex items-center gap-2 cursor-pointer"
           >
-            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
-            <span className="font-display font-bold text-lg">Flow</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
+            <span className="font-display font-bold text-lg text-indigo-800">Flow</span>
           </div>
         )}
         {collapsed && (
@@ -152,7 +153,7 @@ export const DashboardSidebar = () => {
             onClick={navigateToLanding} 
             className="flex items-center justify-center cursor-pointer"
           >
-            <span className="bg-hrflow-blue text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
           </div>
         )}
         
@@ -161,7 +162,7 @@ export const DashboardSidebar = () => {
             variant="ghost" 
             size="icon" 
             onClick={toggleCollapse} 
-            className="text-white bg-hrflow-blue hover:bg-hrflow-blue/90 h-8 w-8 rounded-md"
+            className="text-white bg-indigo-600 hover:bg-indigo-700 h-8 w-8 rounded-md"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -173,7 +174,7 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleCollapse}
-          className="text-white bg-hrflow-blue hover:bg-hrflow-blue/90 h-8 w-8 rounded-md mx-auto mt-4"
+          className="text-white bg-indigo-600 hover:bg-indigo-700 h-8 w-8 rounded-md mx-auto mt-4"
         >
           <ChevronRight className="h-5 w-5" />
         </Button>
@@ -194,7 +195,7 @@ export const DashboardSidebar = () => {
         >
           <Tooltip>
             <TooltipTrigger asChild>
-              <Avatar className={cn("bg-hrflow-blue", collapsed ? "h-10 w-10" : "h-12 w-12")}>
+              <Avatar className={cn("bg-indigo-600", collapsed ? "h-10 w-10" : "h-12 w-12")}>
                 {avatarImageUrl ? (
                   <AvatarImage src={avatarImageUrl} alt="Profile" />
                 ) : (
@@ -210,10 +211,10 @@ export const DashboardSidebar = () => {
         
         {!collapsed && (
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-indigo-800 truncate">
               {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-indigo-500 truncate">
               {user?.email || 'user@example.com'}
             </p>
           </div>
@@ -248,11 +249,11 @@ export const DashboardSidebar = () => {
             "my-2 px-3 py-2",
             collapsed ? "flex justify-center" : "flex items-center justify-between"
           )}>
-            {!collapsed && <span className="text-sm font-medium">Notifications</span>}
+            {!collapsed && <span className="text-sm font-medium text-indigo-800">Notifications</span>}
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn(collapsed ? "" : "ml-auto")}>
-                  <NotificationBell />
+                  <NotificationBell className="text-indigo-700 hover:text-indigo-500" />
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
@@ -266,7 +267,7 @@ export const DashboardSidebar = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-sm flex items-center justify-start"
+                className="w-full text-sm flex items-center justify-start text-indigo-800 border-indigo-200"
                 onClick={downloadCSVTemplate}
               >
                 <Download className="h-4 w-4 mr-2" />
@@ -281,7 +282,7 @@ export const DashboardSidebar = () => {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="w-full mt-4 flex justify-center"
+                  className="w-full mt-4 flex justify-center text-indigo-800 border-indigo-200"
                   onClick={downloadCSVTemplate}
                 >
                   <Download className="h-4 w-4" />
@@ -305,7 +306,7 @@ export const DashboardSidebar = () => {
               <Button
                 variant="outline"
                 className={cn(
-                  "text-red-500 w-full flex items-center",
+                  "text-red-500 w-full flex items-center border-red-200",
                   collapsed ? "justify-center px-2" : "justify-start"
                 )}
                 onClick={() => logout()}
