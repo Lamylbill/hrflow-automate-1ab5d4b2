@@ -4,7 +4,8 @@ import { Eye, X, Download, ExternalLink } from 'lucide-react';
 import { 
   Popover, 
   PopoverContent, 
-  PopoverTrigger
+  PopoverTrigger,
+  PopoverClose
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui-custom/Button';
 
@@ -61,15 +62,16 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <Download className="h-4 w-4" />
               <span className="sr-only">Download</span>
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-8 w-8 p-0 ml-1 rounded-full inline-flex items-center justify-center text-gray-500 hover:text-gray-700"
-              onClick={() => document.querySelector("[data-state='open'][data-radix-popover-content]")?.closest("[data-radix-popover-root]")?.querySelector("[data-radix-popover-trigger]")?.click()}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </Button>
+            <PopoverClose asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 ml-1 rounded-full inline-flex items-center justify-center text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </PopoverClose>
           </div>
         </div>
         <div className="p-1 bg-gray-50 rounded-b-md">
