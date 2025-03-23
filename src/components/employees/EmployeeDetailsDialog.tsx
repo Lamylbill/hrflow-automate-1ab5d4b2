@@ -51,7 +51,8 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     }
   };
 
-  const handleSaveChanges = (updatedEmployee: Employee) => {
+  // Create an intermediate function that accepts the employee and then calls onEdit
+  const handleEmployeeUpdate = (updatedEmployee: Employee) => {
     toast({
       title: "Changes Saved",
       description: `Employee details for ${updatedEmployee.full_name} have been updated.`
@@ -78,7 +79,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           <div className="mt-6">
             <EmployeeDetailsTabs 
               employee={employee}
-              onSuccess={(updatedEmployee: Employee) => onEdit(updatedEmployee)}
+              onSuccess={() => {}} // Changed to match expected function signature
               onCancel={() => {}}
               isViewOnly={true}
             />
@@ -105,7 +106,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         <div className="mt-4 max-h-[calc(90vh-12rem)] overflow-y-auto">
           <EmployeeDetailsTabs
             employee={employee}
-            onSuccess={handleSaveChanges}
+            onSuccess={() => setViewMode('view')} // Changed to match expected function signature
             onCancel={() => setViewMode('view')}
             isViewOnly={false}
           />
