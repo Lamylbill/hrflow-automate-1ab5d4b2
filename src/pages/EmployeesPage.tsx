@@ -1,13 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   PlusCircle, 
-  Filter, 
   Download, 
-  Upload,
-  ChevronDown, 
-  Check, 
-  X,
   AlertCircle,
   ListFilter,
   Grid,
@@ -28,13 +24,6 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,10 +32,6 @@ import { useAuth } from '@/context/AuthContext';
 import { 
   Dialog, 
   DialogContent,
-  DialogTrigger,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter
 } from '@/components/ui/dialog';
 import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
@@ -54,145 +39,7 @@ import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDia
 import { Employee } from '@/types/employee';
 import { EmployeeCard } from '@/components/employees/EmployeeCard';
 import { ImportEmployeesDialog } from '@/components/employees/ImportEmployeesDialog';
-
-const EmployeeFilters = ({
-  departments,
-  statuses,
-  selectedDepartments,
-  selectedStatuses,
-  setSelectedDepartments,
-  setSelectedStatuses
-}) => {
-  const toggleDepartment = (department: string) => {
-    setSelectedDepartments(prev => 
-      prev.includes(department)
-        ? prev.filter(d => d !== department)
-        : [...prev, department]
-    );
-  };
-  
-  const toggleStatus = (status: string) => {
-    setSelectedStatuses(prev => 
-      prev.includes(status)
-        ? prev.filter(s => s !== status)
-        : [...prev, status]
-    );
-  };
-
-  return (
-    <div className="flex flex-wrap gap-2 items-center justify-between w-full sm:w-auto">
-      <div className="flex flex-wrap gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              Department
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            {departments.length > 0 ? (
-              departments.map(department => (
-                <DropdownMenuItem 
-                  key={department}
-                  className="flex items-center gap-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleDepartment(department);
-                  }}
-                >
-                  <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
-                    {selectedDepartments.includes(department) ? 
-                      <Check className="h-3 w-3" /> : null}
-                  </div>
-                  <span>{department}</span>
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <DropdownMenuItem disabled>
-                No departments available
-              </DropdownMenuItem>
-            )}
-            {selectedDepartments.length > 0 && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setSelectedDepartments([])}
-                >
-                  Clear filters
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Filter className="mr-2 h-4 w-4" />
-              Status
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            {statuses.length > 0 ? (
-              statuses.map(status => (
-                <DropdownMenuItem 
-                  key={status}
-                  className="flex items-center gap-2"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    toggleStatus(status);
-                  }}
-                >
-                  <div className="rounded-sm border w-4 h-4 flex items-center justify-center">
-                    {selectedStatuses.includes(status) ? 
-                      <Check className="h-3 w-3" /> : null}
-                  </div>
-                  <span>{status}</span>
-                </DropdownMenuItem>
-              ))
-            ) : (
-              <DropdownMenuItem disabled>
-                No statuses available
-              </DropdownMenuItem>
-            )}
-            {selectedStatuses.length > 0 && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setSelectedStatuses([])}
-                >
-                  Clear filters
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        
-        {selectedDepartments.length > 0 && (
-          <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
-            Departments: {selectedDepartments.length}
-            <X
-              className="h-3 w-3 cursor-pointer" 
-              onClick={() => setSelectedDepartments([])}
-            />
-          </Badge>
-        )}
-        
-        {selectedStatuses.length > 0 && (
-          <Badge variant="outline" className="flex items-center gap-1 bg-blue-50">
-            Statuses: {selectedStatuses.length}
-            <X
-              className="h-3 w-3 cursor-pointer" 
-              onClick={() => setSelectedStatuses([])}
-            />
-          </Badge>
-        )}
-      </div>
-    </div>
-  );
-};
+import { AdvancedFilterDropdown } from '@/components/employees/AdvancedFilterDropdown';
 
 const StatusBadge = ({ status }: { status: string | null | undefined }) => {
   if (!status) return <Badge variant="outline">Unknown</Badge>;
@@ -211,11 +58,10 @@ const StatusBadge = ({ status }: { status: string | null | undefined }) => {
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'card'>('list');
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
@@ -246,6 +92,7 @@ const EmployeesPage = () => {
       }
       
       setEmployees(data as Employee[]);
+      setFilteredEmployees(data as Employee[]);
     } catch (err: any) {
       console.error('Error fetching employees:', err);
       setError(err.message || 'An unexpected error occurred. Please try again.');
@@ -257,6 +104,32 @@ const EmployeesPage = () => {
   useEffect(() => {
     fetchEmployees();
   }, [user, toast]);
+  
+  useEffect(() => {
+    // Apply text search filter on filteredEmployees
+    if (!searchTerm) {
+      return; // No need to filter further if search term is empty
+    }
+    
+    const searchResults = filteredEmployees.filter(employee => 
+      employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.job_title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    setFilteredEmployees(searchResults);
+  }, [searchTerm]);
+  
+  // Handle search input clearing
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    // If search is cleared, reset to current filtered employees (with filters still applied)
+    if (!value) {
+      handleFilterChange(employees);
+    }
+  };
   
   const exportEmployees = () => {
     if (employees.length === 0) {
@@ -277,24 +150,19 @@ const EmployeesPage = () => {
     });
   };
   
-  const departments = Array.from(new Set(employees.map(emp => emp.department).filter(Boolean) as string[]));
-  
-  const statuses = Array.from(new Set(employees.map(emp => emp.employment_status).filter(Boolean) as string[]));
-  
-  const filteredEmployees = employees.filter(employee => {
-    const matchesSearch = searchTerm === '' || 
-      employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.job_title?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-    const matchesDepartment = selectedDepartments.length === 0 || 
-      (employee.department && selectedDepartments.includes(employee.department));
-      
-    const matchesStatus = selectedStatuses.length === 0 || 
-      (employee.employment_status && selectedStatuses.includes(employee.employment_status));
-      
-    return matchesSearch && matchesDepartment && matchesStatus;
-  });
+  const handleFilterChange = (filteredResults: Employee[]) => {
+    setFilteredEmployees(filteredResults);
+    
+    // Apply text search if it exists
+    if (searchTerm) {
+      const searchResults = filteredResults.filter(employee => 
+        employee.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        employee.job_title?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredEmployees(searchResults);
+    }
+  };
 
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return 'N/A';
@@ -381,7 +249,7 @@ const EmployeesPage = () => {
               placeholder="Search employees..."
               className="pl-10"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
           
@@ -405,13 +273,9 @@ const EmployeesPage = () => {
               )}
             </Button>
           
-            <EmployeeFilters 
-              departments={departments}
-              statuses={statuses}
-              selectedDepartments={selectedDepartments}
-              selectedStatuses={selectedStatuses}
-              setSelectedDepartments={setSelectedDepartments}
-              setSelectedStatuses={setSelectedStatuses}
+            <AdvancedFilterDropdown 
+              employees={employees}
+              onFiltersChange={handleFilterChange}
             />
           </div>
         </div>
@@ -589,22 +453,17 @@ const EmployeesPage = () => {
             />
           ) : (
             <div>
-              <DialogHeader>
-                <DialogTitle>Add New Employee</DialogTitle>
-              </DialogHeader>
-              <div className="mt-6">
-                <AddEmployeeForm 
-                  onSuccess={() => {
-                    fetchEmployees();
-                    setIsAddEmployeeOpen(false);
-                    setIsDetailsOpen(false);
-                  }}
-                  onCancel={() => {
-                    setIsAddEmployeeOpen(false);
-                    setIsDetailsOpen(false);
-                  }}
-                />
-              </div>
+              <AddEmployeeForm 
+                onSuccess={() => {
+                  fetchEmployees();
+                  setIsAddEmployeeOpen(false);
+                  setIsDetailsOpen(false);
+                }}
+                onCancel={() => {
+                  setIsAddEmployeeOpen(false);
+                  setIsDetailsOpen(false);
+                }}
+              />
             </div>
           )}
         </DialogContent>
