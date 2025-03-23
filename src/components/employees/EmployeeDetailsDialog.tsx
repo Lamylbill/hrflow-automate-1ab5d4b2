@@ -51,13 +51,13 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     }
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = (updatedEmployee: Employee) => {
     toast({
       title: "Changes Saved",
-      description: `Employee details for ${employee.full_name} have been updated.`
+      description: `Employee details for ${updatedEmployee.full_name} have been updated.`
     });
     setViewMode('view');
-    onEdit(employee);
+    onEdit(updatedEmployee);
   };
 
   return (
@@ -78,7 +78,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           <div className="mt-6">
             <EmployeeDetailsTabs 
               employee={employee}
-              onSuccess={() => onEdit(employee)}
+              onSuccess={(updatedEmployee) => onEdit(updatedEmployee)}
               onCancel={() => {}}
               isViewOnly={true}
             />

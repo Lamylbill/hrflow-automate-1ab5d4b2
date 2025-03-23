@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload, FilePlus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -31,6 +30,7 @@ import {
 import { DocumentSelector } from './DocumentSelector';
 import { DocumentUploader } from './DocumentUploader';
 import { useAuth } from '@/context/AuthContext';
+import { DocumentPreview } from './DocumentPreview';
 
 interface Document {
   id: string;
@@ -160,9 +160,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       let fileType = currentDocument.file_type;
       let fileName = currentDocument.file_name;
       
-      // Upload new file if provided
       if (newFile) {
-        // First remove the old file
         const { error: storageError } = await supabase.storage
           .from('employee-documents')
           .remove([`${employeeId}/${currentDocument.file_name}`]);
@@ -172,7 +170,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           // Continue anyway - we'll upload with the new name
         }
         
-        // Upload the new file
         const timestamp = new Date().getTime();
         fileName = `${timestamp}-${newFile.name}`;
         
@@ -185,7 +182,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           
         if (uploadError) throw uploadError;
         
-        // Get the public URL
         const { data: urlData } = await supabase.storage
           .from('employee-documents')
           .getPublicUrl(`${employeeId}/${fileName}`);
@@ -197,7 +193,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         }
       }
       
-      // Update document metadata
       const { error } = await supabase
         .from('employee_documents')
         .update({
@@ -281,12 +276,10 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     setIsUploading(true);
     
     try {
-      // Process each document
       const uploadPromises = documentsToUpload.map(async (docData) => {
         const timestamp = new Date().getTime();
         const fileName = `${timestamp}-${docData.file.name}`;
         
-        // Upload file to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('employee-documents')
           .upload(`${employeeId}/${fileName}`, docData.file, {
@@ -296,14 +289,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           
         if (uploadError) throw uploadError;
         
-        // Get the public URL
         const { data: urlData } = await supabase.storage
           .from('employee-documents')
           .getPublicUrl(`${employeeId}/${fileName}`);
           
         if (!urlData) throw new Error('Failed to get file URL');
         
-        // Insert document record
         const { data, error } = await supabase
           .from('employee_documents')
           .insert({
@@ -502,6 +493,11 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   <TableCell>{formatDate(document.upload_date)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <DocumentPreview
+                        fileUrl={document.file_url}
+                        fileName={document.file_name}
+                        fileType={document.file_type}
+                      />
                       <Button
                         variant="ghost"
                         size="sm"
@@ -533,7 +529,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         </div>
       )}
       
-      {/* Edit Document Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -569,14 +564,23 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     {currentDocument && formatBytes(currentDocument.file_size)} • Uploaded {currentDocument && formatDate(currentDocument.upload_date)}
                   </p>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => currentDocument && downloadDocument(currentDocument)}
-                >
-                  <Download className="h-4 w-4 mr-1" />
-                  Download
-                </Button>
+                <div className="flex gap-2">
+                  {currentDocument && (
+                    <DocumentPreview 
+                      fileUrl={currentDocument.file_url}
+                      fileName={currentDocument.file_name}
+                      fileType={currentDocument.file_type}
+                    />
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => currentDocument && downloadDocument(currentDocument)}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </Button>
+                </div>
               </div>
             </div>
             
@@ -626,7 +630,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Add Document Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
