@@ -5,7 +5,6 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { EmployeeDetailsTabs } from './EmployeeDetailsTabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee } from '@/types/employee';
@@ -68,127 +67,12 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       {viewMode === 'view' ? (
         <>
           <div className="mt-6">
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid grid-cols-3 mb-6">
-                <TabsTrigger value="info">Personal Info</TabsTrigger>
-                <TabsTrigger value="employment">Employment</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="info">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-medium text-lg mb-4">Personal Information</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Full Name</p>
-                        <p className="font-medium">{employee.full_name || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Email</p>
-                        <p className="font-medium">{employee.email || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Phone</p>
-                        <p className="font-medium">{formatPhoneNumber(employee.phone_number) || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Date of Birth</p>
-                        <p className="font-medium">{formatDate(employee.date_of_birth)}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Nationality</p>
-                        <p className="font-medium">{employee.nationality || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium text-lg mb-4">Address</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Home Address</p>
-                        <p className="font-medium">{employee.home_address || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Postal Code</p>
-                        <p className="font-medium">{employee.postal_code || 'N/A'}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="employment">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-medium text-lg mb-4">Employment Details</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Job Title</p>
-                        <p className="font-medium">{employee.job_title || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Department</p>
-                        <p className="font-medium">{employee.department || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Employment Type</p>
-                        <p className="font-medium">{employee.employment_type || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Employment Status</p>
-                        <p className="font-medium">{employee.employment_status || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Date of Hire</p>
-                        <p className="font-medium">{formatDate(employee.date_of_hire)}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium text-lg mb-4">Compensation & Benefits</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Salary</p>
-                        <p className="font-medium">{formatSalary(employee.salary) || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">CPF Contribution</p>
-                        <p className="font-medium">{employee.cpf_contribution ? 'Yes' : 'No'}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Leave Entitlement</p>
-                        <p className="font-medium">{employee.leave_entitlement || 0} days/year</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Leave Balance</p>
-                        <p className="font-medium">{employee.leave_balance || 0} days</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Benefits Enrolled</p>
-                        <p className="font-medium">
-                          {employee.benefits_enrolled && employee.benefits_enrolled.length > 0
-                            ? employee.benefits_enrolled.join(', ')
-                            : 'None'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="documents">
-                <div className="py-2">
-                  <EmployeeDetailsTabs 
-                    employee={employee}
-                    onSuccess={() => onEdit(employee)}
-                    onCancel={() => {}}
-                    />
-                </div>
-              </TabsContent>
-            </Tabs>
+            <EmployeeDetailsTabs 
+              employee={employee}
+              onSuccess={() => onEdit(employee)}
+              onCancel={() => {}}
+              isViewOnly={true}
+            />
           </div>
           
           <div className="flex justify-between mt-8">
@@ -216,6 +100,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
               onEdit(employee);
             }}
             onCancel={() => setViewMode('view')}
+            isViewOnly={false}
           />
         </div>
       )}

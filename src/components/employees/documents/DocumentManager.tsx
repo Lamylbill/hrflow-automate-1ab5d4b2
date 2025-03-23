@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw } from 'lucide-react';
+import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -75,6 +76,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const [editDocumentCategory, setEditDocumentCategory] = useState('');
   const [editDocumentType, setEditDocumentType] = useState('');
   const [editDocumentDescription, setEditDocumentDescription] = useState('');
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
@@ -125,19 +128,72 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     setEditDocumentCategory(document.document_category || '');
     setEditDocumentType(document.document_type || '');
     setEditDocumentDescription(document.description || '');
+    setNewFile(null);
     setIsEditDialogOpen(true);
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setNewFile(e.target.files[0]);
+    }
   };
   
   const handleSaveDocument = async () => {
     if (!currentDocument) return;
     
     try {
+      setIsUploading(true);
+      let filePath = currentDocument.file_url;
+      let fileSize = currentDocument.file_size;
+      let fileType = currentDocument.file_type;
+      
+      // Upload new file if provided
+      if (newFile) {
+        // First remove the old file
+        const { error: storageError } = await supabase.storage
+          .from('employee-documents')
+          .remove([`${employeeId}/${currentDocument.file_name}`]);
+        
+        if (storageError) {
+          console.error('Error deleting old file:', storageError);
+          // Continue anyway - we'll upload with the new name
+        }
+        
+        // Upload the new file
+        const timestamp = new Date().getTime();
+        const fileName = `${timestamp}-${newFile.name}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('employee-documents')
+          .upload(`${employeeId}/${fileName}`, newFile, {
+            cacheControl: '3600',
+            upsert: true
+          });
+          
+        if (uploadError) throw uploadError;
+        
+        // Get the public URL
+        const { data: urlData } = await supabase.storage
+          .from('employee-documents')
+          .getPublicUrl(`${employeeId}/${fileName}`);
+          
+        if (urlData) {
+          filePath = urlData.publicUrl;
+          fileSize = newFile.size;
+          fileType = newFile.type;
+        }
+      }
+      
+      // Update document metadata
       const { error } = await supabase
         .from('employee_documents')
         .update({
           file_name: editDocumentName,
           category: editDocumentCategory,
-          document_type: editDocumentType
+          document_type: editDocumentType,
+          file_path: filePath,
+          file_size: fileSize,
+          file_type: fileType
         })
         .eq('id', currentDocument.id);
         
@@ -154,9 +210,11 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       console.error('Error updating document:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update document',
+        description: 'Failed to update document: ' + error.message,
         variant: 'destructive'
       });
+    } finally {
+      setIsUploading(false);
     }
   };
   
@@ -401,14 +459,65 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                 placeholder="Add a brief description"
               />
             </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Current File</label>
+              <div className="flex items-center justify-between p-3 border rounded-md">
+                <div>
+                  <p className="font-medium truncate max-w-[200px]">
+                    {currentDocument?.file_name}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {currentDocument && formatBytes(currentDocument.file_size)} • Uploaded {currentDocument && formatDate(currentDocument.upload_date)}
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => currentDocument && downloadDocument(currentDocument)}
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  Download
+                </Button>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Upload New File (Optional)</label>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="file"
+                  id="file-upload"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <label 
+                  htmlFor="file-upload" 
+                  className="flex items-center justify-center gap-2 w-full p-3 border border-dashed rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <Upload className="h-5 w-5 text-gray-500" />
+                  <span>{newFile ? newFile.name : "Select file to upload"}</span>
+                </label>
+              </div>
+              {newFile && (
+                <p className="text-xs text-gray-500">
+                  {formatBytes(newFile.size)} • {newFile.type}
+                </p>
+              )}
+            </div>
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isUploading}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSaveDocument}>
-              Save Changes
+            <Button variant="primary" onClick={handleSaveDocument} disabled={isUploading}>
+              {isUploading ? (
+                <>
+                  <span className="animate-spin mr-2">⟳</span>
+                  Uploading...
+                </>
+              ) : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>
