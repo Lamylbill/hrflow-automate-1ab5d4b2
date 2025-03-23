@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload, FilePlus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -74,580 +75,326 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   isTabbed = false
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
-  const [editDocumentName, setEditDocumentName] = useState('');
-  const [editDocumentCategory, setEditDocumentCategory] = useState('');
-  const [editDocumentType, setEditDocumentType] = useState('');
-  const [editDocumentDescription, setEditDocumentDescription] = useState('');
-  const [editDocumentNotes, setEditDocumentNotes] = useState('');
-  const [newFile, setNewFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isDocumentDetailOpen, setIsDocumentDetailOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  
-  useEffect(() => {
-    if (employeeId) {
-      fetchDocuments();
-    }
-  }, [employeeId, refreshTrigger]);
-  
+
   const fetchDocuments = async () => {
+    if (!employeeId || !user) return;
+
     setIsLoading(true);
+    setError(null);
+
     try {
-      const { data, error } = await supabase
+      // Fetch documents from the database
+      const { data: dbDocuments, error: fetchError } = await supabase
         .from('employee_documents')
         .select('*')
-        .eq('employee_id', employeeId);
-        
-      if (error) throw error;
-      
-      const mappedDocuments: Document[] = (data || []).map((doc: DbDocument) => ({
-        id: doc.id,
-        employee_id: doc.employee_id,
-        file_name: doc.file_name,
-        file_type: doc.file_type || '',
-        file_size: doc.file_size || 0,
-        file_url: doc.file_path,
-        upload_date: doc.uploaded_at,
-        document_category: doc.category,
-        document_type: doc.document_type,
-        description: '',
-        notes: doc.notes || '',
+        .eq('employee_id', employeeId)
+        .eq('user_id', user.id);
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (!dbDocuments) {
+        setDocuments([]);
+        setFilteredDocuments([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Transform the database documents to the Document interface
+      const docs: Document[] = await Promise.all(dbDocuments.map(async (doc: DbDocument) => {
+        // Get the public URL for the file
+        const { data: publicUrlData } = supabase.storage
+          .from('employee-documents')
+          .getPublicUrl(doc.file_path);
+
+        return {
+          id: doc.id,
+          employee_id: doc.employee_id,
+          file_name: doc.file_name,
+          file_type: doc.file_type,
+          file_size: doc.file_size,
+          file_url: publicUrlData.publicUrl,
+          upload_date: doc.uploaded_at,
+          document_category: doc.category,
+          document_type: doc.document_type,
+          notes: doc.notes
+        };
       }));
-      
-      setDocuments(mappedDocuments);
-    } catch (error: any) {
-      console.error('Error fetching documents:', error);
+
+      setDocuments(docs);
+      setFilteredDocuments(docs);
+    } catch (err: any) {
+      console.error('Error fetching documents:', err);
+      setError(err.message || 'Failed to load documents');
       toast({
         title: 'Error',
-        description: 'Failed to load employee documents',
-        variant: 'destructive'
+        description: 'Failed to load documents. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
-  
-  const handleEditDocument = (document: Document) => {
-    setCurrentDocument(document);
-    setEditDocumentName(document.file_name);
-    setEditDocumentCategory(document.document_category || '');
-    setEditDocumentType(document.document_type || '');
-    setEditDocumentDescription(document.description || '');
-    setEditDocumentNotes(document.notes || '');
-    setNewFile(null);
-    setIsEditDialogOpen(true);
-  };
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setNewFile(e.target.files[0]);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [employeeId, refreshTrigger, user]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = documents.filter(doc => 
+        doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (doc.document_category && doc.document_category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (doc.document_type && doc.document_type.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (doc.notes && doc.notes.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      setFilteredDocuments(filtered);
+    } else {
+      setFilteredDocuments(documents);
     }
-  };
-  
-  const handleSaveDocument = async () => {
-    if (!currentDocument) return;
-    
+  }, [searchTerm, documents]);
+
+  const handleDelete = async (documentId: string) => {
+    if (!user) return;
+
     try {
-      setIsUploading(true);
-      let filePath = currentDocument.file_url;
-      let fileSize = currentDocument.file_size;
-      let fileType = currentDocument.file_type;
-      let fileName = currentDocument.file_name;
-      
-      if (newFile) {
-        const { error: storageError } = await supabase.storage
-          .from('employee-documents')
-          .remove([`${employeeId}/${currentDocument.file_name}`]);
-        
-        if (storageError) {
-          console.error('Error deleting old file:', storageError);
-          // Continue anyway - we'll upload with the new name
-        }
-        
-        const timestamp = new Date().getTime();
-        fileName = `${timestamp}-${newFile.name}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('employee-documents')
-          .upload(`${employeeId}/${fileName}`, newFile, {
-            cacheControl: '3600',
-            upsert: true
-          });
-          
-        if (uploadError) throw uploadError;
-        
-        const { data: urlData } = await supabase.storage
-          .from('employee-documents')
-          .getPublicUrl(`${employeeId}/${fileName}`);
-          
-        if (urlData) {
-          filePath = urlData.publicUrl;
-          fileSize = newFile.size;
-          fileType = newFile.type;
-        }
-      }
-      
-      const { error } = await supabase
+      // Get document details to know the file path
+      const { data: doc, error: fetchError } = await supabase
         .from('employee_documents')
-        .update({
-          file_name: fileName,
-          category: editDocumentCategory,
-          document_type: editDocumentType,
-          file_path: filePath,
-          file_size: fileSize,
-          file_type: fileType,
-          notes: editDocumentNotes
-        })
-        .eq('id', currentDocument.id);
-        
-      if (error) throw error;
-      
-      toast({
-        title: 'Success',
-        description: 'Document updated successfully'
-      });
-      
-      fetchDocuments();
-      setIsEditDialogOpen(false);
-    } catch (error: any) {
-      console.error('Error updating document:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update document: ' + error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-  
-  const handleDeleteDocument = async (document: Document) => {
-    try {
+        .select('file_path')
+        .eq('id', documentId)
+        .single();
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Delete the file from storage
       const { error: storageError } = await supabase.storage
         .from('employee-documents')
-        .remove([`${employeeId}/${document.file_name}`]);
-      
-      if (storageError) throw storageError;
-      
-      const { error } = await supabase
+        .remove([doc.file_path]);
+
+      if (storageError) {
+        console.error('Error deleting file from storage:', storageError);
+        // Continue to delete the metadata even if the file deletion fails
+      }
+
+      // Delete document metadata from the database
+      const { error: deleteError } = await supabase
         .from('employee_documents')
         .delete()
-        .eq('id', document.id);
-        
-      if (error) throw error;
-      
+        .eq('id', documentId);
+
+      if (deleteError) {
+        throw deleteError;
+      }
+
       toast({
-        title: 'Success',
-        description: 'Document deleted successfully'
+        title: 'Document Deleted',
+        description: 'The document has been deleted successfully.',
       });
-      
+
+      // Refresh documents
       fetchDocuments();
     } catch (error: any) {
       console.error('Error deleting document:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete document',
-        variant: 'destructive'
-      });
-    }
-  };
-  
-  const downloadDocument = async (document: Document) => {
-    try {
-      window.open(document.file_url, '_blank');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to download document',
-        variant: 'destructive'
+        description: `Failed to delete document: ${error.message}`,
+        variant: 'destructive',
       });
     }
   };
 
-  const handleUploadComplete = async (documentsToUpload: any[]) => {
-    if (!user || !employeeId || documentsToUpload.length === 0) return;
-    
-    setIsUploading(true);
-    
-    try {
-      const uploadPromises = documentsToUpload.map(async (docData) => {
-        const timestamp = new Date().getTime();
-        const fileName = `${timestamp}-${docData.file.name}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('employee-documents')
-          .upload(`${employeeId}/${fileName}`, docData.file, {
-            cacheControl: '3600',
-            upsert: true
-          });
-          
-        if (uploadError) throw uploadError;
-        
-        const { data: urlData } = await supabase.storage
-          .from('employee-documents')
-          .getPublicUrl(`${employeeId}/${fileName}`);
-          
-        if (!urlData) throw new Error('Failed to get file URL');
-        
-        const { data, error } = await supabase
-          .from('employee_documents')
-          .insert({
-            employee_id: employeeId,
-            file_name: fileName,
-            file_type: docData.file.type,
-            file_size: docData.file.size,
-            file_path: urlData.publicUrl,
-            category: docData.category,
-            document_type: docData.documentType,
-            notes: docData.notes,
-            user_id: user.id
-          });
-          
-        if (error) throw error;
-        
-        return data;
-      });
-      
-      await Promise.all(uploadPromises);
-      
-      toast({
-        title: 'Success',
-        description: `${documentsToUpload.length} document${documentsToUpload.length > 1 ? 's' : ''} uploaded successfully`
-      });
-      
-      fetchDocuments();
-      setIsAddDialogOpen(false);
-    } catch (error: any) {
-      console.error('Error uploading documents:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to upload documents: ' + error.message,
-        variant: 'destructive'
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-  
-  const formatBytes = (bytes: number, decimals = 2) => {
-    if (bytes === 0) return '0 Bytes';
-    
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  };
-  
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+  const handleUploadComplete = () => {
+    setIsUploadDialogOpen(false);
+    fetchDocuments();
+    toast({
+      title: 'Upload Complete',
+      description: 'Documents have been uploaded successfully.',
     });
   };
-  
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = searchTerm === '' || 
-      doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (doc.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (doc.notes || '').toLowerCase().includes(searchTerm.toLowerCase());
-      
-    const matchesCategory = selectedCategory === '' || 
-      doc.document_category === selectedCategory;
-      
-    return matchesSearch && matchesCategory;
-  });
-  
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-4 items-center justify-between">
-        <div className="relative w-full md:w-64">
-          <Input
-            placeholder="Search documents..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
-            <Eye className="h-4 w-4 text-gray-500" />
-          </div>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => setSelectedCategory('')}
-            className={selectedCategory ? 'bg-blue-50' : ''}
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            {selectedCategory ? 'Clear Filter' : 'Filter Category'}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={fetchDocuments}
-          >
-            <RotateCw className="mr-2 h-4 w-4" />
-            Refresh
-          </Button>
 
-          <Button 
-            variant="primary" 
-            size="sm"
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Documents
-          </Button>
-        </div>
+  const formatBytes = (bytes: number) => {
+    if (!bytes) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
+
+  // Component rendering
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Documents</h2>
+        <Button onClick={() => setIsUploadDialogOpen(true)} variant="primary" size="sm">
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Documents
+        </Button>
       </div>
       
-      {selectedCategory === '' && (
-        <div className="flex flex-wrap gap-2">
-          {Object.values(DOCUMENT_CATEGORIES).map((category) => (
-            <Badge 
-              key={category}
-              variant="outline"
-              className="cursor-pointer hover:bg-blue-50"
-              onClick={() => setSelectedCategory(category)}
+      <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="relative w-full sm:w-64">
+            <Input
+              placeholder="Search documents..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-3 pr-10"
+            />
+            {searchTerm && (
+              <button 
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearchTerm('')}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          {documents.length > 0 && (
+            <div className="text-sm text-gray-500">
+              Total: {documents.length} document{documents.length !== 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+        
+        {isLoading ? (
+          <div className="p-8 text-center">
+            <RotateCw className="h-8 w-8 mx-auto animate-spin text-gray-400" />
+            <p className="mt-2 text-gray-500">Loading documents...</p>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center">
+            <p className="text-red-500">{error}</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-4" 
+              onClick={fetchDocuments}
             >
-              {category}
-            </Badge>
-          ))}
-        </div>
-      )}
-      
-      {isLoading ? (
-        <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
-        </div>
-      ) : filteredDocuments.length === 0 ? (
-        <div className="text-center py-10 border rounded-md">
-          <FileText className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-          <h3 className="text-lg font-medium text-gray-900">No Documents Found</h3>
-          <p className="text-gray-500 mb-4">
-            {documents.length === 0
-              ? "This employee doesn't have any documents uploaded yet."
-              : "No documents match your current search filters."}
-          </p>
-          <Button 
-            variant="primary"
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Documents
-          </Button>
-        </div>
-      ) : (
-        <div className="border rounded-md overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Document Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Notes</TableHead>
-                <TableHead>Size</TableHead>
-                <TableHead>Uploaded</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDocuments.map((document) => (
-                <TableRow key={document.id}>
-                  <TableCell className="font-medium">
-                    {document.file_name}
-                    {document.description && (
-                      <p className="text-xs text-gray-500 mt-1">{document.description}</p>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {document.document_category && document.document_type ? (
-                      <div>
-                        <Badge className="mb-1" variant="outline">
-                          {document.document_category.split(' ').slice(1).join(' ')}
-                        </Badge>
-                        <div className="text-xs">
-                          {getTypeFromValue(document.document_category, document.document_type)?.label || document.document_type}
+              <RotateCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        ) : filteredDocuments.length === 0 ? (
+          <div className="p-8 text-center">
+            <FileText className="h-12 w-12 mx-auto text-gray-300" />
+            <p className="mt-2 text-lg font-medium">No documents found</p>
+            <p className="text-gray-500 mb-4">
+              {documents.length === 0 
+                ? "This employee doesn't have any documents yet."
+                : "No documents match your search criteria."}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsUploadDialogOpen(true)}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Documents
+            </Button>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Document</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDocuments.map((doc) => (
+                  <TableRow key={doc.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="bg-gray-100 p-1 rounded">
+                          <FileText className="h-4 w-4 text-gray-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium truncate max-w-[200px]">{doc.file_name}</div>
+                          <div className="text-xs text-gray-500">{formatBytes(doc.file_size)}</div>
                         </div>
                       </div>
-                    ) : (
-                      <Badge variant="outline">Uncategorized</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600 line-clamp-2">{document.notes || '-'}</p>
-                  </TableCell>
-                  <TableCell>{formatBytes(document.file_size)}</TableCell>
-                  <TableCell>{formatDate(document.upload_date)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <DocumentPreview
-                        fileUrl={document.file_url}
-                        fileName={document.file_name}
-                        fileType={document.file_type}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => downloadDocument(document)}
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditDocument(document)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeleteDocument(document)}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-      
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Document</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 pt-4">
-            <DocumentSelector 
-              selectedCategory={editDocumentCategory}
-              selectedType={editDocumentType}
-              onCategoryChange={setEditDocumentCategory}
-              onTypeChange={setEditDocumentType}
-            />
-            
-            <div>
-              <label className="text-sm font-medium">Notes (Optional)</label>
-              <Textarea
-                value={editDocumentNotes}
-                onChange={(e) => setEditDocumentNotes(e.target.value)}
-                placeholder="Add notes or context for this document..."
-                className="mt-1"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Current File</label>
-              <div className="flex items-center justify-between p-3 border rounded-md">
-                <div>
-                  <p className="font-medium truncate max-w-[200px]">
-                    {currentDocument?.file_name}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {currentDocument && formatBytes(currentDocument.file_size)} • Uploaded {currentDocument && formatDate(currentDocument.upload_date)}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  {currentDocument && (
-                    <DocumentPreview 
-                      fileUrl={currentDocument.file_url}
-                      fileName={currentDocument.file_name}
-                      fileType={currentDocument.file_type}
-                    />
-                  )}
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => currentDocument && downloadDocument(currentDocument)}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Upload New File (Optional)</label>
-              <div className="flex items-center gap-2">
-                <Input 
-                  type="file"
-                  id="file-upload"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <label 
-                  htmlFor="file-upload" 
-                  className="flex items-center justify-center gap-2 w-full p-3 border border-dashed rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <Upload className="h-5 w-5 text-gray-500" />
-                  <span>{newFile ? newFile.name : "Select file to upload"}</span>
-                </label>
-              </div>
-              {newFile && (
-                <p className="text-xs text-gray-500">
-                  {formatBytes(newFile.size)} • {newFile.type}
-                </p>
-              )}
-            </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {doc.document_category || 'Uncategorized'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{doc.document_type || 'N/A'}</TableCell>
+                    <TableCell>{formatDate(doc.upload_date)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <DocumentPreview 
+                          fileUrl={doc.file_url} 
+                          fileName={doc.file_name}
+                          fileType={doc.file_type}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-1"
+                          onClick={() => window.open(doc.file_url, '_blank')}
+                        >
+                          <Download className="h-4 w-4" />
+                          <span className="sr-only md:not-sr-only md:ml-1">Download</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-1 text-red-500 hover:text-red-700"
+                          onClick={() => handleDelete(doc.id)}
+                        >
+                          <Trash className="h-4 w-4" />
+                          <span className="sr-only md:not-sr-only md:ml-1">Delete</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isUploading}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleSaveDocument} disabled={isUploading}>
-              {isUploading ? (
-                <>
-                  <span className="animate-spin mr-2">⟳</span>
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        )}
+      </div>
+      
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Upload Documents</DialogTitle>
           </DialogHeader>
-          
-          <div className="py-4">
+          <div className="mt-4">
             <DocumentUploader 
-              employeeId={employeeId}
+              employeeId={employeeId} 
               onUploadComplete={handleUploadComplete}
             />
           </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isUploading}>
-              Cancel
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

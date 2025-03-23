@@ -4,18 +4,11 @@ import { Upload, FilePlus, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { DOCUMENT_CATEGORIES, DOCUMENT_TYPES } from './DocumentCategoryTypes';
-import { DocumentSelector } from './DocumentSelector';
 import { Badge } from '@/components/ui/badge';
+import { DocumentSelector } from './DocumentSelector';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 interface DocumentFile {
   file: File;
@@ -42,10 +35,14 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [selectedType, setSelectedType] = useState('');
   const [notes, setNotes] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setCurrentFile(e.target.files[0]);
+      setUploadError(null);
     }
   };
 
@@ -74,6 +71,107 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     const newDocuments = [...documents];
     newDocuments.splice(index, 1);
     setDocuments(newDocuments);
+  };
+
+  const handleUploadDocuments = async () => {
+    if (!employeeId || !user || documents.length === 0) {
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+    
+    try {
+      const uploadedDocs: DocumentFile[] = [];
+
+      for (const doc of documents) {
+        // Create a unique file path
+        const timestamp = new Date().getTime();
+        const fileExt = doc.file.name.split('.').pop();
+        const fileName = `${timestamp}_${doc.file.name.replace(/\.[^/.]+$/, '')}`;
+        const filePath = `${user.id}/${employeeId}/${fileName}.${fileExt}`;
+
+        // Upload to Supabase Storage
+        const { data: fileData, error: uploadError } = await supabase.storage
+          .from('employee-documents')
+          .upload(filePath, doc.file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          console.error('Error uploading file:', uploadError);
+          setUploadError(`Upload failed: ${uploadError.message}`);
+          toast({
+            title: 'Upload Error',
+            description: `Failed to upload document: ${uploadError.message}`,
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        // Get the public URL
+        const { data: publicUrlData } = supabase.storage
+          .from('employee-documents')
+          .getPublicUrl(filePath);
+
+        // Insert metadata into the employee_documents table
+        const { data: docData, error: insertError } = await supabase
+          .from('employee_documents')
+          .insert({
+            employee_id: employeeId,
+            user_id: user.id,
+            file_name: doc.file.name,
+            file_type: doc.file.type,
+            file_size: doc.file.size,
+            file_path: filePath,
+            document_type: doc.documentType,
+            category: doc.category,
+            notes: doc.notes
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error inserting document metadata:', insertError);
+          setUploadError(`Database error: ${insertError.message}`);
+          toast({
+            title: 'Database Error',
+            description: `Failed to save document metadata: ${insertError.message}`,
+            variant: 'destructive',
+          });
+          continue;
+        }
+
+        uploadedDocs.push({
+          ...doc,
+          id: docData.id
+        });
+      }
+
+      if (uploadedDocs.length > 0) {
+        toast({
+          title: 'Documents Uploaded',
+          description: `Successfully uploaded ${uploadedDocs.length} document(s)`,
+        });
+
+        setDocuments([]);
+        
+        if (onUploadComplete) {
+          onUploadComplete(uploadedDocs);
+        }
+      }
+    } catch (error: any) {
+      console.error('Unexpected error during upload:', error);
+      setUploadError(`Unexpected error: ${error.message || 'Unknown error'}`);
+      toast({
+        title: 'Upload Failed',
+        description: error.message || 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const formatBytes = (bytes: number) => {
@@ -123,12 +221,18 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             ))}
           </div>
           
+          {uploadError && (
+            <div className="p-3 rounded-md bg-red-50 border border-red-100 text-red-700 text-sm">
+              {uploadError}
+            </div>
+          )}
+          
           <div className="flex justify-end">
             <Button 
               variant="primary" 
               size="sm" 
-              onClick={() => onUploadComplete && onUploadComplete(documents)}
-              disabled={isUploading}
+              onClick={handleUploadDocuments}
+              disabled={isUploading || !employeeId}
             >
               {isUploading ? (
                 <>
@@ -138,7 +242,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Confirm Documents
+                  Upload Documents
                 </>
               )}
             </Button>

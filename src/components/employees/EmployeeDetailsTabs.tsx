@@ -317,11 +317,17 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
       </TabsContent>
       
       <TabsContent value="documents" className="pt-2">
-        <DocumentManager 
-          employeeId={employee.id || ''}
-          refreshTrigger={refreshDocuments}
-          isTabbed={true}
-        />
+        {employee && employee.id ? (
+          <DocumentManager 
+            employeeId={employee.id}
+            refreshTrigger={refreshDocuments}
+            isTabbed={true}
+          />
+        ) : (
+          <div className="p-8 text-center">
+            <p className="text-gray-500">Please save the employee record before adding documents.</p>
+          </div>
+        )}
         
         {!isViewOnly && (
           <div className="mt-8 flex justify-end">
@@ -338,7 +344,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
           <Button variant="outline" onClick={onCancel} className="mr-2">
             Cancel
           </Button>
-          <Button variant="primary" onClick={onSuccess}>
+          <Button variant="primary" type="submit" form="employee-form">
             <Save className="mr-2 h-4 w-4" />
             Save Changes
           </Button>
