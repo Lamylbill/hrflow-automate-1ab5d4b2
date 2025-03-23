@@ -78,7 +78,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           <div className="mt-6">
             <EmployeeDetailsTabs 
               employee={employee}
-              onSuccess={(updatedEmployee) => onEdit(updatedEmployee)}
+              onSuccess={(updatedEmployee: Employee) => onEdit(updatedEmployee)}
               onCancel={() => {}}
               isViewOnly={true}
             />
