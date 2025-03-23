@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { DocumentManager } from '@/components/employees/documents/DocumentManager';
+import { DocumentUploader } from '@/components/employees/documents/DocumentUploader';
 import { Employee } from '@/types/employee';
 import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui-custom/Button';
+import { Save } from 'lucide-react';
 
 interface EmployeeDetailsTabsProps {
   employee: Employee;
@@ -261,6 +264,27 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
     }
   };
 
+  // Render a form or view component based on isViewOnly flag
+  const renderFormContent = () => {
+    if (isViewOnly) {
+      return renderViewContent();
+    }
+    
+    if (activeTab !== 'documents') {
+      return (
+        <AddEmployeeForm 
+          employeeData={employee}
+          onSuccess={onSuccess}
+          onCancel={onCancel}
+          isTabbed={true}
+          activeTab={activeTab}
+        />
+      );
+    }
+    
+    return null; // DocumentManager will be rendered directly
+  };
+
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <TabsList className="grid grid-cols-6 mb-6">
@@ -272,88 +296,54 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
         <TabsTrigger value="documents">Documents</TabsTrigger>
       </TabsList>
       
-      {!isViewOnly ? (
-        <>
-          <TabsContent value="personal" className="pt-2">
-            <AddEmployeeForm 
-              employeeData={employee}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              isTabbed={true}
-              activeTab="personal"
-            />
-          </TabsContent>
-          
-          <TabsContent value="employment" className="pt-2">
-            <AddEmployeeForm 
-              employeeData={employee}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              isTabbed={true}
-              activeTab="employment"
-            />
-          </TabsContent>
-          
-          <TabsContent value="contact" className="pt-2">
-            <AddEmployeeForm 
-              employeeData={employee}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              isTabbed={true}
-              activeTab="contact"
-            />
-          </TabsContent>
-          
-          <TabsContent value="financial" className="pt-2">
-            <AddEmployeeForm 
-              employeeData={employee}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              isTabbed={true}
-              activeTab="financial"
-            />
-          </TabsContent>
-          
-          <TabsContent value="benefits" className="pt-2">
-            <AddEmployeeForm 
-              employeeData={employee}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              isTabbed={true}
-              activeTab="benefits"
-            />
-          </TabsContent>
-        </>
-      ) : (
-        <>
-          <TabsContent value="personal" className="pt-2">
-            {renderViewContent()}
-          </TabsContent>
-          
-          <TabsContent value="employment" className="pt-2">
-            {renderViewContent()}
-          </TabsContent>
-          
-          <TabsContent value="contact" className="pt-2">
-            {renderViewContent()}
-          </TabsContent>
-          
-          <TabsContent value="financial" className="pt-2">
-            {renderViewContent()}
-          </TabsContent>
-          
-          <TabsContent value="benefits" className="pt-2">
-            {renderViewContent()}
-          </TabsContent>
-        </>
-      )}
+      <TabsContent value="personal" className="pt-2">
+        {renderFormContent()}
+      </TabsContent>
+      
+      <TabsContent value="employment" className="pt-2">
+        {renderFormContent()}
+      </TabsContent>
+      
+      <TabsContent value="contact" className="pt-2">
+        {renderFormContent()}
+      </TabsContent>
+      
+      <TabsContent value="financial" className="pt-2">
+        {renderFormContent()}
+      </TabsContent>
+      
+      <TabsContent value="benefits" className="pt-2">
+        {renderFormContent()}
+      </TabsContent>
       
       <TabsContent value="documents" className="pt-2">
         <DocumentManager 
           employeeId={employee.id || ''}
           refreshTrigger={refreshDocuments}
+          isTabbed={true}
         />
+        
+        {!isViewOnly && (
+          <div className="mt-8 flex justify-end">
+            <Button variant="primary" onClick={onSuccess}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
+            </Button>
+          </div>
+        )}
       </TabsContent>
+      
+      {!isViewOnly && activeTab !== 'documents' && (
+        <div className="mt-8 flex justify-end">
+          <Button variant="outline" onClick={onCancel} className="mr-2">
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onSuccess}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Changes
+          </Button>
+        </div>
+      )}
     </Tabs>
   );
 };

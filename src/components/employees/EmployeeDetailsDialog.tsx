@@ -8,7 +8,7 @@ import {
 import { EmployeeDetailsTabs } from './EmployeeDetailsTabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee } from '@/types/employee';
-import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
+import { Save, Trash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -51,6 +51,15 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     }
   };
 
+  const handleSaveChanges = () => {
+    toast({
+      title: "Changes Saved",
+      description: `Employee details for ${employee.full_name} have been updated.`
+    });
+    setViewMode('view');
+    onEdit(employee);
+  };
+
   return (
     <>
       <DialogHeader>
@@ -81,6 +90,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
               size="sm"
               onClick={handleDelete}
             >
+              <Trash className="mr-2 h-4 w-4" />
               Delete Employee
             </Button>
             <Button 
@@ -95,10 +105,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         <div className="mt-4 max-h-[calc(90vh-12rem)] overflow-y-auto">
           <EmployeeDetailsTabs
             employee={employee}
-            onSuccess={() => {
-              setViewMode('view');
-              onEdit(employee);
-            }}
+            onSuccess={handleSaveChanges}
             onCancel={() => setViewMode('view')}
             isViewOnly={false}
           />

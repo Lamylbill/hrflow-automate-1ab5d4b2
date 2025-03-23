@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload } from 'lucide-react';
+import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload, FilePlus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Table, 
   TableBody, 
@@ -28,6 +29,8 @@ import {
   getDisplayLabel
 } from './DocumentCategoryTypes';
 import { DocumentSelector } from './DocumentSelector';
+import { DocumentUploader } from './DocumentUploader';
+import { useAuth } from '@/context/AuthContext';
 
 interface Document {
   id: string;
@@ -41,6 +44,7 @@ interface Document {
   document_type?: string;
   status?: string;
   description?: string;
+  notes?: string;
   tags?: string[];
 }
 
@@ -55,30 +59,36 @@ interface DbDocument {
   category: string;
   document_type: string;
   user_id: string;
+  notes?: string;
 }
 
 interface DocumentManagerProps {
   employeeId: string;
   refreshTrigger?: number;
+  isTabbed?: boolean;
 }
 
 export const DocumentManager: React.FC<DocumentManagerProps> = ({ 
   employeeId,
-  refreshTrigger = 0
+  refreshTrigger = 0,
+  isTabbed = false
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [currentDocument, setCurrentDocument] = useState<Document | null>(null);
   const [editDocumentName, setEditDocumentName] = useState('');
   const [editDocumentCategory, setEditDocumentCategory] = useState('');
   const [editDocumentType, setEditDocumentType] = useState('');
   const [editDocumentDescription, setEditDocumentDescription] = useState('');
+  const [editDocumentNotes, setEditDocumentNotes] = useState('');
   const [newFile, setNewFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   useEffect(() => {
     if (employeeId) {
@@ -107,6 +117,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         document_category: doc.category,
         document_type: doc.document_type,
         description: '',
+        notes: doc.notes || '',
       }));
       
       setDocuments(mappedDocuments);
@@ -128,6 +139,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     setEditDocumentCategory(document.document_category || '');
     setEditDocumentType(document.document_type || '');
     setEditDocumentDescription(document.description || '');
+    setEditDocumentNotes(document.notes || '');
     setNewFile(null);
     setIsEditDialogOpen(true);
   };
@@ -146,6 +158,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       let filePath = currentDocument.file_url;
       let fileSize = currentDocument.file_size;
       let fileType = currentDocument.file_type;
+      let fileName = currentDocument.file_name;
       
       // Upload new file if provided
       if (newFile) {
@@ -161,7 +174,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         
         // Upload the new file
         const timestamp = new Date().getTime();
-        const fileName = `${timestamp}-${newFile.name}`;
+        fileName = `${timestamp}-${newFile.name}`;
         
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('employee-documents')
@@ -188,12 +201,13 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       const { error } = await supabase
         .from('employee_documents')
         .update({
-          file_name: editDocumentName,
+          file_name: fileName,
           category: editDocumentCategory,
           document_type: editDocumentType,
           file_path: filePath,
           file_size: fileSize,
-          file_type: fileType
+          file_type: fileType,
+          notes: editDocumentNotes
         })
         .eq('id', currentDocument.id);
         
@@ -260,6 +274,75 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       });
     }
   };
+
+  const handleUploadComplete = async (documentsToUpload: any[]) => {
+    if (!user || !employeeId || documentsToUpload.length === 0) return;
+    
+    setIsUploading(true);
+    
+    try {
+      // Process each document
+      const uploadPromises = documentsToUpload.map(async (docData) => {
+        const timestamp = new Date().getTime();
+        const fileName = `${timestamp}-${docData.file.name}`;
+        
+        // Upload file to storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('employee-documents')
+          .upload(`${employeeId}/${fileName}`, docData.file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+          
+        if (uploadError) throw uploadError;
+        
+        // Get the public URL
+        const { data: urlData } = await supabase.storage
+          .from('employee-documents')
+          .getPublicUrl(`${employeeId}/${fileName}`);
+          
+        if (!urlData) throw new Error('Failed to get file URL');
+        
+        // Insert document record
+        const { data, error } = await supabase
+          .from('employee_documents')
+          .insert({
+            employee_id: employeeId,
+            file_name: fileName,
+            file_type: docData.file.type,
+            file_size: docData.file.size,
+            file_path: urlData.publicUrl,
+            category: docData.category,
+            document_type: docData.documentType,
+            notes: docData.notes,
+            user_id: user.id
+          });
+          
+        if (error) throw error;
+        
+        return data;
+      });
+      
+      await Promise.all(uploadPromises);
+      
+      toast({
+        title: 'Success',
+        description: `${documentsToUpload.length} document${documentsToUpload.length > 1 ? 's' : ''} uploaded successfully`
+      });
+      
+      fetchDocuments();
+      setIsAddDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error uploading documents:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload documents: ' + error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
   
   const formatBytes = (bytes: number, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
@@ -285,7 +368,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = searchTerm === '' || 
       doc.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (doc.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+      (doc.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (doc.notes || '').toLowerCase().includes(searchTerm.toLowerCase());
       
     const matchesCategory = selectedCategory === '' || 
       doc.document_category === selectedCategory;
@@ -327,6 +411,15 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             <RotateCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
+
+          <Button 
+            variant="primary" 
+            size="sm"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Documents
+          </Button>
         </div>
       </div>
       
@@ -358,6 +451,13 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               ? "This employee doesn't have any documents uploaded yet."
               : "No documents match your current search filters."}
           </p>
+          <Button 
+            variant="primary"
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add Documents
+          </Button>
         </div>
       ) : (
         <div className="border rounded-md overflow-hidden">
@@ -366,6 +466,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               <TableRow>
                 <TableHead>Document Name</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Notes</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Uploaded</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -393,6 +494,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     ) : (
                       <Badge variant="outline">Uncategorized</Badge>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm text-gray-600 line-clamp-2">{document.notes || '-'}</p>
                   </TableCell>
                   <TableCell>{formatBytes(document.file_size)}</TableCell>
                   <TableCell>{formatDate(document.upload_date)}</TableCell>
@@ -429,6 +533,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         </div>
       )}
       
+      {/* Edit Document Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -436,14 +541,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           </DialogHeader>
           
           <div className="space-y-4 pt-4">
-            <div>
-              <label className="text-sm font-medium">Document Name</label>
-              <Input 
-                value={editDocumentName}
-                onChange={(e) => setEditDocumentName(e.target.value)}
-              />
-            </div>
-            
             <DocumentSelector 
               selectedCategory={editDocumentCategory}
               selectedType={editDocumentType}
@@ -452,11 +549,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             />
             
             <div>
-              <label className="text-sm font-medium">Description (Optional)</label>
-              <Input 
-                value={editDocumentDescription}
-                onChange={(e) => setEditDocumentDescription(e.target.value)}
-                placeholder="Add a brief description"
+              <label className="text-sm font-medium">Notes (Optional)</label>
+              <Textarea
+                value={editDocumentNotes}
+                onChange={(e) => setEditDocumentNotes(e.target.value)}
+                placeholder="Add notes or context for this document..."
+                className="mt-1"
               />
             </div>
             
@@ -517,7 +615,34 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   <span className="animate-spin mr-2">⟳</span>
                   Uploading...
                 </>
-              ) : 'Save Changes'}
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Document Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload Documents</DialogTitle>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <DocumentUploader 
+              employeeId={employeeId}
+              onUploadComplete={handleUploadComplete}
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} disabled={isUploading}>
+              Cancel
             </Button>
           </DialogFooter>
         </DialogContent>
