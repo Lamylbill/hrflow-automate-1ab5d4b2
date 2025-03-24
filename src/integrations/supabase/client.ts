@@ -14,4 +14,3 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 // Bucket configuration for the application
 // This must match exactly what was created in the SQL migration (employee-documents)
 export const STORAGE_BUCKET = 'employee-documents';
-

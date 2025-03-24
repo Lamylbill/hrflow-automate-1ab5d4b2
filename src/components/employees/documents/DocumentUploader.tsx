@@ -50,11 +50,17 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
   const checkBucketStatus = async () => {
     try {
+      // First verify if the bucket exists
       const { data: buckets, error } = await supabase.storage.listBuckets();
       
       if (error) {
         console.error("Error checking buckets:", error);
         setBucketStatus('error');
+        toast({
+          title: 'Storage Error',
+          description: 'Unable to access storage system. Please contact your administrator.',
+          variant: 'destructive',
+        });
         return;
       }
       
@@ -66,10 +72,20 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       } else {
         console.error(`Storage bucket '${STORAGE_BUCKET}' does not exist!`);
         setBucketStatus('error');
+        toast({
+          title: 'Storage Configuration Error',
+          description: `Storage bucket '${STORAGE_BUCKET}' is not configured. Please contact your administrator.`,
+          variant: 'destructive',
+        });
       }
     } catch (err) {
       console.error("Unexpected error checking bucket status:", err);
       setBucketStatus('error');
+      toast({
+        title: 'Storage Error',
+        description: 'Unexpected error accessing storage system. Please try again later.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -124,6 +140,15 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       return;
     }
 
+    if (bucketStatus !== 'available' && !isTempUpload) {
+      toast({
+        title: 'Upload Error',
+        description: 'Storage system is not available. Please try again later or contact your administrator.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsUploading(true);
     setUploadError(null);
     
@@ -140,21 +165,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         setDocuments([]);
         setIsUploading(false);
         return;
-      }
-
-      if (bucketStatus !== 'available') {
-        // Try to check the bucket again
-        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-        
-        if (bucketError) {
-          throw new Error(`Failed to access storage: ${bucketError.message}`);
-        }
-        
-        const bucketExists = buckets.some(bucket => bucket.id === STORAGE_BUCKET);
-        
-        if (!bucketExists) {
-          throw new Error(`Storage bucket '${STORAGE_BUCKET}' not found. Please contact your administrator.`);
-        }
       }
 
       for (const doc of documents) {
@@ -177,12 +187,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         if (uploadError) {
           console.error('Error uploading file:', uploadError);
           
+          // Check if it's a "bucket not found" or similar error
           if (uploadError.message && (
               uploadError.message.includes('bucket') || 
               uploadError.message.includes('not found') ||
               uploadError.message.includes('404')
             )) {
-            throw new Error('Storage bucket not found or inaccessible');
+            throw new Error(`Storage bucket '${STORAGE_BUCKET}' not found or inaccessible. Please contact your administrator.`);
           } else {
             throw new Error(`Upload failed: ${uploadError.message}`);
           }
@@ -225,6 +236,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         toast({
           title: 'Documents Uploaded',
           description: `Successfully uploaded ${uploadedDocs.length} document(s)`,
+          variant: 'default',
         });
 
         setDocuments([]);
@@ -313,7 +325,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               variant="primary" 
               size="sm" 
               onClick={handleUploadDocuments}
-              disabled={isUploading || (!employeeId && !isTempUpload)}
+              disabled={isUploading || (!employeeId && !isTempUpload) || bucketStatus === 'error'}
             >
               {isUploading ? (
                 <>
