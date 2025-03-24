@@ -73,6 +73,23 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setDocuments(newDocuments);
   };
 
+  const checkIfBucketExists = async () => {
+    try {
+      // Try to get metadata for the bucket to check if it exists
+      const { data, error } = await supabase.storage.getBucket('employee-documents');
+      
+      if (error) {
+        console.error('Error checking bucket:', error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error checking if bucket exists:', error);
+      return false;
+    }
+  };
+
   const handleUploadDocuments = async () => {
     if (!employeeId || !user || documents.length === 0) {
       return;
@@ -82,6 +99,20 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadError(null);
     
     try {
+      // First check if the bucket exists
+      const bucketExists = await checkIfBucketExists();
+      
+      if (!bucketExists) {
+        setUploadError('Storage bucket not found. Please contact an administrator.');
+        toast({
+          title: 'Upload Error',
+          description: 'Storage bucket not found. Please contact an administrator.',
+          variant: 'destructive',
+        });
+        setIsUploading(false);
+        return;
+      }
+      
       const uploadedDocs: DocumentFile[] = [];
 
       for (const doc of documents) {
@@ -101,7 +132,13 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         if (uploadError) {
           console.error('Error uploading file:', uploadError);
-          setUploadError(`Upload failed: ${uploadError.message}`);
+          
+          if (uploadError.message.includes('bucket') || uploadError.statusCode === 404) {
+            setUploadError(`Failed to upload document: Bucket not found`);
+          } else {
+            setUploadError(`Upload failed: ${uploadError.message}`);
+          }
+          
           toast({
             title: 'Upload Error',
             description: `Failed to upload document: ${uploadError.message}`,

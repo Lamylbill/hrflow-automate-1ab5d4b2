@@ -324,8 +324,13 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
             isTabbed={true}
           />
         ) : (
-          <div className="p-8 text-center">
-            <p className="text-gray-500">Please save the employee record before adding documents.</p>
+          <div className="p-6 border border-dashed rounded-md mb-4">
+            <p className="text-center text-gray-500 mb-4">
+              You'll be able to upload documents after saving the employee record.
+            </p>
+            <p className="text-center text-sm text-gray-400">
+              Complete the required information in the Personal tab and save the employee first.
+            </p>
           </div>
         )}
         
