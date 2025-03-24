@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, FilePlus, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -50,12 +51,14 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const handleAddDocument = () => {
     if (!currentFile || !selectedCategory || !selectedType) return;
 
-    setDocuments([...documents, {
+    const newDocuments = [...documents, {
       file: currentFile,
       category: selectedCategory,
       documentType: selectedType,
       notes: notes
-    }]);
+    }];
+    
+    setDocuments(newDocuments);
 
     // Reset form
     setCurrentFile(null);
@@ -69,12 +72,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     
     // If in temp upload mode, immediately notify parent
     if (isTempUpload && onUploadComplete) {
-      onUploadComplete([...documents, {
-        file: currentFile,
-        category: selectedCategory,
-        documentType: selectedType,
-        notes: notes
-      }]);
+      onUploadComplete(newDocuments);
     }
   };
 
@@ -82,6 +80,11 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     const newDocuments = [...documents];
     newDocuments.splice(index, 1);
     setDocuments(newDocuments);
+    
+    // If in temp upload mode, immediately notify parent of change
+    if (isTempUpload && onUploadComplete) {
+      onUploadComplete(newDocuments);
+    }
   };
 
   const handleUploadDocuments = async () => {
@@ -93,14 +96,45 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadError(null);
     
     try {
+      console.log("Starting document upload process. Bucket:", STORAGE_BUCKET);
       const uploadedDocs: DocumentFile[] = [];
 
       // If it's a temporary upload during employee creation, just return the documents
       if (isTempUpload) {
+        console.log("Temporary upload mode - returning documents without storage upload");
         if (onUploadComplete) {
           onUploadComplete(documents);
         }
         setDocuments([]);
+        setIsUploading(false);
+        return;
+      }
+
+      // Verify bucket exists before upload
+      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+      
+      if (bucketError) {
+        console.error("Error checking buckets:", bucketError);
+        setUploadError(`Failed to access storage: ${bucketError.message}`);
+        toast({
+          title: 'Storage Error',
+          description: `Failed to access storage: ${bucketError.message}`,
+          variant: 'destructive',
+        });
+        setIsUploading(false);
+        return;
+      }
+      
+      const bucketExists = buckets.some(bucket => bucket.name === STORAGE_BUCKET);
+      
+      if (!bucketExists) {
+        console.error(`Bucket '${STORAGE_BUCKET}' does not exist!`);
+        setUploadError(`Failed to upload: Storage bucket '${STORAGE_BUCKET}' not found`);
+        toast({
+          title: 'Storage Error',
+          description: `Storage bucket '${STORAGE_BUCKET}' not found`,
+          variant: 'destructive',
+        });
         setIsUploading(false);
         return;
       }
@@ -111,6 +145,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         const fileExt = doc.file.name.split('.').pop();
         const fileName = `${timestamp}_${doc.file.name.replace(/\.[^/.]+$/, '')}`;
         const filePath = `${user.id}/${employeeId}/${fileName}.${fileExt}`;
+        
+        console.log(`Uploading file to path: ${filePath}`);
 
         // Upload to Supabase Storage
         const { data: fileData, error: uploadError } = await supabase.storage
