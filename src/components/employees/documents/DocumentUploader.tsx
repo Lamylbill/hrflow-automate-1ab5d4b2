@@ -133,7 +133,12 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         if (uploadError) {
           console.error('Error uploading file:', uploadError);
           
-          if (uploadError.message.includes('bucket') || uploadError.statusCode === 404) {
+          // Fix: Check for bucket-related errors in a more reliable way
+          if (uploadError.message && (
+              uploadError.message.includes('bucket') || 
+              uploadError.message.includes('not found') ||
+              uploadError.message.includes('404')
+            )) {
             setUploadError(`Failed to upload document: Bucket not found`);
           } else {
             setUploadError(`Upload failed: ${uploadError.message}`);
