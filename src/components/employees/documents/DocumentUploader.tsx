@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Upload, FilePlus, X, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, FilePlus, X, Check, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,7 @@ import { DocumentSelector } from './DocumentSelector';
 import { useToast } from '@/hooks/use-toast';
 import { supabase, STORAGE_BUCKET } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface DocumentFile {
   file: File;
@@ -38,8 +39,39 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   const [notes, setNotes] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [bucketStatus, setBucketStatus] = useState<'loading' | 'available' | 'error'>('loading');
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Check bucket status on component mount
+  useEffect(() => {
+    checkBucketStatus();
+  }, []);
+
+  const checkBucketStatus = async () => {
+    try {
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      
+      if (error) {
+        console.error("Error checking buckets:", error);
+        setBucketStatus('error');
+        return;
+      }
+      
+      const bucketExists = buckets.some(bucket => bucket.id === STORAGE_BUCKET);
+      
+      if (bucketExists) {
+        console.log(`Storage bucket '${STORAGE_BUCKET}' is available`);
+        setBucketStatus('available');
+      } else {
+        console.error(`Storage bucket '${STORAGE_BUCKET}' does not exist!`);
+        setBucketStatus('error');
+      }
+    } catch (err) {
+      console.error("Unexpected error checking bucket status:", err);
+      setBucketStatus('error');
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -110,33 +142,19 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         return;
       }
 
-      // Verify bucket exists before upload
-      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-      
-      if (bucketError) {
-        console.error("Error checking buckets:", bucketError);
-        setUploadError(`Failed to access storage: ${bucketError.message}`);
-        toast({
-          title: 'Storage Error',
-          description: `Failed to access storage: ${bucketError.message}`,
-          variant: 'destructive',
-        });
-        setIsUploading(false);
-        return;
-      }
-      
-      const bucketExists = buckets.some(bucket => bucket.name === STORAGE_BUCKET);
-      
-      if (!bucketExists) {
-        console.error(`Bucket '${STORAGE_BUCKET}' does not exist!`);
-        setUploadError(`Failed to upload: Storage bucket '${STORAGE_BUCKET}' not found`);
-        toast({
-          title: 'Storage Error',
-          description: `Storage bucket '${STORAGE_BUCKET}' not found`,
-          variant: 'destructive',
-        });
-        setIsUploading(false);
-        return;
+      if (bucketStatus !== 'available') {
+        // Try to check the bucket again
+        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+        
+        if (bucketError) {
+          throw new Error(`Failed to access storage: ${bucketError.message}`);
+        }
+        
+        const bucketExists = buckets.some(bucket => bucket.id === STORAGE_BUCKET);
+        
+        if (!bucketExists) {
+          throw new Error(`Storage bucket '${STORAGE_BUCKET}' not found. Please contact your administrator.`);
+        }
       }
 
       for (const doc of documents) {
@@ -159,23 +177,15 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         if (uploadError) {
           console.error('Error uploading file:', uploadError);
           
-          // Check for bucket-related errors in a more reliable way
           if (uploadError.message && (
               uploadError.message.includes('bucket') || 
               uploadError.message.includes('not found') ||
               uploadError.message.includes('404')
             )) {
-            setUploadError(`Failed to upload document: Bucket not found`);
+            throw new Error('Storage bucket not found or inaccessible');
           } else {
-            setUploadError(`Upload failed: ${uploadError.message}`);
+            throw new Error(`Upload failed: ${uploadError.message}`);
           }
-          
-          toast({
-            title: 'Upload Error',
-            description: `Failed to upload document: ${uploadError.message}`,
-            variant: 'destructive',
-          });
-          continue;
         }
 
         // Get the public URL
@@ -202,13 +212,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         if (insertError) {
           console.error('Error inserting document metadata:', insertError);
-          setUploadError(`Database error: ${insertError.message}`);
-          toast({
-            title: 'Database Error',
-            description: `Failed to save document metadata: ${insertError.message}`,
-            variant: 'destructive',
-          });
-          continue;
+          throw new Error(`Database error: ${insertError.message}`);
         }
 
         uploadedDocs.push({
@@ -230,8 +234,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         }
       }
     } catch (error: any) {
-      console.error('Unexpected error during upload:', error);
-      setUploadError(`Unexpected error: ${error.message || 'Unknown error'}`);
+      console.error('Error during upload:', error);
+      setUploadError(error.message || 'An unexpected error occurred');
       toast({
         title: 'Upload Failed',
         description: error.message || 'An unexpected error occurred',
@@ -252,6 +256,15 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
   return (
     <div className="space-y-6">
+      {bucketStatus === 'error' && !isTempUpload && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          <AlertDescription>
+            Storage system is currently unavailable. Document uploads may not work. Please contact your administrator.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {documents.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-sm font-medium">Documents to Upload ({documents.length})</h3>
