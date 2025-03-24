@@ -25,12 +25,19 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState('personal');
   const [refreshDocuments, setRefreshDocuments] = useState(0);
+  const [tempDocuments, setTempDocuments] = useState<any[]>([]);
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     if (value === 'documents') {
       setRefreshDocuments(prev => prev + 1);
     }
+  };
+
+  const handleTempDocumentsUpload = (documents: any[]) => {
+    setTempDocuments(documents);
+    // These documents will be processed after the employee is created
+    console.log('Temporary documents collected:', documents);
   };
 
   // View mode content for each tab
@@ -324,13 +331,19 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
             isTabbed={true}
           />
         ) : (
-          <div className="p-6 border border-dashed rounded-md mb-4">
-            <p className="text-center text-gray-500 mb-4">
-              You'll be able to upload documents after saving the employee record.
-            </p>
-            <p className="text-center text-sm text-gray-400">
-              Complete the required information in the Personal tab and save the employee first.
-            </p>
+          <div>
+            <div className="p-6 border border-dashed rounded-md mb-4">
+              <p className="text-center text-gray-700 font-medium mb-2">
+                Add Documents While Creating Employee
+              </p>
+              <p className="text-center text-sm text-gray-500 mb-4">
+                You can add documents now. They will be attached to the employee record after saving.
+              </p>
+              <DocumentUploader 
+                isTempUpload={true}
+                onUploadComplete={handleTempDocumentsUpload}
+              />
+            </div>
           </div>
         )}
         

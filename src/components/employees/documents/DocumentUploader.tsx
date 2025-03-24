@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FilePlus, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -7,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { DocumentSelector } from './DocumentSelector';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, STORAGE_BUCKET } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
 interface DocumentFile {
@@ -22,12 +21,14 @@ interface DocumentUploaderProps {
   employeeId?: string;
   onUploadComplete?: (uploadedDocs: DocumentFile[]) => void;
   existingDocuments?: any[];
+  isTempUpload?: boolean; // Flag for temporary uploads during employee creation
 }
 
 export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
   employeeId,
   onUploadComplete,
-  existingDocuments = []
+  existingDocuments = [],
+  isTempUpload = false
 }) => {
   const [documents, setDocuments] = useState<DocumentFile[]>([]);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
@@ -65,6 +66,16 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     // Reset the file input
     const fileInput = document.getElementById('document-upload') as HTMLInputElement;
     if (fileInput) fileInput.value = '';
+    
+    // If in temp upload mode, immediately notify parent
+    if (isTempUpload && onUploadComplete) {
+      onUploadComplete([...documents, {
+        file: currentFile,
+        category: selectedCategory,
+        documentType: selectedType,
+        notes: notes
+      }]);
+    }
   };
 
   const handleRemoveDocument = (index: number) => {
@@ -73,25 +84,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setDocuments(newDocuments);
   };
 
-  const checkIfBucketExists = async () => {
-    try {
-      // Try to get metadata for the bucket to check if it exists
-      const { data, error } = await supabase.storage.getBucket('employee-documents');
-      
-      if (error) {
-        console.error('Error checking bucket:', error);
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error checking if bucket exists:', error);
-      return false;
-    }
-  };
-
   const handleUploadDocuments = async () => {
-    if (!employeeId || !user || documents.length === 0) {
+    if ((!employeeId && !isTempUpload) || !user || documents.length === 0) {
       return;
     }
 
@@ -99,21 +93,17 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadError(null);
     
     try {
-      // First check if the bucket exists
-      const bucketExists = await checkIfBucketExists();
-      
-      if (!bucketExists) {
-        setUploadError('Storage bucket not found. Please contact an administrator.');
-        toast({
-          title: 'Upload Error',
-          description: 'Storage bucket not found. Please contact an administrator.',
-          variant: 'destructive',
-        });
+      const uploadedDocs: DocumentFile[] = [];
+
+      // If it's a temporary upload during employee creation, just return the documents
+      if (isTempUpload) {
+        if (onUploadComplete) {
+          onUploadComplete(documents);
+        }
+        setDocuments([]);
         setIsUploading(false);
         return;
       }
-      
-      const uploadedDocs: DocumentFile[] = [];
 
       for (const doc of documents) {
         // Create a unique file path
@@ -124,7 +114,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         // Upload to Supabase Storage
         const { data: fileData, error: uploadError } = await supabase.storage
-          .from('employee-documents')
+          .from(STORAGE_BUCKET)
           .upload(filePath, doc.file, {
             cacheControl: '3600',
             upsert: false
@@ -133,7 +123,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         if (uploadError) {
           console.error('Error uploading file:', uploadError);
           
-          // Fix: Check for bucket-related errors in a more reliable way
+          // Check for bucket-related errors in a more reliable way
           if (uploadError.message && (
               uploadError.message.includes('bucket') || 
               uploadError.message.includes('not found') ||
@@ -154,7 +144,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
         // Get the public URL
         const { data: publicUrlData } = supabase.storage
-          .from('employee-documents')
+          .from(STORAGE_BUCKET)
           .getPublicUrl(filePath);
 
         // Insert metadata into the employee_documents table
@@ -274,7 +264,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               variant="primary" 
               size="sm" 
               onClick={handleUploadDocuments}
-              disabled={isUploading || !employeeId}
+              disabled={isUploading || (!employeeId && !isTempUpload)}
             >
               {isUploading ? (
                 <>
@@ -284,7 +274,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
               ) : (
                 <>
                   <Check className="mr-2 h-4 w-4" />
-                  Upload Documents
+                  {isTempUpload ? 'Add Documents' : 'Upload Documents'}
                 </>
               )}
             </Button>
