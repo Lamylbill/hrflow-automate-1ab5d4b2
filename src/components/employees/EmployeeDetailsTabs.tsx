@@ -3,12 +3,10 @@ import React, { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { DocumentManager } from '@/components/employees/documents/DocumentManager';
-import { DocumentUploader } from '@/components/employees/documents/DocumentUploader';
 import { Employee } from '@/types/employee';
 import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui-custom/Button';
-import { Save, Upload } from 'lucide-react';
+import { Edit, Save, Upload } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EmployeeDetailsTabsProps {
@@ -24,9 +22,8 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
   onCancel,
   isViewOnly = false
 }) => {
-  const [activeTab, setActiveTab] = useState('personal');
+  const [activeTab, setActiveTab] = useState('basic-info');
   const [refreshDocuments, setRefreshDocuments] = useState(0);
-  const [tempDocuments, setTempDocuments] = useState<any[]>([]);
   const isMobile = useIsMobile();
 
   const handleTabChange = (value: string) => {
@@ -36,28 +33,20 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
     }
   };
 
-  const handleTempDocumentsUpload = (documents: any[]) => {
-    setTempDocuments(documents);
-    // These documents will be processed after the employee is created
-    console.log('Temporary documents collected:', documents);
-  };
-
   // View mode content for each tab
   const renderViewContent = () => {
     switch (activeTab) {
-      case 'personal':
+      case 'basic-info':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-medium text-lg mb-4">Personal Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Full Name</p>
-                  <p className="font-medium">{employee.full_name || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date of Birth</p>
-                  <p className="font-medium">{formatDate(employee.date_of_birth)}</p>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">
+                    {employee.full_name || [employee.first_name, employee.middle_name, employee.last_name].filter(Boolean).join(' ') || 'N/A'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Gender</p>
@@ -67,85 +56,12 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                   <p className="text-sm text-gray-500">Nationality</p>
                   <p className="font-medium">{employee.nationality || 'N/A'}</p>
                 </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium text-lg mb-4">Identity Information</h3>
-              <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Tax Identification Number</p>
-                  <p className="font-medium">{employee.tax_identification_number || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Work Permit Number</p>
-                  <p className="font-medium">{employee.work_permit_number || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Work Pass Expiry Date</p>
-                  <p className="font-medium">{formatDate(employee.work_pass_expiry_date)}</p>
+                  <p className="text-sm text-gray-500">Date of Birth</p>
+                  <p className="font-medium">{formatDate(employee.date_of_birth)}</p>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      case 'employment':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium text-lg mb-4">Employment Details</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Job Title</p>
-                  <p className="font-medium">{employee.job_title || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Department</p>
-                  <p className="font-medium">{employee.department || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Employment Type</p>
-                  <p className="font-medium">{employee.employment_type || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Employment Status</p>
-                  <p className="font-medium">{employee.employment_status || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date of Hire</p>
-                  <p className="font-medium">{formatDate(employee.date_of_hire)}</p>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium text-lg mb-4">Additional Information</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Employee Code</p>
-                  <p className="font-medium">{employee.employee_code || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Probation Status</p>
-                  <p className="font-medium">{employee.probation_status || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Contract Signed</p>
-                  <p className="font-medium">{employee.contract_signed ? 'Yes' : 'No'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date of Exit</p>
-                  <p className="font-medium">{formatDate(employee.date_of_exit)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Notes</p>
-                  <p className="font-medium">{employee.notes || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 'contact':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-medium text-lg mb-4">Contact Information</h3>
               <div className="space-y-4">
@@ -158,47 +74,85 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                   <p className="font-medium">{formatPhoneNumber(employee.phone_number) || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Home Address</p>
-                  <p className="font-medium">{employee.home_address || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Identity Number</p>
+                  <p className="font-medium">{employee.identity_no || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Postal Code</p>
-                  <p className="font-medium">{employee.postal_code || 'N/A'}</p>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium text-lg mb-4">Emergency Contact</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Emergency Contact Name</p>
-                  <p className="font-medium">{employee.emergency_contact_name || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Emergency Contact Phone</p>
-                  <p className="font-medium">{formatPhoneNumber(employee.emergency_contact_phone) || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Marital Status</p>
+                  <p className="font-medium">{employee.marital_status || 'N/A'}</p>
                 </div>
               </div>
             </div>
           </div>
         );
-      case 'financial':
+      case 'job-details':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-lg mb-4">Compensation</h3>
+              <h3 className="font-medium text-lg mb-4">Employment Details</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Date of Hire</p>
+                  <p className="font-medium">{formatDate(employee.date_of_hire)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Department</p>
+                  <p className="font-medium">{employee.department || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Designation</p>
+                  <p className="font-medium">{employee.job_title || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Employment Type</p>
+                  <p className="font-medium">{employee.employment_type || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-medium text-lg mb-4">Additional Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Manager</p>
+                  <p className="font-medium">{employee.reporting_manager || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Employment Status</p>
+                  <p className="font-medium">{employee.employment_status || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Probation Period</p>
+                  <p className="font-medium">{employee.probation_period ? `${employee.probation_period} days` : 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Exit Date</p>
+                  <p className="font-medium">{formatDate(employee.date_of_exit)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'compensation':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-medium text-lg mb-4">Salary Information</h3>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500">Salary</p>
                   <p className="font-medium">{formatSalary(employee.salary) || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">CPF Contribution</p>
-                  <p className="font-medium">{employee.cpf_contribution ? 'Yes' : 'No'}</p>
+                  <p className="text-sm text-gray-500">Pay Type</p>
+                  <p className="font-medium">{employee.pay_type || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">CPF Account Number</p>
-                  <p className="font-medium">{employee.cpf_account_number || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Pay Mode</p>
+                  <p className="font-medium">{employee.pay_mode || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Salary Currency</p>
+                  <p className="font-medium">{employee.salary_currency || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -213,54 +167,109 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                   <p className="text-sm text-gray-500">Bank Account Number</p>
                   <p className="font-medium">{employee.bank_account_number || 'N/A'}</p>
                 </div>
+                <div>
+                  <p className="text-sm text-gray-500">Bank Branch</p>
+                  <p className="font-medium">{employee.bank_branch || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Beneficiary Name</p>
+                  <p className="font-medium">{employee.beneficiary_name || 'N/A'}</p>
+                </div>
               </div>
             </div>
           </div>
         );
-      case 'benefits':
+      case 'compliance':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-medium text-lg mb-4">Leave</h3>
+              <h3 className="font-medium text-lg mb-4">Compliance Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Leave Entitlement</p>
-                  <p className="font-medium">{employee.leave_entitlement || 0} days/year</p>
+                  <p className="text-sm text-gray-500">MOM Occupation Group</p>
+                  <p className="font-medium">{employee.mom_occupation_group || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Leave Balance</p>
-                  <p className="font-medium">{employee.leave_balance || 0} days</p>
+                  <p className="text-sm text-gray-500">Residency Status</p>
+                  <p className="font-medium">{employee.residency_status || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Medical Entitlement</p>
-                  <p className="font-medium">{employee.medical_entitlement || 0} days/year</p>
+                  <p className="text-sm text-gray-500">Union Membership</p>
+                  <p className="font-medium">{employee.union_membership || 'N/A'}</p>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="font-medium text-lg mb-4">Performance & Benefits</h3>
+              <h3 className="font-medium text-lg mb-4">Statutory Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Last Performance Review</p>
-                  <p className="font-medium">{formatDate(employee.last_performance_review)}</p>
+                  <p className="text-sm text-gray-500">CPF Eligible</p>
+                  <p className="font-medium">{employee.cpf_contribution ? 'Yes' : 'No'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Performance Score</p>
-                  <p className="font-medium">{employee.performance_score || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">CPF Account Number</p>
+                  <p className="font-medium">{employee.cpf_account_number || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Benefits Enrolled</p>
+                  <p className="text-sm text-gray-500">PR Issue Date</p>
+                  <p className="font-medium">{formatDate(employee.pr_issue_date)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Work Permit Number</p>
+                  <p className="font-medium">{employee.work_permit_number || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'others':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-medium text-lg mb-4">Emergency Contact</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">{employee.emergency_contact_name || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Relationship</p>
+                  <p className="font-medium">{employee.emergency_relationship || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="font-medium">{formatPhoneNumber(employee.emergency_contact_phone) || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-medium text-lg mb-4">Additional Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">Skills</p>
                   <div className="mt-1 flex flex-wrap gap-1">
-                    {employee.benefits_enrolled && employee.benefits_enrolled.length > 0 ? (
-                      employee.benefits_enrolled.map((benefit, index) => (
-                        <Badge key={index} variant="outline" className="mr-1 mb-1">
-                          {benefit}
-                        </Badge>
+                    {employee.skill_set && employee.skill_set.length > 0 ? (
+                      employee.skill_set.map((skill, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-100 rounded text-sm mr-1 mb-1">
+                          {skill}
+                        </span>
                       ))
                     ) : (
-                      <span className="text-gray-500">None</span>
+                      <span className="text-gray-500">None specified</span>
                     )}
                   </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">NS Group</p>
+                  <p className="font-medium">{employee.ns_group || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Vaccination Status</p>
+                  <p className="font-medium">{employee.vaccination_status || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Notes</p>
+                  <p className="font-medium text-sm whitespace-pre-wrap">{employee.notes || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -297,33 +306,29 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b overflow-x-auto">
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6 w-full px-2 h-auto flex-nowrap min-w-max py-1">
-          <TabsTrigger value="personal" className="whitespace-nowrap">Personal</TabsTrigger>
-          <TabsTrigger value="employment" className="whitespace-nowrap">Employment</TabsTrigger>
-          <TabsTrigger value="contact" className="whitespace-nowrap">Contact</TabsTrigger>
-          <TabsTrigger value="financial" className="whitespace-nowrap">Financial</TabsTrigger>
-          <TabsTrigger value="benefits" className="whitespace-nowrap">Benefits</TabsTrigger>
+        <TabsList className="w-full flex justify-start px-2 h-auto flex-nowrap min-w-max py-1">
+          <TabsTrigger value="basic-info" className="whitespace-nowrap">Basic Info</TabsTrigger>
+          <TabsTrigger value="job-details" className="whitespace-nowrap">Job Details</TabsTrigger>
+          <TabsTrigger value="compensation" className="whitespace-nowrap">Compensation</TabsTrigger>
+          <TabsTrigger value="compliance" className="whitespace-nowrap">Compliance & Statutory</TabsTrigger>
           <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
+          <TabsTrigger value="others" className="whitespace-nowrap">Others</TabsTrigger>
         </TabsList>
       </div>
       
-      <TabsContent value="personal" className="pt-2">
+      <TabsContent value="basic-info" className="pt-2">
         {renderFormContent()}
       </TabsContent>
       
-      <TabsContent value="employment" className="pt-2">
+      <TabsContent value="job-details" className="pt-2">
         {renderFormContent()}
       </TabsContent>
       
-      <TabsContent value="contact" className="pt-2">
+      <TabsContent value="compensation" className="pt-2">
         {renderFormContent()}
       </TabsContent>
       
-      <TabsContent value="financial" className="pt-2">
-        {renderFormContent()}
-      </TabsContent>
-      
-      <TabsContent value="benefits" className="pt-2">
+      <TabsContent value="compliance" className="pt-2">
         {renderFormContent()}
       </TabsContent>
       
@@ -335,30 +340,21 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
             isTabbed={true}
           />
         ) : (
-          <div>
-            <div className="p-6 border border-dashed rounded-md mb-4 bg-gray-50">
-              <p className="text-center text-gray-700 font-medium mb-2">
-                Add Documents While Creating Employee
-              </p>
-              <p className="text-center text-sm text-gray-500 mb-4">
-                You can add documents now. They will be attached to the employee record after saving.
-              </p>
-              <DocumentUploader 
-                isTempUpload={true}
-                onUploadComplete={handleTempDocumentsUpload}
-              />
-            </div>
-          </div>
-        )}
-        
-        {!isViewOnly && (
-          <div className="mt-8 flex justify-end sticky bottom-4 z-30">
+          <div className="p-6 border border-dashed rounded-md text-center bg-gray-50">
+            <p className="font-medium mb-2">Save employee record first to enable document uploads</p>
+            <p className="text-sm text-gray-500 mb-4">
+              You need to save the employee details before you can upload documents.
+            </p>
             <Button variant="primary" onClick={onSuccess}>
               <Save className="mr-2 h-4 w-4" />
-              Save Changes
+              Save Employee Details
             </Button>
           </div>
         )}
+      </TabsContent>
+      
+      <TabsContent value="others" className="pt-2">
+        {renderFormContent()}
       </TabsContent>
       
       {!isViewOnly && activeTab !== 'documents' && (

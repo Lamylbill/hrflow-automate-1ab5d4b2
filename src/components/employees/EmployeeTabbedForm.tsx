@@ -3,28 +3,20 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui-custom/Button";
 import { useForm, FormProvider } from "react-hook-form";
-import { PersonalInfoTab } from './tabs/PersonalInfoTab';
-import { EmploymentTab } from './tabs/EmploymentTab';
-import { AssignmentTab } from './tabs/AssignmentTab';
-import { ContractTab } from './tabs/ContractTab';
-import { StatutoryTab } from './tabs/StatutoryTab';
-import { SalaryTab } from './tabs/SalaryTab';
-import { AllowanceTab } from './tabs/AllowanceTab';
-import { AttendanceTab } from './tabs/AttendanceTab';
-import { AddressTab } from './tabs/AddressTab';
-import { FamilyTab } from './tabs/FamilyTab';
-import { EmergencyContactTab } from './tabs/EmergencyContactTab';
-import { EducationTab } from './tabs/EducationTab';
-import { WorkExperienceTab } from './tabs/WorkExperienceTab';
-import { OtherInfoTab } from './tabs/OtherInfoTab';
-import { AppraisalRatingTab } from './tabs/AppraisalRatingTab';
-import { DocumentsTab } from './tabs/DocumentsTab';
-import { Upload } from 'lucide-react';
+import { Upload, Save } from 'lucide-react';
 import { EmployeeFormData, Employee } from '@/types/employee';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+// Import the new restructured tabs
+import { BasicInfoTab } from './tabs/BasicInfoTab';
+import { JobDetailsTab } from './tabs/JobDetailsTab';
+import { CompensationTab } from './tabs/CompensationTab';
+import { ComplianceTab } from './tabs/ComplianceTab';
+import { DocumentsTab } from './tabs/DocumentsTab';
+import { OthersTab } from './tabs/OthersTab';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -41,23 +33,23 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   onCancel,
   isViewOnly = false,
   mode,
-  defaultTab = "personal"
+  defaultTab = "basic-info"
 }) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const isMobile = useIsMobile();
   
-  // Form setup with updated type handling
+  // Form setup
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
       employee: {
         id: '',
         user_id: user?.id || '',
-        full_name: '',
         email: '',
-        // All other fields with default values
+        full_name: '',
       }
     }
   });
@@ -86,9 +78,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           .eq('id', data.employee.id);
           
         if (error) throw error;
-        
-        // Update related records (this would need to be expanded for all related tables)
-        // This is a simplified example - in a real application, you would handle all related tables
       }
       // If creating, insert the new employee
       else if (mode === 'create') {
@@ -107,14 +96,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         if (employeeData) {
           data.employee.id = employeeData.id;
         }
-        
-        // Insert related records (simplified)
-        // This is where you would handle inserting data into all related tables
       }
       
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
-        description: `${data.employee.full_name} has been ${mode === 'create' ? 'added to' : 'updated in'} the system.`,
+        description: `${data.employee.full_name || data.employee.first_name + ' ' + data.employee.last_name} has been ${mode === 'create' ? 'added to' : 'updated in'} the system.`,
       });
       
       // Call the success callback with the form data
@@ -141,11 +127,16 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     setActiveTab(value);
   };
   
+  // Toggle to show more fields
+  const toggleAdvancedFields = (value: boolean) => {
+    setShowAdvancedFields(value);
+  };
+  
   // Document upload button that appears on all tabs except the documents tab
   const DocumentUploadButton = () => (
     <Button
       variant="outline"
-      className="fixed bottom-4 right-4 z-20 flex items-center gap-2 shadow-md"
+      className="fixed bottom-20 right-4 z-20 flex items-center gap-2 shadow-md"
       onClick={() => setActiveTab("documents")}
     >
       <Upload className="h-4 w-4" />
@@ -159,84 +150,46 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
           <div className="border-b overflow-x-auto">
             <TabsList className="w-full flex justify-start px-2 h-auto flex-nowrap min-w-max py-1">
-              <TabsTrigger value="personal" className="whitespace-nowrap">Personal</TabsTrigger>
-              <TabsTrigger value="employment" className="whitespace-nowrap">Employment</TabsTrigger>
-              <TabsTrigger value="assignment" className="whitespace-nowrap">Assignment</TabsTrigger>
-              <TabsTrigger value="contract" className="whitespace-nowrap">Contract</TabsTrigger>
-              <TabsTrigger value="statutory" className="whitespace-nowrap">Statutory</TabsTrigger>
-              <TabsTrigger value="salary" className="whitespace-nowrap">Salary</TabsTrigger>
-              <TabsTrigger value="allowance" className="whitespace-nowrap">Allowance</TabsTrigger>
-              <TabsTrigger value="attendance" className="whitespace-nowrap">Attendance</TabsTrigger>
-              <TabsTrigger value="address" className="whitespace-nowrap">Address</TabsTrigger>
-              <TabsTrigger value="family" className="whitespace-nowrap">Family</TabsTrigger>
-              <TabsTrigger value="emergency" className="whitespace-nowrap">Emergency</TabsTrigger>
-              <TabsTrigger value="education" className="whitespace-nowrap">Education</TabsTrigger>
-              <TabsTrigger value="workExperience" className="whitespace-nowrap">Work Experience</TabsTrigger>
-              <TabsTrigger value="other" className="whitespace-nowrap">Other</TabsTrigger>
-              <TabsTrigger value="appraisal" className="whitespace-nowrap">Appraisal Rating</TabsTrigger>
+              <TabsTrigger value="basic-info" className="whitespace-nowrap">Basic Info</TabsTrigger>
+              <TabsTrigger value="job-details" className="whitespace-nowrap">Job Details</TabsTrigger>
+              <TabsTrigger value="compensation" className="whitespace-nowrap">Compensation</TabsTrigger>
+              <TabsTrigger value="compliance" className="whitespace-nowrap">Compliance & Statutory</TabsTrigger>
               <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
+              <TabsTrigger value="others" className="whitespace-nowrap">Others</TabsTrigger>
             </TabsList>
           </div>
           
           <div className="flex-1 overflow-auto py-6">
-            <TabsContent value="personal" className="p-4">
-              <PersonalInfoTab isViewOnly={isViewOnly} />
+            <TabsContent value="basic-info" className="p-4">
+              <BasicInfoTab 
+                isViewOnly={isViewOnly} 
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
             </TabsContent>
             
-            <TabsContent value="employment" className="p-4">
-              <EmploymentTab isViewOnly={isViewOnly} />
+            <TabsContent value="job-details" className="p-4">
+              <JobDetailsTab 
+                isViewOnly={isViewOnly} 
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
             </TabsContent>
             
-            <TabsContent value="assignment" className="p-4">
-              <AssignmentTab isViewOnly={isViewOnly} />
+            <TabsContent value="compensation" className="p-4">
+              <CompensationTab 
+                isViewOnly={isViewOnly} 
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
             </TabsContent>
             
-            <TabsContent value="contract" className="p-4">
-              <ContractTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="statutory" className="p-4">
-              <StatutoryTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="salary" className="p-4">
-              <SalaryTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="allowance" className="p-4">
-              <AllowanceTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="attendance" className="p-4">
-              <AttendanceTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="address" className="p-4">
-              <AddressTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="family" className="p-4">
-              <FamilyTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="emergency" className="p-4">
-              <EmergencyContactTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="education" className="p-4">
-              <EducationTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="workExperience" className="p-4">
-              <WorkExperienceTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="other" className="p-4">
-              <OtherInfoTab isViewOnly={isViewOnly} />
-            </TabsContent>
-            
-            <TabsContent value="appraisal" className="p-4">
-              <AppraisalRatingTab isViewOnly={isViewOnly} />
+            <TabsContent value="compliance" className="p-4">
+              <ComplianceTab 
+                isViewOnly={isViewOnly} 
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
             </TabsContent>
             
             <TabsContent value="documents" className="p-4">
@@ -244,6 +197,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
                 isViewOnly={isViewOnly} 
                 employeeId={employeeData?.id} 
                 onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined}
+              />
+            </TabsContent>
+            
+            <TabsContent value="others" className="p-4">
+              <OthersTab 
+                isViewOnly={isViewOnly} 
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
               />
             </TabsContent>
           </div>
