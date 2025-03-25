@@ -5,12 +5,12 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
-import { EmployeeDetailsTabs } from './EmployeeDetailsTabs';
 import { Button } from '@/components/ui-custom/Button';
-import { Employee } from '@/types/employee';
+import { Employee, EmployeeFormData } from '@/types/employee';
 import { Save, Trash } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { EmployeeTabbedForm } from './EmployeeTabbedForm';
 
 interface EmployeeDetailsDialogProps {
   employee: Employee;
@@ -51,14 +51,26 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     }
   };
 
-  // Create an intermediate function that accepts the employee and then calls onEdit
-  const handleEmployeeUpdate = (updatedEmployee: Employee) => {
+  const handleEmployeeUpdate = (formData: EmployeeFormData) => {
     toast({
       title: "Changes Saved",
-      description: `Employee details for ${updatedEmployee.full_name} have been updated.`
+      description: `Employee details for ${formData.employee.full_name} have been updated.`
     });
+    
+    // Since onEdit expects an Employee object, we need to combine the employee from formData
+    const updatedEmployee: Employee = {
+      ...employee, // Keep fields not modified
+      ...formData.employee, // Update with new values
+      id: employee.id, // Ensure ID is preserved
+      user_id: employee.user_id // Ensure user_id is preserved
+    };
+    
     setViewMode('view');
     onEdit(updatedEmployee);
+  };
+
+  const initialFormData: EmployeeFormData = {
+    employee: employee
   };
 
   return (
@@ -76,16 +88,17 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
 
       {viewMode === 'view' ? (
         <>
-          <div className="mt-6">
-            <EmployeeDetailsTabs 
-              employee={employee}
-              onSuccess={() => {}} // Changed to match expected function signature
+          <div className="mt-2 max-h-[calc(90vh-12rem)] overflow-hidden">
+            <EmployeeTabbedForm
+              initialData={initialFormData}
+              mode="view"
+              onSuccess={() => {}}
               onCancel={() => {}}
               isViewOnly={true}
             />
           </div>
           
-          <div className="flex justify-between mt-8">
+          <div className="flex justify-between mt-6 pt-4 border-t">
             <Button 
               variant="destructive"
               size="sm"
@@ -103,12 +116,12 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           </div>
         </>
       ) : (
-        <div className="mt-4 max-h-[calc(90vh-12rem)] overflow-y-auto">
-          <EmployeeDetailsTabs
-            employee={employee}
-            onSuccess={() => setViewMode('view')} // Changed to match expected function signature
+        <div className="mt-2 max-h-[calc(90vh-6rem)] overflow-hidden">
+          <EmployeeTabbedForm
+            initialData={initialFormData}
+            mode="edit"
+            onSuccess={handleEmployeeUpdate}
             onCancel={() => setViewMode('view')}
-            isViewOnly={false}
           />
         </div>
       )}
