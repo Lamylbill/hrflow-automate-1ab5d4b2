@@ -13,20 +13,38 @@ import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { TopNavbar } from "./components/layout/TopNavbar";
 import EmployeesPage from "./pages/EmployeesPage";
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 
 // Create a new QueryClient with better retry settings for Netlify
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      staleTime: 5 * 60 * 1000, // 5 minutes
+// Fix: Created the QueryClient inside the App component to ensure it's properly initialized with React lifecycle
+const App = () => {
+  // Create a new queryClient instance inside the component to ensure proper initialization
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 3,
+        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+      },
     },
-  },
-});
+  }));
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+            <Toaster />
+            <Sonner />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 // Create a component for protected routes with better loading handling
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -84,79 +102,69 @@ const SettingsWrapper = () => {
   );
 };
 
-// App component that sets up providers and routes
-const App = () => {
+// Separate routes component to avoid hooks in conditional rendering
+const AppRoutes = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<SignUp />} />
-              
-              {/* Protected dashboard routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <Dashboard />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/employees" element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <EmployeesPage />
-                  </DashboardLayout>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/payroll" element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6">Payroll</h1>
-                    <p>Manage employee compensation and payments.</p>
-                  </DashboardLayout>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/leave" element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
-                    <p>Track and approve employee time off and absences.</p>
-                  </DashboardLayout>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/activity" element={
-                <ProtectedRoute>
-                  <DashboardLayout>
-                    <h1 className="text-3xl font-bold mb-6">Activity Log</h1>
-                    <p>Track all activities and changes in the system.</p>
-                  </DashboardLayout>
-                </ProtectedRoute>
-              } />
-              
-              {/* Settings page */}
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <SettingsWrapper />
-                </ProtectedRoute>
-              } />
-              
-              {/* Fallback route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
+      
+      {/* Protected dashboard routes */}
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Dashboard />
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/employees" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <EmployeesPage />
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/payroll" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Payroll</h1>
+            <p>Manage employee compensation and payments.</p>
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/leave" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
+            <p>Track and approve employee time off and absences.</p>
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/activity" element={
+        <ProtectedRoute>
+          <DashboardLayout>
+            <h1 className="text-3xl font-bold mb-6">Activity Log</h1>
+            <p>Track all activities and changes in the system.</p>
+          </DashboardLayout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Settings page */}
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <SettingsWrapper />
+        </ProtectedRoute>
+      } />
+      
+      {/* Fallback route */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
