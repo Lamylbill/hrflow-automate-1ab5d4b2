@@ -67,6 +67,22 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       const bucketExists = buckets.some(bucket => bucket.id === STORAGE_BUCKET);
       
       if (bucketExists) {
+        // Now check if we can actually access the bucket (RLS permissions)
+        const { data: files, error: listError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .list();
+          
+        if (listError && !listError.message.includes('The resource was not found')) {
+          console.error("Error accessing bucket:", listError);
+          setBucketStatus('error');
+          toast({
+            title: 'Storage Access Error',
+            description: `Cannot access the storage bucket. ${listError.message}`,
+            variant: 'destructive',
+          });
+          return;
+        }
+        
         console.log(`Storage bucket '${STORAGE_BUCKET}' is available`);
         setBucketStatus('available');
       } else {

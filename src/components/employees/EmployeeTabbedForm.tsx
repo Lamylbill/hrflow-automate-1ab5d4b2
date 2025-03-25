@@ -148,14 +148,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
-          <div className="border-b overflow-x-auto">
-            <TabsList className="w-full flex justify-start px-2 h-auto flex-nowrap min-w-max py-1">
-              <TabsTrigger value="basic-info" className="whitespace-nowrap">Basic Info</TabsTrigger>
-              <TabsTrigger value="job-details" className="whitespace-nowrap">Job Details</TabsTrigger>
-              <TabsTrigger value="compensation" className="whitespace-nowrap">Compensation</TabsTrigger>
-              <TabsTrigger value="compliance" className="whitespace-nowrap">Compliance & Statutory</TabsTrigger>
-              <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
-              <TabsTrigger value="others" className="whitespace-nowrap">Others</TabsTrigger>
+          <div className="border-b overflow-x-auto pb-1 -mx-2 px-2">
+            <TabsList className="w-full flex justify-start h-auto flex-nowrap min-w-max py-1">
+              <TabsTrigger value="basic-info" className="px-3 py-1.5 text-sm whitespace-nowrap">Basic Info</TabsTrigger>
+              <TabsTrigger value="job-details" className="px-3 py-1.5 text-sm whitespace-nowrap">Job Details</TabsTrigger>
+              <TabsTrigger value="compensation" className="px-3 py-1.5 text-sm whitespace-nowrap">Compensation</TabsTrigger>
+              <TabsTrigger value="compliance" className="px-3 py-1.5 text-sm whitespace-nowrap">Compliance</TabsTrigger>
+              <TabsTrigger value="documents" className="px-3 py-1.5 text-sm whitespace-nowrap">Documents</TabsTrigger>
+              <TabsTrigger value="others" className="px-3 py-1.5 text-sm whitespace-nowrap">Others</TabsTrigger>
             </TabsList>
           </div>
           
