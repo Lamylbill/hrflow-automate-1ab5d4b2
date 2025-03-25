@@ -148,14 +148,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
-          <div className="border-b overflow-x-auto pb-1 -mx-2 px-2">
-            <TabsList className="w-full flex justify-start h-auto flex-nowrap min-w-max py-1">
-              <TabsTrigger value="basic-info" className="px-3 py-1.5 text-sm whitespace-nowrap">Basic Info</TabsTrigger>
-              <TabsTrigger value="job-details" className="px-3 py-1.5 text-sm whitespace-nowrap">Job Details</TabsTrigger>
-              <TabsTrigger value="compensation" className="px-3 py-1.5 text-sm whitespace-nowrap">Compensation</TabsTrigger>
-              <TabsTrigger value="compliance" className="px-3 py-1.5 text-sm whitespace-nowrap">Compliance</TabsTrigger>
-              <TabsTrigger value="documents" className="px-3 py-1.5 text-sm whitespace-nowrap">Documents</TabsTrigger>
-              <TabsTrigger value="others" className="px-3 py-1.5 text-sm whitespace-nowrap">Others</TabsTrigger>
+          <div className="border-b overflow-x-auto pb-1 -mx-1 px-1">
+            <TabsList className="flex justify-between h-auto w-full">
+              <TabsTrigger value="basic-info" className="px-2 text-sm flex-1">Basic Info</TabsTrigger>
+              <TabsTrigger value="job-details" className="px-2 text-sm flex-1">Job Details</TabsTrigger>
+              <TabsTrigger value="compensation" className="px-2 text-sm flex-1">Compensation</TabsTrigger>
+              <TabsTrigger value="compliance" className="px-2 text-sm flex-1">Compliance</TabsTrigger>
+              <TabsTrigger value="documents" className="px-2 text-sm flex-1">Documents</TabsTrigger>
+              <TabsTrigger value="others" className="px-2 text-sm flex-1">Others</TabsTrigger>
             </TabsList>
           </div>
           

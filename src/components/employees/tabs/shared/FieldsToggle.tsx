@@ -15,7 +15,7 @@ export const FieldsToggle: React.FC<FieldsToggleProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-end space-x-2 mb-6 mt-2">
-      <Label htmlFor="show-advanced" className="text-sm text-gray-500 flex items-center">
+      <Label htmlFor="show-advanced" className="text-sm text-gray-500 flex items-center cursor-pointer">
         {showAdvanced ? (
           <ChevronUp className="h-3 w-3 mr-1" />
         ) : (

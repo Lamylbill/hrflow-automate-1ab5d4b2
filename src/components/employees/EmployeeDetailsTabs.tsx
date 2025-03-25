@@ -306,13 +306,13 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
       <div className="border-b overflow-x-auto">
-        <TabsList className="w-full flex justify-start px-2 h-auto flex-nowrap min-w-max py-1">
-          <TabsTrigger value="basic-info" className="whitespace-nowrap">Basic Info</TabsTrigger>
-          <TabsTrigger value="job-details" className="whitespace-nowrap">Job Details</TabsTrigger>
-          <TabsTrigger value="compensation" className="whitespace-nowrap">Compensation</TabsTrigger>
-          <TabsTrigger value="compliance" className="whitespace-nowrap">Compliance & Statutory</TabsTrigger>
-          <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
-          <TabsTrigger value="others" className="whitespace-nowrap">Others</TabsTrigger>
+        <TabsList className="w-full flex justify-between px-1 h-auto py-2">
+          <TabsTrigger value="basic-info" className="whitespace-nowrap flex-1 px-2 text-sm">Basic Info</TabsTrigger>
+          <TabsTrigger value="job-details" className="whitespace-nowrap flex-1 px-2 text-sm">Job Details</TabsTrigger>
+          <TabsTrigger value="compensation" className="whitespace-nowrap flex-1 px-2 text-sm">Compensation</TabsTrigger>
+          <TabsTrigger value="compliance" className="whitespace-nowrap flex-1 px-2 text-sm">Compliance</TabsTrigger>
+          <TabsTrigger value="documents" className="whitespace-nowrap flex-1 px-2 text-sm">Documents</TabsTrigger>
+          <TabsTrigger value="others" className="whitespace-nowrap flex-1 px-2 text-sm">Others</TabsTrigger>
         </TabsList>
       </div>
       
