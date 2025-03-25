@@ -45,10 +45,12 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Form setup
+  // Form setup with updated type handling
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
       employee: {
+        id: '',
+        user_id: user?.id || '',
         full_name: '',
         email: '',
         // All other fields with default values
@@ -72,11 +74,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     
     try {
       // If editing, update the employee
-      if (mode === 'edit' && initialData?.employee?.id) {
+      if (mode === 'edit' && data.employee.id) {
         const { error } = await supabase
           .from('employees')
           .update(data.employee)
-          .eq('id', initialData.employee.id);
+          .eq('id', data.employee.id);
           
         if (error) throw error;
         

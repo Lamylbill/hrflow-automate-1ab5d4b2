@@ -23,21 +23,22 @@ interface EducationTabProps {
 
 export const EducationTab: React.FC<EducationTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [educationRecords, setEducationRecords] = useState<Partial<EmployeeEducation>[]>([]);
+  const [educationRecords, setEducationRecords] = useState<EmployeeEducation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  const employeeId = watch('employee.id');
+  // Get the employee data from form context
+  const employeeData = watch('employee');
   
   // Load existing education records if we're in edit mode
   useEffect(() => {
-    if (employeeId && !isViewOnly) {
+    if (employeeData.id && !isViewOnly) {
       fetchEducationRecords();
     }
-  }, [employeeId]);
+  }, [employeeData.id]);
   
   const fetchEducationRecords = async () => {
-    if (!employeeId) return;
+    if (!employeeData.id) return;
     
     setIsLoading(true);
     
@@ -45,7 +46,7 @@ export const EducationTab: React.FC<EducationTabProps> = ({ isViewOnly = false }
       const { data, error } = await supabase
         .from('employee_education')
         .select('*')
-        .eq('employee_id', employeeId);
+        .eq('employee_id', employeeData.id);
         
       if (error) throw error;
       
@@ -65,10 +66,14 @@ export const EducationTab: React.FC<EducationTabProps> = ({ isViewOnly = false }
   
   const addEducationRecord = () => {
     const newEducationRecords = [...educationRecords, {
+      id: '',
+      employee_id: employeeData.id || '',
       qualification: '',
       major: '',
       institute_name: '',
-      graduation_year: undefined
+      graduation_year: undefined,
+      created_at: '',
+      updated_at: ''
     }];
     
     setEducationRecords(newEducationRecords);

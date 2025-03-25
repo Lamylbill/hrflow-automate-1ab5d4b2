@@ -23,21 +23,22 @@ interface AllowanceTabProps {
 
 export const AllowanceTab: React.FC<AllowanceTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [allowances, setAllowances] = useState<Partial<EmployeeAllowance>[]>([]);
+  const [allowances, setAllowances] = useState<EmployeeAllowance[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  const employeeId = watch('employee.id');
+  // Get the employee data from form context
+  const employeeData = watch('employee');
   
   // Load existing allowances if we're in edit mode
   useEffect(() => {
-    if (employeeId && !isViewOnly) {
+    if (employeeData.id && !isViewOnly) {
       fetchAllowances();
     }
-  }, [employeeId]);
+  }, [employeeData.id]);
   
   const fetchAllowances = async () => {
-    if (!employeeId) return;
+    if (!employeeData.id) return;
     
     setIsLoading(true);
     
@@ -45,12 +46,18 @@ export const AllowanceTab: React.FC<AllowanceTabProps> = ({ isViewOnly = false }
       const { data, error } = await supabase
         .from('employee_allowances')
         .select('*')
-        .eq('employee_id', employeeId);
+        .eq('employee_id', employeeData.id);
         
       if (error) throw error;
       
-      setAllowances(data || []);
-      setValue('allowances', data || []);
+      // Convert to full EmployeeAllowance objects
+      const fetchedAllowances = data?.map(item => ({
+        ...item,
+        allowance_type: item.allowance_type || '', // Ensure required fields have default values
+      })) || [];
+      
+      setAllowances(fetchedAllowances);
+      setValue('allowances', fetchedAllowances);
     } catch (error: any) {
       console.error('Error fetching allowances:', error);
       toast({
@@ -65,6 +72,8 @@ export const AllowanceTab: React.FC<AllowanceTabProps> = ({ isViewOnly = false }
   
   const addAllowance = () => {
     const newAllowances = [...allowances, {
+      id: '', // Add empty ID for new records
+      employee_id: employeeData.id || '', // Link to the current employee
       allowance_type: '',
       date_start: '',
       date_end: '',
@@ -72,7 +81,9 @@ export const AllowanceTab: React.FC<AllowanceTabProps> = ({ isViewOnly = false }
       currency: '',
       run_type: '',
       bi_monthly_option: '',
-      pay_batch: ''
+      pay_batch: '',
+      created_at: '',
+      updated_at: ''
     }];
     
     setAllowances(newAllowances);

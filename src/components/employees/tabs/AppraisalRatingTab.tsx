@@ -24,21 +24,22 @@ interface AppraisalRatingTabProps {
 
 export const AppraisalRatingTab: React.FC<AppraisalRatingTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [appraisals, setAppraisals] = useState<Partial<EmployeeAppraisalRating>[]>([]);
+  const [appraisals, setAppraisals] = useState<EmployeeAppraisalRating[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  const employeeId = watch('employee.id');
+  // Get the employee data from form context
+  const employeeData = watch('employee');
   
   // Load existing appraisal ratings if we're in edit mode
   useEffect(() => {
-    if (employeeId && !isViewOnly) {
+    if (employeeData.id && !isViewOnly) {
       fetchAppraisalRatings();
     }
-  }, [employeeId]);
+  }, [employeeData.id]);
   
   const fetchAppraisalRatings = async () => {
-    if (!employeeId) return;
+    if (!employeeData.id) return;
     
     setIsLoading(true);
     
@@ -46,12 +47,13 @@ export const AppraisalRatingTab: React.FC<AppraisalRatingTabProps> = ({ isViewOn
       const { data, error } = await supabase
         .from('employee_appraisal_ratings')
         .select('*')
-        .eq('employee_id', employeeId);
+        .eq('employee_id', employeeData.id);
         
       if (error) throw error;
       
-      setAppraisals(data || []);
-      setValue('appraisalRatings', data || []);
+      const fetchedAppraisals = data || [];
+      setAppraisals(fetchedAppraisals);
+      setValue('appraisalRatings', fetchedAppraisals);
     } catch (error: any) {
       console.error('Error fetching appraisal ratings:', error);
       toast({
@@ -66,10 +68,14 @@ export const AppraisalRatingTab: React.FC<AppraisalRatingTabProps> = ({ isViewOn
   
   const addAppraisal = () => {
     const newAppraisals = [...appraisals, {
+      id: '',
+      employee_id: employeeData.id || '',
       date_start: '',
       appraisal_type: '',
       rating: '',
-      remarks: ''
+      remarks: '',
+      created_at: '',
+      updated_at: ''
     }];
     
     setAppraisals(newAppraisals);

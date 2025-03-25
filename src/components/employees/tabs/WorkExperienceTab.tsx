@@ -23,21 +23,22 @@ interface WorkExperienceTabProps {
 
 export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [experiences, setExperiences] = useState<Partial<EmployeeWorkExperience>[]>([]);
+  const [experiences, setExperiences] = useState<EmployeeWorkExperience[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  const employeeId = watch('employee.id');
+  // Get the employee data from form context
+  const employeeData = watch('employee');
   
   // Load existing work experiences if we're in edit mode
   useEffect(() => {
-    if (employeeId && !isViewOnly) {
+    if (employeeData.id && !isViewOnly) {
       fetchWorkExperiences();
     }
-  }, [employeeId]);
+  }, [employeeData.id]);
   
   const fetchWorkExperiences = async () => {
-    if (!employeeId) return;
+    if (!employeeData.id) return;
     
     setIsLoading(true);
     
@@ -45,7 +46,7 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
       const { data, error } = await supabase
         .from('employee_work_experience')
         .select('*')
-        .eq('employee_id', employeeId);
+        .eq('employee_id', employeeData.id);
         
       if (error) throw error;
       
@@ -65,10 +66,14 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
   
   const addExperience = () => {
     const newExperiences = [...experiences, {
+      id: '',
+      employee_id: employeeData.id || '',
       company_name: '',
       job_title: '',
       date_start: '',
-      date_end: ''
+      date_end: '',
+      created_at: '',
+      updated_at: ''
     }];
     
     setExperiences(newExperiences);

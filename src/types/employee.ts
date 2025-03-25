@@ -252,12 +252,12 @@ export interface EmployeeAppraisalRating {
 
 // Type for creating or updating an employee with related entities
 export interface EmployeeFormData {
-  employee: Omit<Employee, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
-  allowances?: Omit<EmployeeAllowance, 'id' | 'employee_id' | 'created_at' | 'updated_at'>[];
-  familyMembers?: Omit<EmployeeFamilyMember, 'id' | 'employee_id' | 'created_at' | 'updated_at'>[];
-  education?: Omit<EmployeeEducation, 'id' | 'employee_id' | 'created_at' | 'updated_at'>[];
-  workExperience?: Omit<EmployeeWorkExperience, 'id' | 'employee_id' | 'created_at' | 'updated_at'>[];
-  appraisalRatings?: Omit<EmployeeAppraisalRating, 'id' | 'employee_id' | 'created_at' | 'updated_at'>[];
+  employee: Employee; // Changed from Omit to include id, user_id, created_at, and updated_at
+  allowances?: EmployeeAllowance[]; // Changed to allow full type including id and employee_id
+  familyMembers?: EmployeeFamilyMember[]; // Changed to allow full type including id and employee_id
+  education?: EmployeeEducation[]; // Changed to allow full type including id and employee_id
+  workExperience?: EmployeeWorkExperience[]; // Changed to allow full type including id and employee_id
+  appraisalRatings?: EmployeeAppraisalRating[]; // Changed to allow full type including id and employee_id
   documents?: File[];
 }
 

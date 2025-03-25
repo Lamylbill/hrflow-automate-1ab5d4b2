@@ -24,21 +24,22 @@ interface FamilyTabProps {
 
 export const FamilyTab: React.FC<FamilyTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [familyMembers, setFamilyMembers] = useState<Partial<EmployeeFamilyMember>[]>([]);
+  const [familyMembers, setFamilyMembers] = useState<EmployeeFamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  const employeeId = watch('employee.id');
+  // Get the employee data from form context
+  const employeeData = watch('employee');
   
   // Load existing family members if we're in edit mode
   useEffect(() => {
-    if (employeeId && !isViewOnly) {
+    if (employeeData.id && !isViewOnly) {
       fetchFamilyMembers();
     }
-  }, [employeeId]);
+  }, [employeeData.id]);
   
   const fetchFamilyMembers = async () => {
-    if (!employeeId) return;
+    if (!employeeData.id) return;
     
     setIsLoading(true);
     
@@ -46,12 +47,18 @@ export const FamilyTab: React.FC<FamilyTabProps> = ({ isViewOnly = false }) => {
       const { data, error } = await supabase
         .from('employee_family_members')
         .select('*')
-        .eq('employee_id', employeeId);
+        .eq('employee_id', employeeData.id);
         
       if (error) throw error;
       
-      setFamilyMembers(data || []);
-      setValue('familyMembers', data || []);
+      // Ensure that the name field is always present
+      const fetchedMembers = (data || []).map(member => ({
+        ...member,
+        name: member.name || '' // Ensure required field has a default value
+      }));
+      
+      setFamilyMembers(fetchedMembers);
+      setValue('familyMembers', fetchedMembers);
     } catch (error: any) {
       console.error('Error fetching family members:', error);
       toast({
@@ -66,11 +73,15 @@ export const FamilyTab: React.FC<FamilyTabProps> = ({ isViewOnly = false }) => {
   
   const addFamilyMember = () => {
     const newFamilyMembers = [...familyMembers, {
-      name: '',
+      id: '',
+      employee_id: employeeData.id || '',
+      name: '', // Required field
       relationship: '',
       date_of_birth: '',
       contact_number: '',
-      notes: ''
+      notes: '',
+      created_at: '',
+      updated_at: ''
     }];
     
     setFamilyMembers(newFamilyMembers);
