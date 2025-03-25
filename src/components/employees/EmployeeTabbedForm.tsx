@@ -24,6 +24,7 @@ import { EmployeeFormData, Employee } from '@/types/employee';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -31,6 +32,7 @@ interface EmployeeTabbedFormProps {
   onCancel: () => void;
   isViewOnly?: boolean;
   mode: 'create' | 'edit' | 'view';
+  defaultTab?: string;
 }
 
 export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
@@ -38,12 +40,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   onSuccess,
   onCancel,
   isViewOnly = false,
-  mode
+  mode,
+  defaultTab = "personal"
 }) => {
-  const [activeTab, setActiveTab] = useState("personal");
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   
   // Form setup with updated type handling
   const methods = useForm<EmployeeFormData>({
@@ -58,7 +62,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     }
   });
   
-  const { handleSubmit, formState: { errors } } = methods;
+  const { handleSubmit, formState: { errors }, watch } = methods;
+  const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
     if (!user) {
@@ -98,6 +103,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           
         if (error) throw error;
         
+        // Set the ID so it's available for document uploads
+        if (employeeData) {
+          data.employee.id = employeeData.id;
+        }
+        
         // Insert related records (simplified)
         // This is where you would handle inserting data into all related tables
       }
@@ -109,6 +119,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       
       // Call the success callback with the form data
       onSuccess(data);
+      
+      // If we just created the employee, switch to the documents tab to encourage document upload
+      if (mode === 'create') {
+        setTimeout(() => setActiveTab("documents"), 500);
+      }
     } catch (error: any) {
       console.error('Error saving employee:', error);
       toast({
@@ -126,11 +141,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     setActiveTab(value);
   };
   
-  // Document upload button that appears on all tabs
+  // Document upload button that appears on all tabs except the documents tab
   const DocumentUploadButton = () => (
     <Button
       variant="outline"
-      className="fixed bottom-4 right-4 z-10 flex items-center gap-2 shadow-md"
+      className="fixed bottom-4 right-4 z-20 flex items-center gap-2 shadow-md"
       onClick={() => setActiveTab("documents")}
     >
       <Upload className="h-4 w-4" />
@@ -142,24 +157,24 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
-          <div className="border-b">
-            <TabsList className="overflow-x-auto w-full flex justify-start">
-              <TabsTrigger value="personal">Personal</TabsTrigger>
-              <TabsTrigger value="employment">Employment</TabsTrigger>
-              <TabsTrigger value="assignment">Assignment</TabsTrigger>
-              <TabsTrigger value="contract">Contract</TabsTrigger>
-              <TabsTrigger value="statutory">Statutory</TabsTrigger>
-              <TabsTrigger value="salary">Salary</TabsTrigger>
-              <TabsTrigger value="allowance">Allowance</TabsTrigger>
-              <TabsTrigger value="attendance">Attendance</TabsTrigger>
-              <TabsTrigger value="address">Address</TabsTrigger>
-              <TabsTrigger value="family">Family</TabsTrigger>
-              <TabsTrigger value="emergency">Emergency</TabsTrigger>
-              <TabsTrigger value="education">Education</TabsTrigger>
-              <TabsTrigger value="workExperience">Work Experience</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-              <TabsTrigger value="appraisal">Appraisal Rating</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
+          <div className="border-b overflow-x-auto">
+            <TabsList className="w-full flex justify-start px-2 h-auto flex-nowrap min-w-max py-1">
+              <TabsTrigger value="personal" className="whitespace-nowrap">Personal</TabsTrigger>
+              <TabsTrigger value="employment" className="whitespace-nowrap">Employment</TabsTrigger>
+              <TabsTrigger value="assignment" className="whitespace-nowrap">Assignment</TabsTrigger>
+              <TabsTrigger value="contract" className="whitespace-nowrap">Contract</TabsTrigger>
+              <TabsTrigger value="statutory" className="whitespace-nowrap">Statutory</TabsTrigger>
+              <TabsTrigger value="salary" className="whitespace-nowrap">Salary</TabsTrigger>
+              <TabsTrigger value="allowance" className="whitespace-nowrap">Allowance</TabsTrigger>
+              <TabsTrigger value="attendance" className="whitespace-nowrap">Attendance</TabsTrigger>
+              <TabsTrigger value="address" className="whitespace-nowrap">Address</TabsTrigger>
+              <TabsTrigger value="family" className="whitespace-nowrap">Family</TabsTrigger>
+              <TabsTrigger value="emergency" className="whitespace-nowrap">Emergency</TabsTrigger>
+              <TabsTrigger value="education" className="whitespace-nowrap">Education</TabsTrigger>
+              <TabsTrigger value="workExperience" className="whitespace-nowrap">Work Experience</TabsTrigger>
+              <TabsTrigger value="other" className="whitespace-nowrap">Other</TabsTrigger>
+              <TabsTrigger value="appraisal" className="whitespace-nowrap">Appraisal Rating</TabsTrigger>
+              <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
             </TabsList>
           </div>
           
@@ -225,13 +240,17 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             </TabsContent>
             
             <TabsContent value="documents" className="p-4">
-              <DocumentsTab isViewOnly={isViewOnly} employeeId={initialData?.employee?.id} />
+              <DocumentsTab 
+                isViewOnly={isViewOnly} 
+                employeeId={employeeData?.id} 
+                onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined}
+              />
             </TabsContent>
           </div>
         </Tabs>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0">
+          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
@@ -241,7 +260,19 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </div>
         )}
         
-        {activeTab !== "documents" && <DocumentUploadButton />}
+        {activeTab !== "documents" && employeeData?.id && !isViewOnly && !isMobile && (
+          <DocumentUploadButton />
+        )}
+        
+        {activeTab !== "documents" && employeeData?.id && !isViewOnly && isMobile && (
+          <Button
+            variant="primary"
+            className="fixed bottom-20 right-4 z-20 rounded-full w-14 h-14 p-0 shadow-lg flex items-center justify-center"
+            onClick={() => setActiveTab("documents")}
+          >
+            <Upload className="h-6 w-6" />
+          </Button>
+        )}
       </form>
     </FormProvider>
   );

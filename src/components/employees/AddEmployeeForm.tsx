@@ -6,9 +6,9 @@ import { EmployeeFormData, Employee } from '@/types/employee';
 interface AddEmployeeFormProps {
   onSuccess: () => void;
   onCancel: () => void;
-  employeeData?: Employee; // Add this prop to make it compatible with EmployeeDetailsTabs
-  isTabbed?: boolean; // Add this prop to support tabbed mode
-  activeTab?: string; // Add this prop to support active tab selection
+  employeeData?: Employee; 
+  isTabbed?: boolean;
+  activeTab?: string;
 }
 
 export const AddEmployeeForm = ({ 
@@ -26,6 +26,7 @@ export const AddEmployeeForm = ({
         onSuccess={() => onSuccess()}
         onCancel={onCancel}
         isViewOnly={false}
+        defaultTab={activeTab}
       />
     </div>
   );

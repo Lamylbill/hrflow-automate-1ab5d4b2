@@ -23,7 +23,7 @@ interface WorkExperienceTabProps {
 
 export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly = false }) => {
   const { control, register, watch, setValue, formState: { errors } } = useFormContext<EmployeeFormData>();
-  const [experiences, setExperiences] = useState<EmployeeWorkExperience[]>([]);
+  const [experiences, setExperiences] = useState<Partial<EmployeeWorkExperience>[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
@@ -32,13 +32,13 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
   
   // Load existing work experiences if we're in edit mode
   useEffect(() => {
-    if (employeeData.id && !isViewOnly) {
+    if (employeeData?.id && !isViewOnly) {
       fetchWorkExperiences();
     }
-  }, [employeeData.id]);
+  }, [employeeData?.id]);
   
   const fetchWorkExperiences = async () => {
-    if (!employeeData.id) return;
+    if (!employeeData?.id) return;
     
     setIsLoading(true);
     
@@ -66,36 +66,34 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
   
   const addExperience = () => {
     const newExperiences = [...experiences, {
-      id: '',
-      employee_id: employeeData.id || '',
       company_name: '',
       job_title: '',
       date_start: '',
       date_end: '',
-      created_at: '',
-      updated_at: ''
     }];
     
     setExperiences(newExperiences);
-    setValue('workExperience', newExperiences);
+    setValue('workExperience', newExperiences as EmployeeWorkExperience[]);
   };
   
   const removeExperience = (index: number) => {
     const newExperiences = [...experiences];
     newExperiences.splice(index, 1);
     setExperiences(newExperiences);
-    setValue('workExperience', newExperiences);
+    setValue('workExperience', newExperiences as EmployeeWorkExperience[]);
   };
   
   const handleExperienceChange = (index: number, field: keyof EmployeeWorkExperience, value: any) => {
     const newExperiences = [...experiences];
-    newExperiences[index] = {
-      ...newExperiences[index],
-      [field]: value
-    };
-    
-    setExperiences(newExperiences);
-    setValue('workExperience', newExperiences);
+    if (newExperiences[index]) {
+      newExperiences[index] = {
+        ...newExperiences[index],
+        [field]: value
+      };
+      
+      setExperiences(newExperiences);
+      setValue('workExperience', newExperiences as EmployeeWorkExperience[]);
+    }
   };
 
   return (
@@ -133,7 +131,7 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
           )}
         </div>
       ) : (
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

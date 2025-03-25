@@ -248,9 +248,14 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   // Component rendering
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-lg font-semibold">Documents</h2>
-        <Button onClick={() => setIsUploadDialogOpen(true)} variant="primary" size="sm">
+        <Button 
+          onClick={() => setIsUploadDialogOpen(true)} 
+          variant="primary" 
+          size="sm"
+          className="z-10"
+        >
           <Upload className="mr-2 h-4 w-4" />
           Upload Documents
         </Button>
@@ -311,6 +316,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             <Button 
               variant="outline" 
               onClick={() => setIsUploadDialogOpen(true)}
+              className="z-10"
             >
               <Upload className="mr-2 h-4 w-4" />
               Upload Documents
@@ -385,9 +391,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       </div>
       
       <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl overflow-y-auto max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Upload Documents</DialogTitle>
+            <DialogDescription>
+              Add documents to this employee's record. Supported formats include PDF, images, and Office documents.
+            </DialogDescription>
           </DialogHeader>
           <div className="mt-4">
             <DocumentUploader 

@@ -8,7 +8,8 @@ import { Employee } from '@/types/employee';
 import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui-custom/Button';
-import { Save } from 'lucide-react';
+import { Save, Upload } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EmployeeDetailsTabsProps {
   employee: Employee;
@@ -26,6 +27,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
   const [activeTab, setActiveTab] = useState('personal');
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [tempDocuments, setTempDocuments] = useState<any[]>([]);
+  const isMobile = useIsMobile();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -294,14 +296,16 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-      <TabsList className="grid grid-cols-6 mb-6">
-        <TabsTrigger value="personal">Personal</TabsTrigger>
-        <TabsTrigger value="employment">Employment</TabsTrigger>
-        <TabsTrigger value="contact">Contact</TabsTrigger>
-        <TabsTrigger value="financial">Financial</TabsTrigger>
-        <TabsTrigger value="benefits">Benefits</TabsTrigger>
-        <TabsTrigger value="documents">Documents</TabsTrigger>
-      </TabsList>
+      <div className="border-b overflow-x-auto">
+        <TabsList className="grid grid-cols-3 md:grid-cols-6 mb-6 w-full px-2 h-auto flex-nowrap min-w-max py-1">
+          <TabsTrigger value="personal" className="whitespace-nowrap">Personal</TabsTrigger>
+          <TabsTrigger value="employment" className="whitespace-nowrap">Employment</TabsTrigger>
+          <TabsTrigger value="contact" className="whitespace-nowrap">Contact</TabsTrigger>
+          <TabsTrigger value="financial" className="whitespace-nowrap">Financial</TabsTrigger>
+          <TabsTrigger value="benefits" className="whitespace-nowrap">Benefits</TabsTrigger>
+          <TabsTrigger value="documents" className="whitespace-nowrap">Documents</TabsTrigger>
+        </TabsList>
+      </div>
       
       <TabsContent value="personal" className="pt-2">
         {renderFormContent()}
@@ -332,7 +336,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
           />
         ) : (
           <div>
-            <div className="p-6 border border-dashed rounded-md mb-4">
+            <div className="p-6 border border-dashed rounded-md mb-4 bg-gray-50">
               <p className="text-center text-gray-700 font-medium mb-2">
                 Add Documents While Creating Employee
               </p>
@@ -348,7 +352,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
         )}
         
         {!isViewOnly && (
-          <div className="mt-8 flex justify-end">
+          <div className="mt-8 flex justify-end sticky bottom-4 z-30">
             <Button variant="primary" onClick={onSuccess}>
               <Save className="mr-2 h-4 w-4" />
               Save Changes
@@ -358,14 +362,25 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
       </TabsContent>
       
       {!isViewOnly && activeTab !== 'documents' && (
-        <div className="mt-8 flex justify-end">
-          <Button variant="outline" onClick={onCancel} className="mr-2">
+        <div className="mt-8 flex justify-end gap-2 sticky bottom-4 z-30">
+          <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
           <Button variant="primary" type="submit" form="employee-form">
             <Save className="mr-2 h-4 w-4" />
             Save Changes
           </Button>
+          
+          {employee && employee.id && (
+            <Button 
+              variant="outline" 
+              onClick={() => setActiveTab('documents')}
+              className="ml-4"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Manage Documents
+            </Button>
+          )}
         </div>
       )}
     </Tabs>
