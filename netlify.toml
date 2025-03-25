@@ -4,6 +4,7 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  ignore = "false" # Prevent ignoring builds
 
 # Handle SPA routing by redirecting all paths to index.html
 [[redirects]]
@@ -16,3 +17,7 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Ensure environment variables are available during build
+[build.environment]
+  NODE_VERSION = "18"

@@ -32,4 +32,6 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  // Add a base configuration for the project to ensure correct asset paths
+  base: "./",
 }));
