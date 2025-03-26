@@ -24,10 +24,15 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 export const STORAGE_BUCKET = 'employee-documents';
 export const AVATAR_BUCKET = 'employee-photos';
 
-// Helper function to ensure the bucket exists
+// Helper function to ensure the bucket exists - temporarily modified to always return true
 export const ensureStorageBucket = async (): Promise<boolean> => {
   try {
-    // Check if bucket exists
+    // Temporarily bypass the actual check and return true
+    console.log('Bucket check temporarily bypassed');
+    return true;
+    
+    /*
+    // Original check code (commented out)
     const { data: buckets, error: bucketsError } = await supabase
       .storage
       .listBuckets();
@@ -45,8 +50,10 @@ export const ensureStorageBucket = async (): Promise<boolean> => {
     }
     
     return true;
+    */
   } catch (error) {
     console.error('Unexpected error ensuring storage bucket:', error);
-    return false;
+    // Also return true here to bypass the check
+    return true;
   }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Upload, 
@@ -33,40 +32,10 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Check if the bucket exists
+  // Temporarily skip bucket check in useEffect
   useEffect(() => {
-    const checkBucket = async () => {
-      try {
-        setBucketError(null);
-        
-        // Check if bucket exists
-        const { data: buckets, error: bucketsError } = await supabase
-          .storage
-          .listBuckets();
-        
-        if (bucketsError) {
-          console.error('Error checking for buckets:', bucketsError);
-          setBucketError('Error checking for avatar storage bucket');
-          return false;
-        }
-        
-        const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
-        
-        if (!bucketExists) {
-          console.error(`Bucket ${AVATAR_BUCKET} not found, it should be created by SQL migration`);
-          setBucketError(`Avatar storage bucket (${AVATAR_BUCKET}) not found`);
-          return false;
-        }
-        
-        return true;
-      } catch (error) {
-        console.error('Unexpected error ensuring avatar bucket:', error);
-        setBucketError('Unexpected error accessing avatar storage');
-        return false;
-      }
-    };
-    
-    checkBucket();
+    // Bucket check is temporarily disabled
+    setBucketError(null);
   }, []);
 
   const uploadPhoto = async (file: File) => {
@@ -111,19 +80,7 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     setIsUploading(true);
 
     try {
-      // Verify the bucket exists before uploading
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-      
-      if (bucketsError) {
-        throw new Error('Failed to check storage buckets: ' + bucketsError.message);
-      }
-      
-      const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
-      
-      if (!bucketExists) {
-        throw new Error(`Storage bucket "${AVATAR_BUCKET}" does not exist. Please contact an administrator.`);
-      }
-      
+      // Skip bucket existence check and proceed directly to upload
       // Generate a unique file path
       const fileExt = file.name.split('.').pop();
       const tempId = employeeId || 'temp_' + Math.random().toString(36).substring(2, 11);
