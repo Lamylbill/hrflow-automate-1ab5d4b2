@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, AVATAR_BUCKET } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui-custom/Button';
 
@@ -20,9 +20,6 @@ interface ProfilePhotoUploaderProps {
   currentPhotoUrl?: string;
   disabled?: boolean;
 }
-
-// The bucket name should match what was created in the SQL migration
-const AVATAR_BUCKET = 'employee-photos';
 
 export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
   employeeId,
@@ -56,7 +53,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
         const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
         
         if (!bucketExists) {
-          // Bucket should be created by our SQL migration
           console.error(`Bucket ${AVATAR_BUCKET} not found, it should be created by SQL migration`);
           setBucketError(`Avatar storage bucket (${AVATAR_BUCKET}) not found`);
           return false;
@@ -115,6 +111,19 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     setIsUploading(true);
 
     try {
+      // Verify the bucket exists before uploading
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      
+      if (bucketsError) {
+        throw new Error('Failed to check storage buckets: ' + bucketsError.message);
+      }
+      
+      const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
+      
+      if (!bucketExists) {
+        throw new Error(`Storage bucket "${AVATAR_BUCKET}" does not exist. Please contact an administrator.`);
+      }
+      
       // Generate a unique file path
       const fileExt = file.name.split('.').pop();
       const tempId = employeeId || 'temp_' + Math.random().toString(36).substring(2, 11);

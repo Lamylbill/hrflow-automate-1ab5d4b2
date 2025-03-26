@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -15,7 +16,7 @@ import { DocumentSelector } from './DocumentSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase, STORAGE_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
+import { supabase, STORAGE_BUCKET } from '@/integrations/supabase/client';
 
 interface DocumentUploaderProps {
   employeeId: string;
@@ -115,8 +116,18 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadComplete(false);
 
     try {
-      const bucketExists = await ensureStorageBucket();
-      if (!bucketExists) throw new Error('Storage bucket not available.');
+      // Check if buckets exist before proceeding
+      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      
+      if (bucketsError) {
+        throw new Error('Failed to check storage buckets: ' + bucketsError.message);
+      }
+      
+      const bucketExists = buckets?.some(b => b.name === STORAGE_BUCKET);
+      
+      if (!bucketExists) {
+        throw new Error(`Storage bucket "${STORAGE_BUCKET}" does not exist. Please contact an administrator.`);
+      }
 
       let successCount = 0;
 
@@ -135,7 +146,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           const fileName = `${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
           const filePath = `${employeeId}/${fileName}`;
 
-          const { error: uploadError } = await supabase.storage
+          // Upload the file to storage
+          const { error: uploadError, data: uploadData } = await supabase.storage
             .from(STORAGE_BUCKET)
             .upload(filePath, fileItem.file, {
               cacheControl: '3600',
@@ -144,6 +156,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
           if (uploadError) throw uploadError;
 
+          // Save the document metadata to the database
           const { error: dbError } = await supabase
             .from('employee_documents')
             .insert({
@@ -166,6 +179,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
           successCount++;
         } catch (err: any) {
+          console.error('Error uploading file:', err);
           setFiles(prev => prev.map(f =>
             f.id === fileItem.id
               ? { ...f, status: 'error', errorMessage: err.message || 'Upload failed' }
@@ -188,6 +202,7 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         setUploadError('Failed to upload any documents.');
       }
     } catch (error: any) {
+      console.error('Error during upload process:', error);
       setUploadError(error.message || 'Error during upload.');
       toast({
         title: 'Upload Error',

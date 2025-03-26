@@ -39,7 +39,6 @@ export const ensureStorageBucket = async (): Promise<boolean> => {
     
     const bucketExists = buckets?.some(b => b.name === STORAGE_BUCKET);
     
-    // Bucket should be created by our SQL migration
     if (!bucketExists) {
       console.error(`Bucket ${STORAGE_BUCKET} not found, it should be created by SQL migration`);
       return false;
