@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Filter, Download, Trash, Edit, Eye, FileText, RotateCw, Upload, FilePlus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -320,11 +321,80 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
             </div>
           ) : (
             <Table>
-              {/* Table implementation would go here */}
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Uploaded</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDocuments.map((doc) => (
+                  <TableRow key={doc.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
+                        <FileText className="h-4 w-4 mr-2 text-gray-400" />
+                        <span className="truncate max-w-[200px]">{doc.file_name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {doc.document_category && (
+                        <Badge variant="outline" className="font-normal">
+                          {doc.document_category}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {doc.document_type}
+                    </TableCell>
+                    <TableCell>{formatBytes(doc.file_size)}</TableCell>
+                    <TableCell>{formatDate(doc.upload_date)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => window.open(doc.file_url, '_blank')}
+                          title="View document"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDelete(doc.id)}
+                          title="Delete document"
+                        >
+                          <Trash className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           )}
         </div>
       )}
+
+      {/* Upload Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Upload Documents</DialogTitle>
+            <DialogDescription>
+              Upload documents for this employee. Supported formats include PDF, Word, Excel, and images.
+            </DialogDescription>
+          </DialogHeader>
+          <DocumentUploader 
+            employeeId={employeeId} 
+            onUploadComplete={handleUploadComplete} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

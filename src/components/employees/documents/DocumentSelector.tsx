@@ -18,74 +18,65 @@ interface DocumentType {
 }
 
 interface DocumentSelectorProps {
-  selectedCategory: string;
-  selectedType: string;
-  onCategoryChange: (category: string) => void;
-  onTypeChange: (type: string) => void;
+  id?: string;
+  type: 'category' | 'documentType';
+  value: string;
+  categoryValue?: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
 export const DocumentSelector: React.FC<DocumentSelectorProps> = ({
-  selectedCategory,
-  selectedType,
-  onCategoryChange,
-  onTypeChange
+  id,
+  type,
+  value,
+  categoryValue,
+  onChange,
+  disabled = false
 }) => {
-  const [availableTypes, setAvailableTypes] = useState<DocumentType[]>([]);
+  const [availableOptions, setAvailableOptions] = useState<DocumentType[]>([]);
   
   useEffect(() => {
-    if (selectedCategory && DOCUMENT_TYPES[selectedCategory]) {
-      setAvailableTypes(DOCUMENT_TYPES[selectedCategory]);
+    if (type === 'category') {
+      // For category selection, show all categories
+      setAvailableOptions(
+        Object.values(DOCUMENT_CATEGORIES).map(cat => ({
+          value: cat,
+          label: cat
+        }))
+      );
+    } else if (type === 'documentType' && categoryValue && DOCUMENT_TYPES[categoryValue]) {
+      // For document type selection, show types based on selected category
+      setAvailableOptions(DOCUMENT_TYPES[categoryValue]);
     } else {
-      setAvailableTypes([]);
+      setAvailableOptions([]);
     }
-  }, [selectedCategory]);
+  }, [type, categoryValue]);
   
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">Document Category</label>
-        <Select
-          value={selectedCategory}
-          onValueChange={onCategoryChange}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {Object.values(DOCUMENT_CATEGORIES).map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div>
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled || (type === 'documentType' && !categoryValue) || availableOptions.length === 0}
+      >
+        <SelectTrigger id={id} className="w-full">
+          <SelectValue placeholder={type === 'category' ? "Select a category" : "Select a document type"} />
+        </SelectTrigger>
+        <SelectContent>
+          {availableOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       
-      <div>
-        <label className="text-sm font-medium">Document Type</label>
-        <Select
-          value={selectedType}
-          onValueChange={onTypeChange}
-          disabled={!selectedCategory || availableTypes.length === 0}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a document type" />
-          </SelectTrigger>
-          <SelectContent>
-            {availableTypes.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        
-        {selectedType && selectedCategory && (
-          <p className="text-xs text-gray-500 mt-1">
-            {availableTypes.find(t => t.value === selectedType)?.description}
-          </p>
-        )}
-      </div>
+      {type === 'documentType' && value && (
+        <p className="text-xs text-gray-500 mt-1">
+          {availableOptions.find(t => t.value === value)?.description}
+        </p>
+      )}
     </div>
   );
 };
