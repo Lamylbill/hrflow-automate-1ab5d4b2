@@ -20,7 +20,8 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
   fileType
 }) => {
   const isImage = fileType?.startsWith('image/');
-  const isPdf = fileType === 'application/pdf' || fileUrl?.endsWith('.pdf');
+  const isPdf =
+    fileType === 'application/pdf' || fileUrl?.toLowerCase().endsWith('.pdf');
   const isPreviewable = isImage || isPdf;
 
   const openInNewTab = () => {
@@ -78,22 +79,18 @@ export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   alt={fileName}
                   className="max-h-[500px] w-full object-contain"
                 />
-              ) : isPdf ? (
+              ) : (
                 <iframe
                   src={`${fileUrl}#toolbar=0&navpanes=0`}
                   className="w-full h-[500px]"
                   title={fileName}
                 />
-              ) : null}
+              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <p className="text-gray-500 mb-4">This file type cannot be previewed.</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.open(fileUrl, '_blank')}
-              >
+              <Button variant="outline" size="sm" onClick={openInNewTab}>
                 <Download className="mr-2 h-4 w-4" />
                 Download to view
               </Button>
