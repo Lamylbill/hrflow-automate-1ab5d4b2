@@ -1,4 +1,3 @@
-
 export const DOCUMENT_CATEGORIES = {
   IDENTIFICATION: "Identification",
   EMPLOYMENT: "Employment",
@@ -60,7 +59,6 @@ export const DOCUMENT_TYPES: Record<string, Array<{ value: string; label: string
   ]
 };
 
-// Helper functions to get display values
 export const getCategoryFromValue = (value: string): string => {
   for (const category in DOCUMENT_CATEGORIES) {
     if (DOCUMENT_CATEGORIES[category as keyof typeof DOCUMENT_CATEGORIES] === value) {
