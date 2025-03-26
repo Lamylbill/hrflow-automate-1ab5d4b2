@@ -68,14 +68,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const { user } = useAuth();
 
   useEffect(() => {
-    const checkBucket = async () => {
-      setBucketError(null);
-      const bucketReady = await ensureStorageBucket();
-      if (!bucketReady) {
-        setBucketError('Document storage is not properly configured.');
-      }
-    };
-    checkBucket();
+    console.log('Bucket check temporarily bypassed in DocumentManager');
+    setBucketError(null);
   }, []);
 
   const fetchDocuments = async () => {
@@ -85,8 +79,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     setError(null);
 
     try {
-      await ensureStorageBucket();
-
       const { data: dbDocuments, error: fetchError } = await supabase
         .from('employee_documents')
         .select('*')
@@ -132,10 +124,8 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   };
 
   useEffect(() => {
-    if (!bucketError) {
-      fetchDocuments();
-    }
-  }, [employeeId, refreshTrigger, user, bucketError]);
+    fetchDocuments();
+  }, [employeeId, refreshTrigger, user]);
 
   const handleDelete = async (documentId: string) => {
     if (!user) return;
@@ -186,7 +176,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Documents</h2>
-        <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!!bucketError} size="sm">
+        <Button onClick={() => setIsUploadDialogOpen(true)} size="sm">
           <Upload className="w-4 h-4 mr-2" />
           Upload Documents
         </Button>

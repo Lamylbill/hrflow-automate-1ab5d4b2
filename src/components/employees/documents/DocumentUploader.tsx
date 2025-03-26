@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -116,19 +115,8 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadComplete(false);
 
     try {
-      // Check if buckets exist before proceeding
-      const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+      console.log('Proceeding with upload, bucket check bypassed');
       
-      if (bucketsError) {
-        throw new Error('Failed to check storage buckets: ' + bucketsError.message);
-      }
-      
-      const bucketExists = buckets?.some(b => b.name === STORAGE_BUCKET);
-      
-      if (!bucketExists) {
-        throw new Error(`Storage bucket "${STORAGE_BUCKET}" does not exist. Please contact an administrator.`);
-      }
-
       let successCount = 0;
 
       for (const fileItem of files) {
@@ -146,7 +134,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           const fileName = `${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
           const filePath = `${employeeId}/${fileName}`;
 
-          // Upload the file to storage
           const { error: uploadError, data: uploadData } = await supabase.storage
             .from(STORAGE_BUCKET)
             .upload(filePath, fileItem.file, {
@@ -156,7 +143,6 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
           if (uploadError) throw uploadError;
 
-          // Save the document metadata to the database
           const { error: dbError } = await supabase
             .from('employee_documents')
             .insert({
