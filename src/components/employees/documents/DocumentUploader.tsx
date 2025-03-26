@@ -165,11 +165,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
           ));
 
           successCount++;
-        } catch (error: any) {
-          console.error('Upload error:', error);
+        } catch (err: any) {
           setFiles(prev => prev.map(f =>
             f.id === fileItem.id
-              ? { ...f, status: 'error', errorMessage: error.message || 'Upload failed' }
+              ? { ...f, status: 'error', errorMessage: err.message || 'Upload failed' }
               : f
           ));
         }
@@ -189,10 +188,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         setUploadError('Failed to upload any documents.');
       }
     } catch (error: any) {
-      setUploadError(error.message || 'Unexpected upload error.');
+      setUploadError(error.message || 'Error during upload.');
       toast({
         title: 'Upload Error',
-        description: error.message || 'Unexpected upload error.',
+        description: error.message || 'An error occurred during the upload.',
         variant: 'destructive'
       });
     } finally {
@@ -209,23 +208,25 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         }`}
       >
         <input {...getInputProps()} />
-        <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-col items-center justify-center space-y-2">
           <Upload className="h-10 w-10 text-gray-400" />
           <h3 className="text-lg font-medium">Drag and drop files here</h3>
           <p className="text-sm text-gray-500">or click to select files</p>
           <p className="text-xs text-gray-400 mt-1">
-            Supported formats: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX
+            Supported: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX
           </p>
         </div>
       </div>
 
-      {/* File List */}
       {files.length > 0 && (
         <div className="border rounded-md overflow-hidden">
+          <div className="bg-gray-50 px-4 py-2 border-b">
+            <h3 className="font-medium">Selected Files</h3>
+          </div>
           <ul className="divide-y">
             {files.map(fileItem => (
               <li key={fileItem.id} className="p-4">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center">
                     <FileText className="h-5 w-5 text-gray-400 mr-2" />
                     <div>
@@ -245,23 +246,31 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 </div>
 
                 {fileItem.status === 'uploading' && (
-                  <Progress value={fileItem.progress} className="h-1 mb-2" />
+                  <div className="mb-3">
+                    <Progress value={fileItem.progress} className="h-1" />
+                    <p className="text-xs text-gray-500 mt-1">Uploading...</p>
+                  </div>
                 )}
+
                 {fileItem.status === 'success' && (
-                  <p className="text-sm text-green-600 flex items-center">
-                    <Check className="h-4 w-4 mr-1" /> Upload complete
-                  </p>
+                  <div className="mb-3 flex items-center text-green-600">
+                    <Check className="h-4 w-4 mr-1" />
+                    <span className="text-sm">Upload complete</span>
+                  </div>
                 )}
+
                 {fileItem.status === 'error' && (
-                  <p className="text-sm text-red-600 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-1" /> {fileItem.errorMessage}
-                  </p>
+                  <div className="mb-3 flex items-center text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{fileItem.errorMessage}</span>
+                  </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                   <div>
-                    <Label>Document Category *</Label>
+                    <Label htmlFor={`category-${fileItem.id}`}>Category *</Label>
                     <DocumentSelector
+                      id={`category-${fileItem.id}`}
                       type="category"
                       value={fileItem.category || ''}
                       onChange={(val) => updateFileField(fileItem.id, 'category', val)}
@@ -269,8 +278,9 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                     />
                   </div>
                   <div>
-                    <Label>Document Type *</Label>
+                    <Label htmlFor={`doctype-${fileItem.id}`}>Document Type *</Label>
                     <DocumentSelector
+                      id={`doctype-${fileItem.id}`}
                       type="documentType"
                       categoryValue={fileItem.category || ''}
                       value={fileItem.documentType || ''}
@@ -281,11 +291,12 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
                 </div>
 
                 <div className="mt-3">
-                  <Label>Notes (Optional)</Label>
+                  <Label htmlFor={`notes-${fileItem.id}`}>Notes (Optional)</Label>
                   <Textarea
+                    id={`notes-${fileItem.id}`}
                     value={fileItem.notes || ''}
                     onChange={(e) => updateFileField(fileItem.id, 'notes', e.target.value)}
-                    placeholder="Add additional notes..."
+                    placeholder="Add notes for this document..."
                     className="resize-none h-20"
                     disabled={isUploading || fileItem.status === 'success'}
                   />
@@ -298,15 +309,19 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
 
       {uploadError && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3 text-red-600">
-          <AlertCircle className="h-5 w-5 mr-2 inline" />
-          {uploadError}
+          <div className="flex items-start">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+            <div>{uploadError}</div>
+          </div>
         </div>
       )}
 
       {uploadComplete && (
         <div className="bg-green-50 border border-green-200 rounded-md p-3 text-green-600">
-          <Check className="h-5 w-5 mr-2 inline" />
-          Documents uploaded successfully!
+          <div className="flex items-start">
+            <Check className="h-5 w-5 mr-2 flex-shrink-0" />
+            <div>Documents uploaded successfully!</div>
+          </div>
         </div>
       )}
 
