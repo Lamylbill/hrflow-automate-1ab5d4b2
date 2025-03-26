@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectValue
 } from '@/components/ui/select';
 import { DOCUMENT_CATEGORIES, DOCUMENT_TYPES } from './DocumentCategoryTypes';
 
@@ -31,24 +33,20 @@ export const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   onChange,
   disabled = false
 }) => {
-  const [availableOptions, setAvailableOptions] = useState<DocumentType[]>([]);
+  const [options, setOptions] = useState<DocumentType[]>([]);
 
   useEffect(() => {
     if (type === 'category') {
-      setAvailableOptions(
+      setOptions(
         Object.values(DOCUMENT_CATEGORIES).map((cat) => ({
           value: cat,
           label: cat
         }))
       );
-    } else if (
-      type === 'documentType' &&
-      categoryValue &&
-      DOCUMENT_TYPES[categoryValue]
-    ) {
-      setAvailableOptions(DOCUMENT_TYPES[categoryValue]);
+    } else if (type === 'documentType' && categoryValue && DOCUMENT_TYPES[categoryValue]) {
+      setOptions(DOCUMENT_TYPES[categoryValue]);
     } else {
-      setAvailableOptions([]);
+      setOptions([]);
     }
   }, [type, categoryValue]);
 
@@ -58,32 +56,32 @@ export const DocumentSelector: React.FC<DocumentSelectorProps> = ({
         value={value}
         onValueChange={onChange}
         disabled={
-          disabled ||
-          (type === 'documentType' && !categoryValue) ||
-          availableOptions.length === 0
+          disabled || (type === 'documentType' && !categoryValue) || options.length === 0
         }
       >
         <SelectTrigger id={id} className="w-full">
           <SelectValue
             placeholder={
               type === 'category'
-                ? 'Select a category'
+                ? 'Select a document category'
                 : 'Select a document type'
             }
           />
         </SelectTrigger>
         <SelectContent>
-          {availableOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            {options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
 
       {type === 'documentType' && value && (
         <p className="text-xs text-gray-500 mt-1">
-          {availableOptions.find((t) => t.value === value)?.description}
+          {options.find((o) => o.value === value)?.description}
         </p>
       )}
     </div>
