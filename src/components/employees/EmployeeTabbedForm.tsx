@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui-custom/Button";
 import { useForm, FormProvider } from "react-hook-form";
-import { Upload, Save } from 'lucide-react';
+import { Upload, Save, AlertCircle } from 'lucide-react';
 import { EmployeeFormData, Employee } from '@/types/employee';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Import the new restructured tabs
 import { BasicInfoTab } from './tabs/BasicInfoTab';
@@ -39,6 +40,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -48,41 +51,88 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     defaultValues: initialData || {
       employee: {
         id: '',
-        user_id: user?.id || '',
+        user_id: '',
         email: '',
         full_name: '',
       }
     }
   });
   
-  // Update the user_id if it changes
+  // Check if user is loaded and set the user_id
   useEffect(() => {
-    if (user?.id && mode === 'create') {
-      methods.setValue('employee.user_id', user.id);
-    }
-  }, [user, mode, methods]);
+    const checkUserStatus = async () => {
+      setAuthError(null);
+      
+      // If user is available from context, use it
+      if (user?.id) {
+        console.log("User found in context:", user.id);
+        methods.setValue('employee.user_id', user.id);
+        setIsUserLoaded(true);
+        return;
+      }
+      
+      // If not available, try to get session from Supabase
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error getting session:", error);
+          setAuthError("Failed to retrieve your user session. Please log in again.");
+          return;
+        }
+        
+        if (session?.user?.id) {
+          console.log("User found in session:", session.user.id);
+          methods.setValue('employee.user_id', session.user.id);
+          setIsUserLoaded(true);
+        } else {
+          console.error("No user found in session");
+          setAuthError("You must be logged in to create or update an employee. Please log in.");
+        }
+      } catch (err) {
+        console.error("Unexpected error checking auth:", err);
+        setAuthError("Authentication error. Please log in again to continue.");
+      }
+    };
+    
+    checkUserStatus();
+  }, [user, methods]);
   
   const { handleSubmit, formState: { errors }, watch } = methods;
   const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
-    if (!user) {
+    const userId = data.employee.user_id || user?.id;
+    
+    if (!userId) {
       toast({
         title: 'Authentication Error',
         description: 'You must be logged in to create or update an employee.',
         variant: 'destructive',
       });
+      setAuthError("You must be logged in to create or update an employee. Please log in.");
       return;
     }
 
-    // Ensure user_id is set
-    if (!data.employee.user_id) {
-      data.employee.user_id = user.id;
+    // Ensure user_id is set and valid
+    if (!userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      toast({
+        title: 'Invalid User ID',
+        description: 'Your session appears to be invalid. Please log out and log in again.',
+        variant: 'destructive',
+      });
+      setAuthError("Invalid user ID format. Please log out and log in again.");
+      return;
     }
 
+    // Set the user_id again just to be sure
+    data.employee.user_id = userId;
+    
     setIsSubmitting(true);
     
     try {
+      console.log("Submitting employee with user_id:", data.employee.user_id);
+      
       // If editing, update the employee
       if (mode === 'edit' && data.employee.id) {
         const { error } = await supabase
@@ -98,7 +148,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           .from('employees')
           .insert({
             ...data.employee,
-            user_id: user.id
+            user_id: userId
           })
           .select()
           .single();
@@ -175,6 +225,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             </p>
           </div>
         </div>
+        
+        {authError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
           <div className="border-b overflow-x-auto pb-1 -mx-1 px-1">
@@ -244,7 +301,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !isUserLoaded || !!authError}
+            >
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
             </Button>
           </div>

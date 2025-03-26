@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Upload, 
   X, 
@@ -21,6 +21,7 @@ interface ProfilePhotoUploaderProps {
   disabled?: boolean;
 }
 
+// The bucket name should match what was created in the SQL migration
 const AVATAR_BUCKET = 'employee-photos';
 
 export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
@@ -30,51 +31,47 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(currentPhotoUrl);
+  const [bucketError, setBucketError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Ensure the avatar bucket exists
-  const ensureAvatarBucket = async (): Promise<boolean> => {
-    try {
-      // Check if bucket exists
-      const { data: buckets, error: bucketsError } = await supabase
-        .storage
-        .listBuckets();
-      
-      if (bucketsError) {
-        console.error('Error checking for buckets:', bucketsError);
-        return false;
-      }
-      
-      const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
-      
-      // If bucket doesn't exist, create it
-      if (!bucketExists) {
-        const { error: createError } = await supabase
+  // Check if the bucket exists
+  useEffect(() => {
+    const checkBucket = async () => {
+      try {
+        setBucketError(null);
+        
+        // Check if bucket exists
+        const { data: buckets, error: bucketsError } = await supabase
           .storage
-          .createBucket(AVATAR_BUCKET, {
-            public: true,
-            fileSizeLimit: 2097152, // 2MB
-            allowedMimeTypes: [
-              'image/jpeg',
-              'image/png',
-              'image/jpg'
-            ]
-          });
-          
-        if (createError) {
-          console.error('Error creating avatar bucket:', createError);
+          .listBuckets();
+        
+        if (bucketsError) {
+          console.error('Error checking for buckets:', bucketsError);
+          setBucketError('Error checking for avatar storage bucket');
           return false;
         }
+        
+        const bucketExists = buckets?.some(b => b.name === AVATAR_BUCKET);
+        
+        if (!bucketExists) {
+          // Bucket should be created by our SQL migration
+          console.error(`Bucket ${AVATAR_BUCKET} not found, it should be created by SQL migration`);
+          setBucketError(`Avatar storage bucket (${AVATAR_BUCKET}) not found`);
+          return false;
+        }
+        
+        return true;
+      } catch (error) {
+        console.error('Unexpected error ensuring avatar bucket:', error);
+        setBucketError('Unexpected error accessing avatar storage');
+        return false;
       }
-      
-      return true;
-    } catch (error) {
-      console.error('Unexpected error ensuring avatar bucket:', error);
-      return false;
-    }
-  };
+    };
+    
+    checkBucket();
+  }, []);
 
   const uploadPhoto = async (file: File) => {
     if (!user) {
@@ -118,12 +115,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     setIsUploading(true);
 
     try {
-      // Ensure avatar bucket exists
-      const bucketExists = await ensureAvatarBucket();
-      if (!bucketExists) {
-        throw new Error('Could not ensure avatar storage bucket exists.');
-      }
-
       // Generate a unique file path
       const fileExt = file.name.split('.').pop();
       const tempId = employeeId || 'temp_' + Math.random().toString(36).substring(2, 11);
@@ -202,7 +193,7 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
         </AvatarFallback>
       </Avatar>
       
-      {!disabled && (
+      {!disabled && !bucketError && (
         <div className="absolute -bottom-2 -right-2">
           <input
             type="file"
@@ -226,6 +217,14 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
               <Camera className="h-4 w-4" />
             )}
           </Button>
+        </div>
+      )}
+      
+      {bucketError && (
+        <div className="absolute -bottom-2 -right-2">
+          <div className="bg-red-100 text-red-600 text-xs p-1 rounded">
+            <span role="img" aria-label="Error">⚠️</span>
+          </div>
         </div>
       )}
     </div>

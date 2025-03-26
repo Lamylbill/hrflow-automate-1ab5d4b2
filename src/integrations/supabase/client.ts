@@ -19,9 +19,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   }
 });
 
-// Bucket configuration for the application
-// This must match exactly what was created in the SQL migration (employee-documents)
+// Bucket configurations for the application
+// These must match exactly what was created in the SQL migration
 export const STORAGE_BUCKET = 'employee-documents';
+export const AVATAR_BUCKET = 'employee-photos';
 
 // Helper function to ensure the bucket exists
 export const ensureStorageBucket = async (): Promise<boolean> => {
@@ -38,29 +39,10 @@ export const ensureStorageBucket = async (): Promise<boolean> => {
     
     const bucketExists = buckets?.some(b => b.name === STORAGE_BUCKET);
     
-    // If bucket doesn't exist, create it
+    // Bucket should be created by our SQL migration
     if (!bucketExists) {
-      const { error: createError } = await supabase
-        .storage
-        .createBucket(STORAGE_BUCKET, {
-          public: false,
-          fileSizeLimit: 10485760, // 10MB
-          allowedMimeTypes: [
-            'application/pdf',
-            'image/jpeg',
-            'image/png',
-            'image/jpg',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          ]
-        });
-        
-      if (createError) {
-        console.error('Error creating bucket:', createError);
-        return false;
-      }
+      console.error(`Bucket ${STORAGE_BUCKET} not found, it should be created by SQL migration`);
+      return false;
     }
     
     return true;
