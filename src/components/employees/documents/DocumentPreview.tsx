@@ -1,91 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { Eye, X, Download, ExternalLink } from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { DOCUMENT_CATEGORIES, DOCUMENT_TYPES } from './DocumentCategoryTypes';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverClose
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui-custom/Button';
 
-interface DocumentType {
-  value: string;
-  label: string;
-  description?: string;
+interface DocumentPreviewProps {
+  fileUrl: string;
+  fileName: string;
+  fileType: string;
 }
 
-interface DocumentSelectorProps {
-  id?: string;
-  type: 'category' | 'documentType';
-  value: string;
-  categoryValue?: string;
-  onChange: (value: string) => void;
-  disabled?: boolean;
-}
-
-export const DocumentSelector: React.FC<DocumentSelectorProps> = ({
-  id,
-  type,
-  value,
-  categoryValue,
-  onChange,
-  disabled = false
+export const DocumentPreview: React.FC<DocumentPreviewProps> = ({
+  fileUrl,
+  fileName,
+  fileType
 }) => {
-  const [availableOptions, setAvailableOptions] = useState<DocumentType[]>([]);
+  const isImage = fileType?.startsWith('image/');
+  const isPdf = fileType === 'application/pdf' || fileUrl?.endsWith('.pdf');
+  const isPreviewable = isImage || isPdf;
 
-  useEffect(() => {
-    if (type === 'category') {
-      setAvailableOptions(
-        Object.values(DOCUMENT_CATEGORIES).map((cat) => ({
-          value: cat,
-          label: cat
-        }))
-      );
-    } else if (
-      type === 'documentType' &&
-      categoryValue &&
-      DOCUMENT_TYPES[categoryValue]
-    ) {
-      setAvailableOptions(DOCUMENT_TYPES[categoryValue]);
-    } else {
-      setAvailableOptions([]);
-    }
-  }, [type, categoryValue]);
+  const openInNewTab = () => {
+    window.open(fileUrl, '_blank');
+  };
 
   return (
-    <div>
-      <Select
-        value={value}
-        onValueChange={onChange}
-        disabled={
-          disabled ||
-          (type === 'documentType' && !categoryValue) ||
-          availableOptions.length === 0
-        }
-      >
-        <SelectTrigger id={id} className="w-full">
-          <SelectValue
-            placeholder={
-              type === 'category'
-                ? 'Select a category'
-                : 'Select a document type'
-            }
-          />
-        </SelectTrigger>
-        <SelectContent>
-          {availableOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {type === 'documentType' && value && (
-        <p className="text-xs text-gray-500 mt-1">
-          {availableOptions.find((t) => t.value === value)?.description}
-        </p>
-      )}
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="sm" className="flex items-center gap-1">
+          <Eye className="h-4 w-4" />
+          <span className="sr-only md:not-sr-only md:ml-1">Preview</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full max-w-md p-0" align="end">
+        <div className="flex items-center justify-between bg-gray-100 px-4 py-2 rounded-t-md">
+          <h3 className="font-medium text-sm truncate max-w-[240px]">{fileName}</h3>
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={openInNewTab}
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="sr-only">Open in new tab</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 ml-1"
+              onClick={() => window.open(fileUrl, '_blank')}
+            >
+              <Download className="h-4 w-4" />
+              <span className="sr-only">Download</span>
+            </Button>
+            <PopoverClose asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 ml-1 rounded-full inline-flex items-center justify-center text-gray-500 hover:text-gray-700"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </Button>
+            </PopoverClose>
+          </div>
+        </div>
+        <div className="p-1 bg-gray-50 rounded-b-md">
+          {isPreviewable ? (
+            <div className="overflow-hidden rounded border border-gray-200 bg-white">
+              {isImage ? (
+                <img
+                  src={fileUrl}
+                  alt={fileName}
+                  className="max-h-[500px] w-full object-contain"
+                />
+              ) : isPdf ? (
+                <iframe
+                  src={`${fileUrl}#toolbar=0&navpanes=0`}
+                  className="w-full h-[500px]"
+                  title={fileName}
+                />
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <p className="text-gray-500 mb-4">This file type cannot be previewed.</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(fileUrl, '_blank')}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download to view
+              </Button>
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
