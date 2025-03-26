@@ -308,4 +308,23 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
               <p className="text-red-500">{error}</p>
               <Button 
                 variant="outline" 
-               
+                size="sm"
+                onClick={() => fetchDocuments()}
+              >
+                Retry
+              </Button>
+            </div>
+          ) : filteredDocuments.length === 0 ? (
+            <div className="p-8 text-center">
+              <p className="text-gray-500">No documents found.</p>
+            </div>
+          ) : (
+            <Table>
+              {/* Table implementation would go here */}
+            </Table>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
