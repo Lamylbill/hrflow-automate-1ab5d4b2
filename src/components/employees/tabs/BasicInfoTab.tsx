@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, subYears } from 'date-fns';
 import { FieldsToggle } from './shared/FieldsToggle';
 import { genderOptions, nationalityOptions, maritalStatusOptions } from '../data/employeeOptions';
 
@@ -25,7 +25,11 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
   showAdvancedFields,
   onToggleAdvanced
 }) => {
-  const { control, register } = useFormContext<EmployeeFormData>();
+  const { control, register, formState: { errors } } = useFormContext<EmployeeFormData>();
+  
+  // Set min and max dates for date picker
+  const maxDate = new Date(); // Today
+  const minDate = new Date('1900-01-01');
 
   return (
     <div className="space-y-6">
@@ -140,11 +144,15 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                       {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       selected={field.value ? new Date(field.value) : undefined}
                       onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
+                      disabled={(date) => date > maxDate || date < minDate}
                       initialFocus
                     />
                   </PopoverContent>
@@ -284,8 +292,12 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                     <PopoverContent className="w-auto p-0">
                       <Calendar
                         mode="single"
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
                         selected={field.value ? new Date(field.value) : undefined}
                         onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
+                        disabled={(date) => date > maxDate || date < minDate}
                         initialFocus
                       />
                     </PopoverContent>

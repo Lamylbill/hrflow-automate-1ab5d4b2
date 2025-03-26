@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui-custom/Button";
 import { useForm, FormProvider } from "react-hook-form";
@@ -17,6 +17,7 @@ import { CompensationTab } from './tabs/CompensationTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
+import { ProfilePhotoUploader } from './ProfilePhotoUploader';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -42,7 +43,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const { user } = useAuth();
   const isMobile = useIsMobile();
   
-  // Form setup
+  // Form setup with validation for required user_id
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
       employee: {
@@ -54,17 +55,29 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     }
   });
   
+  // Update the user_id if it changes
+  useEffect(() => {
+    if (user?.id && mode === 'create') {
+      methods.setValue('employee.user_id', user.id);
+    }
+  }, [user, mode, methods]);
+  
   const { handleSubmit, formState: { errors }, watch } = methods;
   const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
     if (!user) {
       toast({
-        title: 'Error',
+        title: 'Authentication Error',
         description: 'You must be logged in to create or update an employee.',
         variant: 'destructive',
       });
       return;
+    }
+
+    // Ensure user_id is set
+    if (!data.employee.user_id) {
+      data.employee.user_id = user.id;
     }
 
     setIsSubmitting(true);
@@ -147,6 +160,22 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
+        <div className="flex items-center mb-4">
+          <ProfilePhotoUploader 
+            employeeId={employeeData?.id} 
+            currentPhotoUrl={employeeData?.profile_picture}
+            disabled={isViewOnly} 
+          />
+          <div className="ml-4">
+            <h2 className="text-lg font-medium">
+              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {mode === 'create' ? 'Add a new employee to your organization' : 'Edit employee information'}
+            </p>
+          </div>
+        </div>
+
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
           <div className="border-b overflow-x-auto pb-1 -mx-1 px-1">
             <TabsList className="flex justify-between h-auto w-full">

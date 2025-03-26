@@ -19,6 +19,12 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   onEdit,
   onDelete
 }) => {
+  // Generate initials from full name
+  const getInitials = (name: string | undefined) => {
+    if (!name) return '?';
+    return name.split(' ').map(n => n?.[0]).join('').toUpperCase();
+  };
+
   return (
     <div 
       className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow cursor-pointer"
@@ -26,9 +32,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
     >
       <div className="flex items-center mb-3">
         <Avatar className="h-12 w-12 border">
-          <AvatarImage src={employee.profile_picture || undefined} />
+          <AvatarImage src={employee.profile_picture || undefined} alt={employee.full_name} />
           <AvatarFallback className="bg-hrflow-blue text-white">
-            {employee.full_name?.split(' ').map(n => n?.[0]).join('') || '?'}
+            {getInitials(employee.full_name)}
           </AvatarFallback>
         </Avatar>
         <div className="ml-3">
