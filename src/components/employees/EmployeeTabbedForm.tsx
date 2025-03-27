@@ -13,6 +13,7 @@ import { CompensationTab } from './tabs/CompensationTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
+import { ProfilePhotoUploader } from './ProfilePhotoUploader';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -125,10 +126,25 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          {/* Scrollable tab bar wrapper */}
-          <div className="overflow-x-auto scrollbar-hide border-b pb-1 -mx-2 px-2">
-            <TabsList className="flex w-max min-w-full gap-2">
+        <div className="flex items-center space-x-4">
+          <ProfilePhotoUploader
+            employeeId={employee?.id}
+            currentPhotoUrl={employee?.profile_picture}
+            disabled={isViewOnly}
+          />
+          <div>
+            <h2 className="text-lg font-semibold">
+              {mode === 'create' ? 'New Employee' : employee?.full_name || 'Employee'}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {mode === 'create' ? 'Fill in details to create new employee' : 'View or update employee details'}
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="w-full min-w-[600px] flex-nowrap overflow-x-auto">
               <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
               <TabsTrigger value="job-details">Job Details</TabsTrigger>
               <TabsTrigger value="compensation">Compensation</TabsTrigger>
@@ -136,15 +152,15 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               <TabsTrigger value="documents">Documents</TabsTrigger>
               <TabsTrigger value="others">Others</TabsTrigger>
             </TabsList>
-          </div>
 
-          <TabsContent value="basic-info"><BasicInfoTab isViewOnly={isViewOnly} /></TabsContent>
-          <TabsContent value="job-details"><JobDetailsTab isViewOnly={isViewOnly} /></TabsContent>
-          <TabsContent value="compensation"><CompensationTab isViewOnly={isViewOnly} /></TabsContent>
-          <TabsContent value="compliance"><ComplianceTab isViewOnly={isViewOnly} /></TabsContent>
-          <TabsContent value="documents"><DocumentsTab isViewOnly={isViewOnly} employeeId={employee?.id} /></TabsContent>
-          <TabsContent value="others"><OthersTab isViewOnly={isViewOnly} /></TabsContent>
-        </Tabs>
+            <TabsContent value="basic-info"><BasicInfoTab isViewOnly={isViewOnly} /></TabsContent>
+            <TabsContent value="job-details"><JobDetailsTab isViewOnly={isViewOnly} /></TabsContent>
+            <TabsContent value="compensation"><CompensationTab isViewOnly={isViewOnly} /></TabsContent>
+            <TabsContent value="compliance"><ComplianceTab isViewOnly={isViewOnly} /></TabsContent>
+            <TabsContent value="documents"><DocumentsTab isViewOnly={isViewOnly} employeeId={employee?.id} /></TabsContent>
+            <TabsContent value="others"><OthersTab isViewOnly={isViewOnly} /></TabsContent>
+          </Tabs>
+        </div>
 
         {!isViewOnly && (
           <div className="flex justify-end gap-2">
