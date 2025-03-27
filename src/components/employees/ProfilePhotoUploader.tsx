@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Upload, 
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase, AVATAR_BUCKET } from '@/integrations/supabase/client';
+import { supabase, AVATAR_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui-custom/Button';
 
@@ -32,10 +33,15 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Temporarily skip bucket check in useEffect
   useEffect(() => {
-    // Bucket check is temporarily disabled
-    setBucketError(null);
+    const checkBucket = async () => {
+      setBucketError(null);
+      const bucketReady = await ensureStorageBucket(AVATAR_BUCKET);
+      if (!bucketReady) {
+        setBucketError('Profile photo storage is not properly configured. Please contact an administrator.');
+      }
+    };
+    checkBucket();
   }, []);
 
   const uploadPhoto = async (file: File) => {
@@ -80,7 +86,13 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     setIsUploading(true);
 
     try {
-      // Skip bucket existence check and proceed directly to upload
+      // Check bucket existence
+      const bucketExists = await ensureStorageBucket(AVATAR_BUCKET);
+      
+      if (!bucketExists) {
+        throw new Error(`Storage bucket "${AVATAR_BUCKET}" is not accessible. Please contact an administrator.`);
+      }
+      
       // Generate a unique file path
       const fileExt = file.name.split('.').pop();
       const tempId = employeeId || 'temp_' + Math.random().toString(36).substring(2, 11);
@@ -112,7 +124,8 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
         const { error: updateError } = await supabase
           .from('employees')
           .update({ profile_picture: publicUrl })
-          .eq('id', employeeId);
+          .eq('id', employeeId)
+          .eq('user_id', user.id);
           
         if (updateError) throw updateError;
       }

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import {
@@ -15,7 +16,7 @@ import { DocumentSelector } from './DocumentSelector';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase, STORAGE_BUCKET } from '@/integrations/supabase/client';
+import { supabase, STORAGE_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
 
 interface DocumentUploaderProps {
   employeeId: string;
@@ -115,7 +116,12 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
     setUploadComplete(false);
 
     try {
-      console.log('Proceeding with upload, bucket check bypassed');
+      // Check if bucket exists before proceeding
+      const bucketExists = await ensureStorageBucket(STORAGE_BUCKET);
+      
+      if (!bucketExists) {
+        throw new Error(`Storage bucket "${STORAGE_BUCKET}" is not accessible. Please contact an administrator.`);
+      }
       
       let successCount = 0;
 
@@ -126,13 +132,17 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
         }
 
         setFiles(prev => prev.map(f =>
-          f.id === fileItem.id ? { ...f, status: 'uploading' } : f
+          f.id === fileItem.id ? { ...f, status: 'uploading', progress: 10 } : f
         ));
 
         try {
           const fileExt = fileItem.file.name.split('.').pop();
           const fileName = `${Math.random().toString(36).substring(2, 11)}_${Date.now()}.${fileExt}`;
           const filePath = `${employeeId}/${fileName}`;
+
+          setFiles(prev => prev.map(f =>
+            f.id === fileItem.id ? { ...f, progress: 30 } : f
+          ));
 
           const { error: uploadError, data: uploadData } = await supabase.storage
             .from(STORAGE_BUCKET)
@@ -142,6 +152,10 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             });
 
           if (uploadError) throw uploadError;
+
+          setFiles(prev => prev.map(f =>
+            f.id === fileItem.id ? { ...f, progress: 70 } : f
+          ));
 
           const { error: dbError } = await supabase
             .from('employee_documents')

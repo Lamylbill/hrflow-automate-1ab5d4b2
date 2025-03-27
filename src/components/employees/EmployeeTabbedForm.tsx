@@ -102,6 +102,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
+    // Ensure user_id is set
     const userId = data.employee.user_id || user?.id;
     
     if (!userId) {
@@ -138,16 +139,27 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         const { error } = await supabase
           .from('employees')
           .update(data.employee)
-          .eq('id', data.employee.id);
+          .eq('id', data.employee.id)
+          .eq('user_id', userId);
           
         if (error) throw error;
       }
       // If creating, insert the new employee
       else if (mode === 'create') {
-        const { data: employeeData, error } = await supabase
+        // Set required fields to null if they are empty strings
+        // This prevents "invalid input syntax for type uuid" errors
+        const employeeData = Object.keys(data.employee).reduce((acc, key) => {
+          const value = data.employee[key as keyof typeof data.employee];
+          // For UUID fields, convert empty strings to null
+          const isEmptyUUID = typeof value === 'string' && value === '' && key.includes('_id');
+          acc[key as keyof typeof data.employee] = isEmptyUUID ? null : value;
+          return acc;
+        }, {} as Record<string, any>);
+        
+        const { data: newEmployee, error } = await supabase
           .from('employees')
           .insert({
-            ...data.employee,
+            ...employeeData,
             user_id: userId
           })
           .select()
@@ -156,8 +168,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         if (error) throw error;
         
         // Set the ID so it's available for document uploads
-        if (employeeData) {
-          data.employee.id = employeeData.id;
+        if (newEmployee) {
+          data.employee.id = newEmployee.id;
         }
       }
       

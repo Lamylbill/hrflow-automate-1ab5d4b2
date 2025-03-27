@@ -24,15 +24,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 export const STORAGE_BUCKET = 'employee-documents';
 export const AVATAR_BUCKET = 'employee-photos';
 
-// Helper function to ensure the bucket exists - temporarily modified to always return true
-export const ensureStorageBucket = async (): Promise<boolean> => {
+// Helper function to check if the buckets exist and are accessible
+export const ensureStorageBucket = async (bucketName: string = STORAGE_BUCKET): Promise<boolean> => {
   try {
-    // Temporarily bypass the actual check and return true
-    console.log('Bucket check temporarily bypassed');
-    return true;
-    
-    /*
-    // Original check code (commented out)
     const { data: buckets, error: bucketsError } = await supabase
       .storage
       .listBuckets();
@@ -42,18 +36,16 @@ export const ensureStorageBucket = async (): Promise<boolean> => {
       return false;
     }
     
-    const bucketExists = buckets?.some(b => b.name === STORAGE_BUCKET);
+    const bucketExists = buckets?.some(b => b.name === bucketName);
     
     if (!bucketExists) {
-      console.error(`Bucket ${STORAGE_BUCKET} not found, it should be created by SQL migration`);
+      console.error(`Bucket ${bucketName} not found. Please check Supabase Storage setup.`);
       return false;
     }
     
     return true;
-    */
   } catch (error) {
     console.error('Unexpected error ensuring storage bucket:', error);
-    // Also return true here to bypass the check
-    return true;
+    return false;
   }
 };
