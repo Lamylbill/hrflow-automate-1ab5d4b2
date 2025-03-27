@@ -156,12 +156,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           return acc;
         }, {} as Record<string, any>);
         
+        // Make sure required fields are present
+        if (!employeeData.email || !employeeData.full_name) {
+          throw new Error("Email and full name are required fields");
+        }
+        
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...employeeData,
-            user_id: userId
-          })
+          .insert(employeeData)
           .select()
           .single();
           
