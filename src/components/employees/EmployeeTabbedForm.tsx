@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui-custom/Button";
@@ -11,7 +10,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Import the new restructured tabs
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -46,7 +44,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const { user } = useAuth();
   const isMobile = useIsMobile();
   
-  // Form setup with validation for required user_id
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
       employee: {
@@ -58,12 +55,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     }
   });
   
-  // Check if user is loaded and set the user_id
   useEffect(() => {
     const checkUserStatus = async () => {
       setAuthError(null);
       
-      // If user is available from context, use it
       if (user?.id) {
         console.log("User found in context:", user.id);
         methods.setValue('employee.user_id', user.id);
@@ -71,7 +66,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         return;
       }
       
-      // If not available, try to get session from Supabase
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -102,7 +96,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
-    // Ensure user_id is set
     const userId = data.employee.user_id || user?.id;
     
     if (!userId) {
@@ -111,78 +104,39 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         description: 'You must be logged in to create or update an employee.',
         variant: 'destructive',
       });
-      setAuthError("You must be logged in to create or update an employee. Please log in.");
       return;
     }
 
-    // Ensure user_id is set and valid
-    if (!userId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      toast({
-        title: 'Invalid User ID',
-        description: 'Your session appears to be invalid. Please log out and log in again.',
-        variant: 'destructive',
-      });
-      setAuthError("Invalid user ID format. Please log out and log in again.");
-      return;
-    }
+    const employeeData = {
+      ...data.employee,
+      user_id: userId,
+      email: data.employee.email || user?.email,
+      full_name: data.employee.full_name || `${data.employee.first_name || ''} ${data.employee.last_name || ''}`.trim(),
+    };
 
-    // Set the user_id again just to be sure
-    data.employee.user_id = userId;
-    
-    // Validate required fields
-    if (!data.employee.email || !data.employee.full_name) {
-      toast({
-        title: 'Missing Required Fields',
-        description: 'Email and full name are required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+    const cleanedEmployeeData = Object.fromEntries(
+      Object.entries(employeeData).filter(([_, v]) => v != null)
+    );
+
     try {
-      console.log("Submitting employee with user_id:", data.employee.user_id);
-      
-      // If editing, update the employee
-      if (mode === 'edit' && data.employee.id) {
+      if (mode === 'edit' && cleanedEmployeeData.id) {
         const { error } = await supabase
           .from('employees')
-          .update(data.employee)
-          .eq('id', data.employee.id)
+          .update(cleanedEmployeeData)
+          .eq('id', cleanedEmployeeData.id)
           .eq('user_id', userId);
           
         if (error) throw error;
       }
-      // If creating, insert the new employee
       else if (mode === 'create') {
-        // Set required fields to null if they are empty strings
-        // This prevents "invalid input syntax for type uuid" errors
-        const employeeData = Object.keys(data.employee).reduce((acc, key) => {
-          const value = data.employee[key as keyof typeof data.employee];
-          // For UUID fields, convert empty strings to null
-          const isEmptyUUID = typeof value === 'string' && value === '' && key.includes('_id') && key !== 'user_id';
-          acc[key as keyof typeof data.employee] = isEmptyUUID ? null : value;
-          return acc;
-        }, {} as Record<string, any>);
-        
-        // Make sure required fields are included
-        const employeeInsertData = {
-          ...employeeData,
-          email: data.employee.email,
-          full_name: data.employee.full_name,
-          user_id: userId
-        };
-        
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert(employeeInsertData)
+          .insert(cleanedEmployeeData)
           .select()
           .single();
           
         if (error) throw error;
         
-        // Set the ID so it's available for document uploads
         if (newEmployee) {
           data.employee.id = newEmployee.id;
         }
@@ -193,10 +147,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         description: `${data.employee.full_name} has been ${mode === 'create' ? 'added to' : 'updated in'} the system.`,
       });
       
-      // Call the success callback with the form data
       onSuccess(data);
       
-      // If we just created the employee, switch to the documents tab to encourage document upload
       if (mode === 'create') {
         setTimeout(() => setActiveTab("documents"), 500);
       }
@@ -207,22 +159,17 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         description: error.message || 'An error occurred while saving the employee.',
         variant: 'destructive',
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
   
-  // Handle tab navigation
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
   
-  // Toggle to show more fields
   const toggleAdvancedFields = (value: boolean) => {
     setShowAdvancedFields(value);
   };
   
-  // Document upload button that appears on all tabs except the documents tab
   const DocumentUploadButton = () => (
     <Button
       variant="outline"
