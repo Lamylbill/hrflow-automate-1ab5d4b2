@@ -88,7 +88,7 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     try {
       // Check bucket existence but proceed with upload even if check fails
       // This allows testing even when bucket setup is incomplete
-      const bucketExists = await ensureStorageBucket(AVATAR_BUCKET);
+      const bucketExists = await ensureAvatarBucket();
       
       if (!bucketExists) {
         console.warn(`Storage bucket "${AVATAR_BUCKET}" not found, but proceeding with upload anyway for testing.`);
