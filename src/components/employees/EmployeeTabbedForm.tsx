@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui-custom/Button";
@@ -110,20 +111,40 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const employeeData = {
       ...data.employee,
       user_id: userId,
-      email: data.employee.email || user?.email,
+      email: data.employee.email || (user?.email || ''),
       full_name: data.employee.full_name || `${data.employee.first_name || ''} ${data.employee.last_name || ''}`.trim(),
     };
 
-    const cleanedEmployeeData = Object.fromEntries(
-      Object.entries(employeeData).filter(([_, v]) => v != null)
-    );
+    // Cast employeeData to comply with Supabase's expected types using type assertion
+    const employeeDataForDb: Employee = employeeData as Employee;
+
+    // Ensure required fields are present
+    if (!employeeDataForDb.email) {
+      toast({
+        title: 'Validation Error',
+        description: 'Email is required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!employeeDataForDb.full_name) {
+      toast({
+        title: 'Validation Error',
+        description: 'Full name is required.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
-      if (mode === 'edit' && cleanedEmployeeData.id) {
+      setIsSubmitting(true);
+      
+      if (mode === 'edit' && employeeDataForDb.id) {
         const { error } = await supabase
           .from('employees')
-          .update(cleanedEmployeeData)
-          .eq('id', cleanedEmployeeData.id)
+          .update(employeeDataForDb)
+          .eq('id', employeeDataForDb.id)
           .eq('user_id', userId);
           
         if (error) throw error;
@@ -131,7 +152,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       else if (mode === 'create') {
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert(cleanedEmployeeData)
+          .insert(employeeDataForDb)
           .select()
           .single();
           
@@ -159,6 +180,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         description: error.message || 'An error occurred while saving the employee.',
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
