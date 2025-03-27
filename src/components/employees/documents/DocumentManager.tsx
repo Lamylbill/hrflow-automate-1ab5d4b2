@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase, STORAGE_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
 import {
-  getDisplayLabel, DOCUMENT_CATEGORIES
+  getDisplayLabel, DOCUMENT_CATEGORIES, getCategoryFromValue
 } from './DocumentCategoryTypes';
 import { DocumentUploader } from './DocumentUploader';
 import { useAuth } from '@/context/AuthContext';
@@ -216,6 +216,9 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
   const hasActiveFilters = searchTerm || selectedCategory;
 
+  // Convert object keys to array for mapping
+  const documentCategoryKeys = Object.keys(DOCUMENT_CATEGORIES);
+
   // Calculate and memoize category counts
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -261,21 +264,24 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         )}
       </div>
       
-      {/* Category filter buttons */}
+      {/* Category filter buttons - Fixed: using Object.keys to get categories */}
       <div className="flex flex-wrap gap-2">
-        {DOCUMENT_CATEGORIES.map(category => (
-          <Badge 
-            key={category}
-            variant={selectedCategory === category ? "default" : "outline"}
-            className={`cursor-pointer hover:bg-gray-100 ${
-              selectedCategory === category ? 'bg-primary text-primary-foreground hover:bg-primary' : ''
-            }`}
-            onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
-          >
-            {getDisplayLabel(category)}
-            {categoryCounts[category] ? ` (${categoryCounts[category]})` : ''}
-          </Badge>
-        ))}
+        {documentCategoryKeys.map(key => {
+          const category = DOCUMENT_CATEGORIES[key as keyof typeof DOCUMENT_CATEGORIES];
+          return (
+            <Badge 
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              className={`cursor-pointer hover:bg-gray-100 ${
+                selectedCategory === category ? 'bg-primary text-primary-foreground hover:bg-primary' : ''
+              }`}
+              onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+            >
+              {category}
+              {categoryCounts[category] ? ` (${categoryCounts[category]})` : ''}
+            </Badge>
+          );
+        })}
       </div>
 
       {bucketError && (
@@ -314,7 +320,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   <TableCell className="font-medium truncate">{doc.file_name}</TableCell>
                   <TableCell>
                     {doc.document_category && (
-                      <Badge variant="outline">{getDisplayLabel(doc.document_category)}</Badge>
+                      <Badge variant="outline">{doc.document_category}</Badge>
                     )}
                   </TableCell>
                   <TableCell>{doc.document_type}</TableCell>
