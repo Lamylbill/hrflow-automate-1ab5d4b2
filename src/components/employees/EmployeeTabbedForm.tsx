@@ -97,7 +97,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const employeeData = watch('employee');
   
   const onSubmit = async (data: EmployeeFormData) => {
-    const userId = data.employee.user_id || user?.id;
+    const userId = data.employee.user_id?.trim() || user?.id?.trim();
     
     if (!userId) {
       toast({
@@ -150,18 +150,27 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         if (error) throw error;
       }
       else if (mode === 'create') {
+        const safeUserId = employeeDataForDb.user_id?.trim();
+
+        if (!safeUserId) {
+          throw new Error("Missing user_id. Please log in again and retry.");
+        }
+
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert(employeeDataForDb)
+          .insert({
+            ...employeeDataForDb,
+            user_id: safeUserId
+          })
           .select()
           .single();
-          
-        if (error) throw error;
-        
-        if (newEmployee) {
-          data.employee.id = newEmployee.id;
+
+          if (error) throw error;
+
+          if (newEmployee) {
+            data.employee.id = newEmployee.id;
+          }
         }
-      }
       
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
