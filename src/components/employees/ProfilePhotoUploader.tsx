@@ -1,17 +1,13 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Upload, 
-  X, 
-  User, 
-  RotateCw, 
-  Check, 
+import {
+  Upload,
+  X,
   Camera,
-  ImageIcon
+  RotateCw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase, AVATAR_BUCKET, ensureAvatarBucket } from '@/integrations/supabase/client';
+import { supabase, AVATAR_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui-custom/Button';
 
@@ -36,7 +32,7 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
   useEffect(() => {
     const checkBucket = async () => {
       setBucketError(null);
-      const bucketReady = await ensureAvatarBucket();
+      const bucketReady = await ensureStorageBucket(AVATAR_BUCKET);
       if (!bucketReady) {
         setBucketError('Profile photo storage is not properly configured. Please contact an administrator.');
       }
@@ -54,16 +50,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
       return;
     }
 
-    const safeUserId = user.id?.trim();
-    if (!safeUserId) {
-      toast({
-        title: 'Authentication Error',
-        description: 'User ID is missing. Please log in again.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     if (!file) {
       toast({
         title: 'No File Selected',
@@ -73,7 +59,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
       return;
     }
 
-    // Validate file type
     if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
       toast({
         title: 'Invalid File Type',
@@ -83,7 +68,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
       return;
     }
 
-    // Validate file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: 'File Too Large',
@@ -96,54 +80,39 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     setIsUploading(true);
 
     try {
-      // Check bucket existence but proceed with upload even if check fails
-      // This allows testing even when bucket setup is incomplete
-      const bucketExists = await ensureAvatarBucket();
-      
-      if (!bucketExists) {
-        console.warn(`Storage bucket "${AVATAR_BUCKET}" not found, but proceeding with upload anyway for testing.`);
-      }
-      
-      // Generate a unique file path
+      await ensureStorageBucket(AVATAR_BUCKET);
+
       const fileExt = file.name.split('.').pop();
       const tempId = employeeId || 'temp_' + Math.random().toString(36).substring(2, 11);
       const fileName = `${tempId}_${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
-      
-      // Upload file to storage
-      const { error: uploadError, data: uploadData } = await supabase.storage
+
+      const { error: uploadError } = await supabase.storage
         .from(AVATAR_BUCKET)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: true,
         });
-        
+
       if (uploadError) throw uploadError;
-      
-      // Get the public URL
+
       const { data: urlData } = supabase.storage
         .from(AVATAR_BUCKET)
         .getPublicUrl(filePath);
-      
-      const publicUrl = urlData.publicUrl;
-      
-      // Update component state
-      setAvatarUrl(publicUrl);
-      
-      // If we have an employee ID, update the profile picture in the database
-      if (employeeId) {
-        const safeUserId = user.id?.trim();
-        if (!safeUserId) throw new Error("Missing user ID for profile update.");
 
+      const publicUrl = urlData.publicUrl;
+      setAvatarUrl(publicUrl);
+
+      if (employeeId) {
         const { error: updateError } = await supabase
           .from('employees')
           .update({ profile_picture: publicUrl })
           .eq('id', employeeId)
-          .eq('user_id', safeUserId);
-          
+          .eq('user_id', user.id);
+
         if (updateError) throw updateError;
       }
-      
+
       toast({
         title: 'Photo Uploaded',
         description: 'Profile photo has been updated successfully.',
@@ -171,21 +140,21 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
     fileInputRef.current?.click();
   };
 
-  const initials = employeeId 
-    ? currentPhotoUrl 
-      ? '' 
-      : '?' 
+  const initials = employeeId
+    ? currentPhotoUrl
+      ? ''
+      : '?'
     : 'New';
 
   return (
-    <div className="relative">
-      <Avatar className="h-20 w-20 border-2 border-gray-200">
+    <div className="relative flex-shrink-0">
+      <Avatar className="h-20 w-20 min-w-[80px] min-h-[80px] border-2 border-gray-200 overflow-hidden">
         <AvatarImage src={avatarUrl || currentPhotoUrl} />
         <AvatarFallback className="bg-hrflow-blue text-white text-xl">
           {initials}
         </AvatarFallback>
       </Avatar>
-      
+
       {!disabled && (
         <div className="absolute -bottom-2 -right-2">
           <input
@@ -195,7 +164,6 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
             className="hidden"
             accept="image/jpeg,image/png,image/jpg"
           />
-          
           <Button
             type="button"
             size="sm"
@@ -212,11 +180,11 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
           </Button>
         </div>
       )}
-      
+
       {bucketError && (
         <div className="absolute -bottom-2 -right-2">
           <div className="bg-red-100 text-red-600 text-xs p-1 rounded">
-            <span role="img" aria-label="Error">⚠️</span>
+            ⚠️
           </div>
         </div>
       )}
