@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { supabase, AVATAR_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
+import { supabase, AVATAR_BUCKET, ensureAvatarBucket } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui-custom/Button';
 
@@ -36,7 +36,7 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
   useEffect(() => {
     const checkBucket = async () => {
       setBucketError(null);
-      const bucketReady = await ensureStorageBucket(AVATAR_BUCKET);
+      const bucketReady = await ensureAvatarBucket();
       if (!bucketReady) {
         setBucketError('Profile photo storage is not properly configured. Please contact an administrator.');
       }

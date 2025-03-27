@@ -24,9 +24,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 export const STORAGE_BUCKET = 'employee-documents';
 export const AVATAR_BUCKET = 'employee-photos';
 
-// Helper function to check if the buckets exist and are accessible
+// Helper function to check if the buckets exist and create them if they don't
 export const ensureStorageBucket = async (bucketName: string = STORAGE_BUCKET): Promise<boolean> => {
   try {
+    console.log(`Checking for bucket: ${bucketName}`);
+    
+    // Step 1: Check if the bucket exists
     const { data: buckets, error: bucketsError } = await supabase
       .storage
       .listBuckets();
@@ -38,14 +41,37 @@ export const ensureStorageBucket = async (bucketName: string = STORAGE_BUCKET): 
     
     const bucketExists = buckets?.some(b => b.name === bucketName);
     
+    // Step 2: If the bucket doesn't exist, create it
     if (!bucketExists) {
-      console.error(`Bucket ${bucketName} not found. Please check Supabase Storage setup.`);
-      return false;
+      console.log(`Bucket ${bucketName} not found. Creating it now...`);
+      
+      const { error: createError } = await supabase
+        .storage
+        .createBucket(bucketName, {
+          public: true, // Make the bucket public by default
+          fileSizeLimit: 10485760, // 10MB limit
+          allowedMimeTypes: ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+        });
+      
+      if (createError) {
+        console.error(`Error creating bucket ${bucketName}:`, createError);
+        return false;
+      }
+      
+      console.log(`Successfully created bucket: ${bucketName}`);
+      return true;
     }
     
+    console.log(`Bucket ${bucketName} exists`);
     return true;
   } catch (error) {
     console.error('Unexpected error ensuring storage bucket:', error);
     return false;
   }
 };
+
+// Helper function to specifically ensure the avatar bucket exists
+export const ensureAvatarBucket = async (): Promise<boolean> => {
+  return ensureStorageBucket(AVATAR_BUCKET);
+};
+
