@@ -54,6 +54,16 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
       return;
     }
 
+    const safeUserId = user.id?.trim();
+    if (!safeUserId) {
+      toast({
+        title: 'Authentication Error',
+        description: 'User ID is missing. Please log in again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!file) {
       toast({
         title: 'No File Selected',
@@ -122,11 +132,14 @@ export const ProfilePhotoUploader: React.FC<ProfilePhotoUploaderProps> = ({
       
       // If we have an employee ID, update the profile picture in the database
       if (employeeId) {
+        const safeUserId = user.id?.trim();
+        if (!safeUserId) throw new Error("Missing user ID for profile update.");
+
         const { error: updateError } = await supabase
           .from('employees')
           .update({ profile_picture: publicUrl })
           .eq('id', employeeId)
-          .eq('user_id', user.id);
+          .eq('user_id', safeUserId);
           
         if (updateError) throw updateError;
       }

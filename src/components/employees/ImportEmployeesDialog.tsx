@@ -77,8 +77,11 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
               blankrows: false 
             })[0] as string[] : [];
           
+          const safeUserId = user.id?.trim();
+          if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
+          
           const employees = filteredData.map(row => {
-            const employee: any = { user_id: user.id };
+            const employee: any = { user_id: safeUserId };
             
             headers.forEach((header, index) => {
               if (header && row[index] !== undefined) {

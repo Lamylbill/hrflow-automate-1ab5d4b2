@@ -92,6 +92,16 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
       return;
     }
 
+    const safeUserId = user.id?.trim();
+    if (!safeUserId) {
+      toast({
+        title: 'Authentication Error',
+        description: 'User ID is missing. Please log in again.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     if (files.length === 0) {
       toast({
         title: 'No Files',
@@ -157,11 +167,16 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({
             f.id === fileItem.id ? { ...f, progress: 70 } : f
           ));
 
+          const safeUserId = user.id?.trim();
+          if (!safeUserId) {
+            throw new Error('Missing user ID. Please log in again.');
+          }
+
           const { error: dbError } = await supabase
             .from('employee_documents')
             .insert({
               employee_id: employeeId,
-              user_id: user.id,
+              user_id: safeUserId,
               file_name: fileItem.file.name,
               file_type: fileItem.file.type,
               file_size: fileItem.file.size,
