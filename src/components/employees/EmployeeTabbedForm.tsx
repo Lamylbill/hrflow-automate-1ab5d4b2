@@ -126,8 +126,9 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="overflow-x-auto">
-            <TabsList className="flex space-x-2 border-b">
+          {/* Scrollable tab bar wrapper */}
+          <div className="overflow-x-auto scrollbar-hide border-b pb-1 -mx-2 px-2">
+            <TabsList className="flex w-max min-w-full gap-2">
               <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
               <TabsTrigger value="job-details">Job Details</TabsTrigger>
               <TabsTrigger value="compensation">Compensation</TabsTrigger>
