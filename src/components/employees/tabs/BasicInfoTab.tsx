@@ -42,22 +42,33 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
         {/* Core Fields */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="first_name">First Name *</Label>
+            <Label htmlFor="full_name">Full Name *</Label>
+            <Input
+              id="full_name"
+              {...register('employee.full_name', { required: "Full name is required" })}
+              disabled={isViewOnly}
+              required
+            />
+            {errors.employee?.full_name && (
+              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.full_name.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="first_name">First Name</Label>
             <Input
               id="first_name"
               {...register('employee.first_name')}
               disabled={isViewOnly}
-              required
             />
           </div>
 
           <div>
-            <Label htmlFor="last_name">Last Name *</Label>
+            <Label htmlFor="last_name">Last Name</Label>
             <Input
               id="last_name"
               {...register('employee.last_name')}
               disabled={isViewOnly}
-              required
             />
           </div>
 
@@ -112,7 +123,9 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               )}
             />
           </div>
+        </div>
 
+        <div className="space-y-4">
           <div>
             <Label htmlFor="identity_no">Identity Number</Label>
             <Input
@@ -121,9 +134,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               disabled={isViewOnly}
             />
           </div>
-        </div>
 
-        <div className="space-y-4">
           <div>
             <Label htmlFor="date_of_birth">Date of Birth</Label>
             <Controller
@@ -201,10 +212,13 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             <Input
               id="email"
               type="email"
-              {...register('employee.email')}
+              {...register('employee.email', { required: "Email is required" })}
               disabled={isViewOnly}
               required
             />
+            {errors.employee?.email && (
+              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.email.message}</p>
+            )}
           </div>
         </div>
       </div>
@@ -245,15 +259,6 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               <Input
                 id="middle_name"
                 {...register('employee.middle_name')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="full_name">Full Name</Label>
-              <Input
-                id="full_name"
-                {...register('employee.full_name')}
                 disabled={isViewOnly}
               />
             </div>

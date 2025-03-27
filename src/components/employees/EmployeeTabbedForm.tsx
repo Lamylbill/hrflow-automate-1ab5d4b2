@@ -129,6 +129,16 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     // Set the user_id again just to be sure
     data.employee.user_id = userId;
     
+    // Validate required fields
+    if (!data.employee.email || !data.employee.full_name) {
+      toast({
+        title: 'Missing Required Fields',
+        description: 'Email and full name are required fields.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -151,19 +161,22 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         const employeeData = Object.keys(data.employee).reduce((acc, key) => {
           const value = data.employee[key as keyof typeof data.employee];
           // For UUID fields, convert empty strings to null
-          const isEmptyUUID = typeof value === 'string' && value === '' && key.includes('_id');
+          const isEmptyUUID = typeof value === 'string' && value === '' && key.includes('_id') && key !== 'user_id';
           acc[key as keyof typeof data.employee] = isEmptyUUID ? null : value;
           return acc;
         }, {} as Record<string, any>);
         
-        // Make sure required fields are present
-        if (!employeeData.email || !employeeData.full_name) {
-          throw new Error("Email and full name are required fields");
-        }
+        // Make sure required fields are included
+        const employeeInsertData = {
+          ...employeeData,
+          email: data.employee.email,
+          full_name: data.employee.full_name,
+          user_id: userId
+        };
         
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert(employeeData)
+          .insert(employeeInsertData)
           .select()
           .single();
           
@@ -177,7 +190,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
-        description: `${data.employee.full_name || data.employee.first_name + ' ' + data.employee.last_name} has been ${mode === 'create' ? 'added to' : 'updated in'} the system.`,
+        description: `${data.employee.full_name} has been ${mode === 'create' ? 'added to' : 'updated in'} the system.`,
       });
       
       // Call the success callback with the form data
@@ -234,9 +247,21 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             <h2 className="text-lg font-medium">
               {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
             </h2>
-            <p className="text-sm text-gray-500">
-              {mode === 'create' ? 'Add a new employee to your organization' : 'Edit employee information'}
-            </p>
+            {mode !== 'create' && !isViewOnly && (
+              <p className="text-sm text-gray-500">
+                Update employee information
+              </p>
+            )}
+            {mode === 'create' && (
+              <p className="text-sm text-gray-500">
+                Add a new employee to your organization
+              </p>
+            )}
+            {isViewOnly && (
+              <p className="text-sm text-gray-500">
+                Viewing employee details
+              </p>
+            )}
           </div>
         </div>
         

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   PlusCircle, Filter, Download, Trash, Edit, Eye, FileText,
-  RotateCw, Upload, X
+  RotateCw, Upload, X, Search, RefreshCw
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase, STORAGE_BUCKET, ensureStorageBucket } from '@/integrations/supabase/client';
 import {
-  getDisplayLabel
+  getDisplayLabel, DOCUMENT_CATEGORIES
 } from './DocumentCategoryTypes';
 import { DocumentUploader } from './DocumentUploader';
 import { useAuth } from '@/context/AuthContext';
@@ -62,6 +63,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [bucketError, setBucketError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -115,7 +117,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       );
 
       setDocuments(docs);
-      setFilteredDocuments(docs);
+      applyFilters(docs, searchTerm, selectedCategory);
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Failed to fetch documents');
@@ -134,6 +136,33 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       fetchDocuments();
     }
   }, [employeeId, refreshTrigger, user, bucketError]);
+
+  // Apply filters when search term or category changes
+  useEffect(() => {
+    applyFilters(documents, searchTerm, selectedCategory);
+  }, [searchTerm, selectedCategory, documents]);
+
+  // Filter function that applies both search term and category filters
+  const applyFilters = (docs: Document[], search: string, category: string | null) => {
+    let filtered = [...docs];
+    
+    // Apply category filter
+    if (category) {
+      filtered = filtered.filter(doc => doc.document_category === category);
+    }
+    
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter(doc => 
+        doc.file_name.toLowerCase().includes(searchLower) ||
+        (doc.document_type && doc.document_type.toLowerCase().includes(searchLower)) ||
+        (doc.document_category && doc.document_category.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    setFilteredDocuments(filtered);
+  };
 
   const handleDelete = async (documentId: string) => {
     if (!user) return;
@@ -180,6 +209,24 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   const formatDate = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('en-SG', { year: 'numeric', month: 'short', day: 'numeric' });
 
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory(null);
+  };
+
+  const hasActiveFilters = searchTerm || selectedCategory;
+
+  // Calculate and memoize category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    documents.forEach(doc => {
+      if (doc.document_category) {
+        counts[doc.document_category] = (counts[doc.document_category] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [documents]);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -190,12 +237,45 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         </Button>
       </div>
 
-      <div className="w-full sm:w-64">
-        <Input
-          placeholder="Search documents..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+          <Input
+            placeholder="Search documents..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        
+        {hasActiveFilters && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={clearFilters} 
+            className="whitespace-nowrap"
+          >
+            <RefreshCw className="w-4 h-4 mr-1" />
+            Clear Filters
+          </Button>
+        )}
+      </div>
+      
+      {/* Category filter buttons */}
+      <div className="flex flex-wrap gap-2">
+        {DOCUMENT_CATEGORIES.map(category => (
+          <Badge 
+            key={category}
+            variant={selectedCategory === category ? "default" : "outline"}
+            className={`cursor-pointer hover:bg-gray-100 ${
+              selectedCategory === category ? 'bg-primary text-primary-foreground hover:bg-primary' : ''
+            }`}
+            onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+          >
+            {getDisplayLabel(category)}
+            {categoryCounts[category] ? ` (${categoryCounts[category]})` : ''}
+          </Badge>
+        ))}
       </div>
 
       {bucketError && (
@@ -210,7 +290,11 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       ) : error ? (
         <div className="text-center text-red-500">{error}</div>
       ) : filteredDocuments.length === 0 ? (
-        <p className="text-gray-500 text-center">No documents found.</p>
+        <p className="text-gray-500 text-center">
+          {documents.length === 0 
+            ? "No documents found. Upload documents to get started." 
+            : "No documents match your search criteria."}
+        </p>
       ) : (
         <div className="overflow-auto border rounded-md">
           <Table>
@@ -230,7 +314,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                   <TableCell className="font-medium truncate">{doc.file_name}</TableCell>
                   <TableCell>
                     {doc.document_category && (
-                      <Badge variant="outline">{doc.document_category}</Badge>
+                      <Badge variant="outline">{getDisplayLabel(doc.document_category)}</Badge>
                     )}
                   </TableCell>
                   <TableCell>{doc.document_type}</TableCell>
