@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -104,11 +103,18 @@ export const DashboardSidebar = () => {
     
     const metadata = user.user_metadata || {};
     if (metadata.full_name) {
-      return metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+      return metadata.full_name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
     }
     
     return user.email.substring(0, 2).toUpperCase();
   };
+
+  const avatarImageUrl = user?.user_metadata?.avatar_url || null;
 
   const toggleCollapse = () => {
     setCollapsed(!collapsed);
@@ -126,7 +132,7 @@ export const DashboardSidebar = () => {
     navigate('/');
   };
 
-  const avatarImageUrl = user?.user_metadata?.avatar_url || null;
+  
 
   return (
     <aside
@@ -197,7 +203,11 @@ export const DashboardSidebar = () => {
             <TooltipTrigger asChild>
               <Avatar className={cn("bg-indigo-600", collapsed ? "h-10 w-10" : "h-12 w-12")}>
                 {avatarImageUrl ? (
-                  <AvatarImage src={avatarImageUrl} alt="Profile" />
+                  <AvatarImage 
+                    src={avatarImageUrl} 
+                    alt="Profile" 
+                    className="object-cover w-full h-full rounded-full"
+                  />
                 ) : (
                   <AvatarFallback className="text-white font-medium">
                     {getUserInitials()}
@@ -256,7 +266,7 @@ export const DashboardSidebar = () => {
                   <NotificationBell className="text-indigo-700 hover:text-indigo-500" />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
+              <TooltipContent side="right" align="center">
                 Notifications
               </TooltipContent>
             </Tooltip>

@@ -1,22 +1,8 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  FileText, 
-  Calendar, 
-  BarChart,
-  LogOut,
-  Settings,
-  Menu,
-  X
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui-custom/Button';
-import { useAuth } from '@/context/AuthContext';
+import { LogOut, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { NotificationBell } from '@/components/ui-custom/NotificationBell';
+import { useAuth } from '@/context/AuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,32 +11,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui-custom/Button";
 
 export const TopNavbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
-    { name: 'Employees', path: '/employees', icon: <Users className="h-5 w-5" /> },
-    { name: 'Leave', path: '/leave', icon: <Calendar className="h-5 w-5" /> },
-    { name: 'Payroll', path: '/payroll', icon: <FileText className="h-5 w-5" /> },
-    { name: 'Activity Log', path: '/activity', icon: <BarChart className="h-5 w-5" /> },
-  ];
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
     
     const metadata = user.user_metadata || {};
     if (metadata.full_name) {
-      return metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+      return metadata.full_name
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
     }
     
     return user.email.substring(0, 2).toUpperCase();
@@ -102,9 +80,13 @@ export const TopNavbar = () => {
                     <span className="text-indigo-800 font-medium text-sm">My Account</span>
                     <Avatar className="h-8 w-8 border-2 border-indigo-600/20">
                       {avatarImageUrl ? (
-                        <AvatarImage src={avatarImageUrl} alt="Profile" />
+                        <AvatarImage 
+                          src={avatarImageUrl} 
+                          alt="Profile" 
+                          className="object-cover w-full h-full rounded-full"
+                        />
                       ) : (
-                        <AvatarFallback className="bg-indigo-600 text-white">
+                        <AvatarFallback className="bg-indigo-600 text-white text-sm font-medium">
                           {getUserInitials()}
                         </AvatarFallback>
                       )}
@@ -130,7 +112,6 @@ export const TopNavbar = () => {
             </DropdownMenu>
           </div>
           
-          {/* Mobile menu button */}
           <div className="md:hidden">
             <Button 
               variant="ghost" 
