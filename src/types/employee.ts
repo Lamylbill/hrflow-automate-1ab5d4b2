@@ -252,12 +252,14 @@ export interface EmployeeAppraisalRating {
 
 // Type for creating or updating an employee with related entities
 export interface EmployeeFormData {
-  employee: Employee; // Changed from Omit to include id, user_id, created_at, and updated_at
-  allowances?: EmployeeAllowance[]; // Changed to allow full type including id and employee_id
-  familyMembers?: EmployeeFamilyMember[]; // Changed to allow full type including id and employee_id
-  education?: EmployeeEducation[]; // Changed to allow full type including id and employee_id
-  workExperience?: EmployeeWorkExperience[]; // Changed to allow full type including id and employee_id
-  appraisalRatings?: EmployeeAppraisalRating[]; // Changed to allow full type including id and employee_id
+  employee: Employee & {
+    nationality_other?: string | null; // Used for conditional form logic only, not stored in DB
+  };
+  allowances?: EmployeeAllowance[];
+  familyMembers?: EmployeeFamilyMember[];
+  education?: EmployeeEducation[];
+  workExperience?: EmployeeWorkExperience[];
+  appraisalRatings?: EmployeeAppraisalRating[];
   documents?: File[];
 }
 
