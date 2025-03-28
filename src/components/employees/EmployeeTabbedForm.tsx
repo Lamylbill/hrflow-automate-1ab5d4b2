@@ -119,17 +119,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (
-          typeof cleanedObj[key] === 'string' &&
-          cleanedObj[key] === '' &&
-          (key.endsWith('_id') || key === 'id' || key === 'related_id')
-        ) {
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
+            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
-        } else if (
-          cleanedObj[key] &&
-          typeof cleanedObj[key] === 'object' &&
-          !Array.isArray(cleanedObj[key])
-        ) {
+        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -210,7 +203,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 max-h-full overflow-hidden flex flex-col"
+        className="flex flex-col max-h-full overflow-hidden"
       >
         <div className="flex items-center mb-4">
           <ProfilePhotoUploader
@@ -241,17 +234,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        {isMobile ? (
-          <div className="px-4">
-            <Select
-              options={TAB_OPTIONS}
-              value={activeTab}
-              onValueChange={(val: string) => setActiveTab(val)}
-            />
-          </div>
-        ) : (
-          <div className="border-b px-4">
-            <TabsList className="grid grid-cols-6 w-full">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex-1 flex flex-col overflow-hidden"
+        >
+          <div className="border-b px-2 sm:px-4">
+            <TabsList className="grid grid-cols-6 w-full text-sm font-semibold">
               {TAB_OPTIONS.map((tab) => (
                 <TabsTrigger key={tab.value} value={tab.value}>
                   {tab.label}
@@ -259,37 +248,57 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               ))}
             </TabsList>
           </div>
-        )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
-          <div className="flex-1 overflow-auto py-6">
-            <TabsContent value="basic-info" className="p-4">
-              <BasicInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+          <div className="flex-1 overflow-auto py-6 px-4">
+            <TabsContent value="basic-info" className="p-0">
+              <BasicInfoTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
-            <TabsContent value="job-details" className="p-4">
-              <JobDetailsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            <TabsContent value="job-details" className="p-0">
+              <JobDetailsTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
-            <TabsContent value="compensation" className="p-4">
-              <CompensationTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            <TabsContent value="compensation" className="p-0">
+              <CompensationTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
-            <TabsContent value="compliance" className="p-4">
-              <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            <TabsContent value="compliance" className="p-0">
+              <ComplianceTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
-            <TabsContent value="documents" className="p-4">
-              <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />
+            <TabsContent value="documents" className="p-0">
+              <DocumentsTab
+                isViewOnly={isViewOnly}
+                employeeId={employeeData?.id}
+                onSaveRequested={
+                  !employeeData?.id ? handleSubmit(onSubmit) : undefined
+                }
+              />
             </TabsContent>
-            <TabsContent value="others" className="p-4">
-              <OthersTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            <TabsContent value="others" className="p-0">
+              <OthersTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
           </div>
         </Tabs>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2 pt-4 bg-white px-4 pb-6">
+          <div className="sticky bottom-0 z-30 bg-white px-4 pt-4 pb-[clamp(16px,4vh,32px)] border-t flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
