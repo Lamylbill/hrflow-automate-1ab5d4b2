@@ -240,23 +240,25 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <div className="px-4 pt-2 border-b">
-            {isMobile ? (
-              <Select
-                options={TAB_OPTIONS}
-                value={activeTab}
-                onValueChange={(val: string) => setActiveTab(val)}
-              />
-            ) : (
-              <TabsList className="grid grid-cols-6 w-full">
+          {!isMobile ? (
+            <div className="border-b">
+              <TabsList className="w-full grid grid-cols-6">
                 {TAB_OPTIONS.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
                   </TabsTrigger>
                 ))}
               </TabsList>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="px-4">
+              <Select
+                options={TAB_OPTIONS}
+                value={activeTab}
+                onValueChange={(val: string) => setActiveTab(val)}
+              />
+            </div>
+          )}
 
           <div className="flex-1 overflow-auto py-6">
             <TabsContent value="basic-info" className="p-4">
