@@ -76,10 +76,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Dashboard layout with sidebar and top navbar
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <TopNavbar />
-      <div className="flex-1 overflow-auto pt-16">
-        <div className="container mx-auto px-6 py-6">
+    <div className="flex h-screen bg-gray-50">
+      <DashboardSidebar />
+      <div className="flex-1 overflow-auto pl-[var(--sidebar-width,250px)]">
+        <TopNavbar />
+        <div className="container mx-auto px-6 py-8 pt-20">
           <Suspense fallback={
             <div className="flex items-center justify-center h-[calc(100vh-128px)]">
               <LoadingSpinner size="lg" />

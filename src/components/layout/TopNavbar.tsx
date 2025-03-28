@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Settings, Menu, X } from 'lucide-react';
+import { LogOut, Settings, Menu, X, Bell } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -13,12 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui-custom/Button";
-import { NotificationBell } from '@/components/ui-custom/NotificationBell';
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-} from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { getNavItems } from './NavItems';
 
@@ -48,41 +42,25 @@ export const TopNavbar = () => {
   const avatarImageUrl = user?.user_metadata?.avatar_url || null;
 
   return (
-    <header className="bg-white border-b border-gray-200 fixed w-full z-30">
-      <nav className="container mx-auto px-6 py-3">
+    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-[var(--sidebar-width,250px)] z-30">
+      <nav className="px-6 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center gap-2 mr-10">
-              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
-              <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
-            </Link>
-            
-            <div className="hidden md:block">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  {navItems.map((item) => (
-                    <NavigationMenuItem key={item.href}>
-                      <Link
-                        to={item.href}
-                        className={cn(
-                          "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                          location.pathname === item.href
-                            ? "bg-indigo-600 text-white"
-                            : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-600"
-                        )}
-                      >
-                        <span className="mr-2">{item.icon}</span>
-                        {item.name}
-                      </Link>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="text-indigo-800"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
           
-          <div className="hidden md:flex items-center space-x-4">
-            <NotificationBell className="text-indigo-700 hover:text-indigo-500" />
+          <div className="hidden md:flex items-center space-x-4 ml-auto">
+            <button className="text-indigo-700 hover:text-indigo-500">
+              <Bell className="h-5 w-5" />
+            </button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -121,18 +99,6 @@ export const TopNavbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-          
-          <div className="md:hidden">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              className="text-indigo-800"
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
           </div>
         </div>
 
