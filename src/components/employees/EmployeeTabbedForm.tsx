@@ -1,5 +1,3 @@
-// src/components/employees/EmployeeTabbedForm.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -235,14 +234,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
           {!isMobile ? (
-            <div className="border-b">
-              <TabsList className="w-full grid grid-cols-6">
+            <div className="overflow-x-auto border-b px-4">
+              <TabsList className="grid grid-cols-6 w-full">
                 {TAB_OPTIONS.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
