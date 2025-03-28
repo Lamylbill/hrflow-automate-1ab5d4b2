@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
-import { Save } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui-custom/Button';
+import React, { useState, useEffect } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui-custom/Button";
+import { useForm, FormProvider } from "react-hook-form";
+import { Upload, Save, AlertCircle } from 'lucide-react';
+import { EmployeeFormData, Employee } from '@/types/employee';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { Employee, EmployeeFormData } from '@/types/employee';
+import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
@@ -14,6 +16,7 @@ import { CompensationTab } from './tabs/CompensationTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
+import { ProfilePhotoUploader } from './ProfilePhotoUploader';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -30,110 +33,171 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   onCancel,
   isViewOnly = false,
   mode,
-  defaultTab = 'basic-info'
+  defaultTab = "basic-info"
 }) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const isMobile = useIsMobile();
 
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
       employee: {
+        id: '',
+        user_id: '',
         email: '',
         full_name: '',
-        user_id: user?.id || '',
       }
     }
   });
 
-  const { handleSubmit, watch, setValue } = methods;
-  const employee = watch('employee');
-
   useEffect(() => {
-    if (user?.id) {
-      setValue('employee.user_id', user.id);
-    }
-  }, [user, setValue]);
+    const checkUserStatus = async () => {
+      setAuthError(null);
+      if (user?.id) {
+        methods.setValue('employee.user_id', user.id);
+        setIsUserLoaded(true);
+        return;
+      }
+
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          setAuthError("Failed to retrieve user session.");
+          return;
+        }
+
+        if (session?.user?.id) {
+          methods.setValue('employee.user_id', session.user.id);
+          setIsUserLoaded(true);
+        } else {
+          setAuthError("You must be logged in.");
+        }
+      } catch {
+        setAuthError("Authentication error.");
+      }
+    };
+
+    checkUserStatus();
+  }, [user, methods]);
+
+  const { handleSubmit, watch } = methods;
+  const employeeData = watch('employee');
 
   const onSubmit = async (data: EmployeeFormData) => {
-    const safeUserId = user?.id || data.employee.user_id;
-    if (!safeUserId) {
+    const userId = data.employee.user_id?.trim() || user?.id;
+
+    if (!userId) {
       toast({
-        title: 'User not authenticated',
-        description: 'Please log in again.',
-        variant: 'destructive'
+        title: 'Authentication Error',
+        description: 'You must be logged in to create or update an employee.',
+        variant: 'destructive',
       });
       return;
     }
 
-    const payload: Employee = {
+    const employeeDataForDb: Employee = {
       ...data.employee,
-      user_id: safeUserId,
+      user_id: userId,
+      email: data.employee.email || '',
       full_name: data.employee.full_name || `${data.employee.first_name || ''} ${data.employee.last_name || ''}`.trim(),
     };
 
-    if (!payload.email || !payload.full_name) {
+    if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
       toast({
         title: 'Validation Error',
-        description: 'Full name and email are required.',
-        variant: 'destructive'
+        description: 'Email and Full Name are required.',
+        variant: 'destructive',
       });
       return;
     }
 
     try {
       setIsSubmitting(true);
-      if (mode === 'create') {
-        const { data: inserted, error } = await supabase
+
+      if (mode === 'edit' && employeeDataForDb.id) {
+        const { error } = await supabase
           .from('employees')
-          .insert(payload)
+          .update(employeeDataForDb)
+          .eq('id', employeeDataForDb.id)
+          .eq('user_id', userId);
+
+        if (error) throw error;
+      } else if (mode === 'create') {
+        const { data: newEmployee, error } = await supabase
+          .from('employees')
+          .insert({
+            ...employeeDataForDb,
+            user_id: userId,
+          })
           .select()
           .single();
 
         if (error) throw error;
-        if (inserted?.id) {
-          data.employee.id = inserted.id;
+        if (newEmployee) {
+          data.employee.id = newEmployee.id;
         }
-      } else if (mode === 'edit') {
-        const { error } = await supabase
-          .from('employees')
-          .update(payload)
-          .eq('id', payload.id)
-          .eq('user_id', safeUserId);
-
-        if (error) throw error;
       }
 
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
-        description: `${payload.full_name} saved successfully.`
+        description: `${employeeDataForDb.full_name} has been saved.`,
       });
 
       onSuccess(data);
+      if (mode === 'create') setTimeout(() => setActiveTab("documents"), 500);
+
     } catch (error: any) {
-      console.error(error);
       toast({
-        title: 'Save Error',
-        description: error.message || 'An error occurred',
-        variant: 'destructive'
+        title: 'Error',
+        description: error.message || 'Error saving employee.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const toggleAdvancedFields = (value: boolean) => {
-    setShowAdvancedFields(value);
-  };
+  const handleTabChange = (value: string) => setActiveTab(value);
+  const toggleAdvancedFields = (value: boolean) => setShowAdvancedFields(value);
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="overflow-x-auto">
-            <TabsList className="flex min-w-[700px] border-b">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
+        <div className="flex items-center mb-4">
+          <ProfilePhotoUploader
+            employeeId={employeeData?.id}
+            currentPhotoUrl={employeeData?.profile_picture}
+            disabled={isViewOnly}
+          />
+          <div className="ml-4">
+            <h2 className="text-lg font-medium">
+              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
+            </h2>
+            <p className="text-sm text-gray-500">
+              {isViewOnly
+                ? 'Viewing employee details'
+                : mode === 'create'
+                ? 'Add a new employee'
+                : 'Update employee information'}
+            </p>
+          </div>
+        </div>
+
+        {authError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
+
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
+          <div className="overflow-x-auto border-b -mx-2 px-2">
+            <TabsList className="flex flex-nowrap gap-1 min-w-max">
               <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
               <TabsTrigger value="job-details">Job Details</TabsTrigger>
               <TabsTrigger value="compensation">Compensation</TabsTrigger>
@@ -143,62 +207,72 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             </TabsList>
           </div>
 
-          <TabsContent value="basic-info">
-            <BasicInfoTab 
-              isViewOnly={isViewOnly} 
-              showAdvancedFields={showAdvancedFields}
-              onToggleAdvanced={toggleAdvancedFields}
-            />
-          </TabsContent>
-
-          <TabsContent value="job-details">
-            <JobDetailsTab 
-              isViewOnly={isViewOnly} 
-              showAdvancedFields={showAdvancedFields}
-              onToggleAdvanced={toggleAdvancedFields}
-            />
-          </TabsContent>
-
-          <TabsContent value="compensation">
-            <CompensationTab 
-              isViewOnly={isViewOnly} 
-              showAdvancedFields={showAdvancedFields}
-              onToggleAdvanced={toggleAdvancedFields}
-            />
-          </TabsContent>
-
-          <TabsContent value="compliance">
-            <ComplianceTab 
-              isViewOnly={isViewOnly} 
-              showAdvancedFields={showAdvancedFields}
-              onToggleAdvanced={toggleAdvancedFields}
-            />
-          </TabsContent>
-
-          <TabsContent value="documents">
-            <DocumentsTab 
-              isViewOnly={isViewOnly}
-              employeeId={employee?.id}
-            />
-          </TabsContent>
-
-          <TabsContent value="others">
-            <OthersTab 
-              isViewOnly={isViewOnly}
-              showAdvancedFields={showAdvancedFields}
-              onToggleAdvanced={toggleAdvancedFields}
-            />
-          </TabsContent>
+          <div className="flex-1 overflow-auto py-6">
+            <TabsContent value="basic-info" className="p-4">
+              <BasicInfoTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
+            </TabsContent>
+            <TabsContent value="job-details" className="p-4">
+              <JobDetailsTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
+            </TabsContent>
+            <TabsContent value="compensation" className="p-4">
+              <CompensationTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
+            </TabsContent>
+            <TabsContent value="compliance" className="p-4">
+              <ComplianceTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
+            </TabsContent>
+            <TabsContent value="documents" className="p-4">
+              <DocumentsTab
+                isViewOnly={isViewOnly}
+                employeeId={employeeData?.id}
+                onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined}
+              />
+            </TabsContent>
+            <TabsContent value="others" className="p-4">
+              <OthersTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={toggleAdvancedFields}
+              />
+            </TabsContent>
+          </div>
         </Tabs>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>
-              <Save className="w-4 h-4 mr-2" />
-              {isSubmitting ? 'Saving...' : 'Save'}
+          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting || !isUserLoaded || !!authError}>
+              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
             </Button>
           </div>
+        )}
+
+        {!isViewOnly && employeeData?.id && activeTab !== 'documents' && (
+          <Button
+            variant="primary"
+            className={`fixed bottom-20 right-4 z-20 ${isMobile ? 'rounded-full w-14 h-14 p-0' : ''}`}
+            onClick={() => setActiveTab("documents")}
+          >
+            <Upload className={`h-${isMobile ? '6' : '4'} w-${isMobile ? '6' : '4'} ${isMobile ? '' : 'mr-2'}`} />
+            {!isMobile && "Manage Documents"}
+          </Button>
         )}
       </form>
     </FormProvider>
