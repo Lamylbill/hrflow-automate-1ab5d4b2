@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,10 +7,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Upload, AlertCircle } from 'lucide-react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -29,13 +29,13 @@ interface EmployeeTabbedFormProps {
   defaultTab?: string;
 }
 
-const TAB_OPTIONS = [
-  { value: 'basic-info', label: 'Basic Info' },
-  { value: 'job-details', label: 'Job Details' },
-  { value: 'compensation', label: 'Compensation' },
-  { value: 'compliance', label: 'Compliance' },
-  { value: 'documents', label: 'Documents' },
-  { value: 'others', label: 'Others' },
+const tabOptions = [
+  { label: 'Basic Info', value: 'basic-info' },
+  { label: 'Job Details', value: 'job-details' },
+  { label: 'Compensation', value: 'compensation' },
+  { label: 'Compliance', value: 'compliance' },
+  { label: 'Documents', value: 'documents' },
+  { label: 'Others', value: 'others' },
 ];
 
 export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
@@ -101,7 +101,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
   const onSubmit = async (data: EmployeeFormData) => {
     const userId = data.employee.user_id?.trim() || user?.id;
-
     if (!userId) {
       toast({
         title: 'Authentication Error',
@@ -119,7 +118,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' && 
             (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
         } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
@@ -162,13 +161,9 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         if (error) throw error;
       } else if (mode === 'create') {
         const { id, ...createData } = employeeDataForDb;
-
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...createData,
-            user_id: userId,
-          })
+          .insert({ ...createData, user_id: userId })
           .select()
           .single();
 
@@ -213,9 +208,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
-              {mode === 'create'
-                ? 'New Employee'
-                : employeeData?.full_name || 'Employee Details'}
+              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
             </h2>
             <p className="text-sm text-gray-500">
               {isViewOnly
@@ -234,34 +227,46 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        {isMobile ? (
-          <div className="px-4">
-            <Select
-              options={TAB_OPTIONS}
-              value={activeTab}
-              onValueChange={(val: string) => setActiveTab(val)}
-            />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <div className="mb-2">
+            {isMobile ? (
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Tab" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tabOptions.map((tab) => (
+                    <SelectItem key={tab.value} value={tab.value}>
+                      {tab.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="flex justify-between bg-muted rounded-md p-1">
+                {tabOptions.map((tab) => (
+                  <button
+                    key={tab.value}
+                    className={`px-4 py-2 rounded-md font-medium text-sm ${
+                      activeTab === tab.value ? 'bg-white text-black' : 'text-gray-600 hover:text-black'
+                    }`}
+                    onClick={() => setActiveTab(tab.value)}
+                    type="button"
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="overflow-x-auto border-b px-4">
-            <TabsList className="grid grid-cols-6 w-full">
-              {TAB_OPTIONS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-        )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
-          <div className="flex-1 overflow-auto py-6">
+          <div className="flex-1 overflow-auto">
             <TabsContent value="basic-info" className="p-4">
-              <BasicInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+              <BasicInfoTab
+                isViewOnly={isViewOnly}
+                showAdvancedFields={showAdvancedFields}
+                onToggleAdvanced={setShowAdvancedFields}
+              />
             </TabsContent>
             <TabsContent value="job-details" className="p-4">
               <JobDetailsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
@@ -273,7 +278,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
             <TabsContent value="documents" className="p-4">
-              <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />
+              <DocumentsTab
+                isViewOnly={isViewOnly}
+                employeeId={employeeData?.id}
+                onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined}
+              />
             </TabsContent>
             <TabsContent value="others" className="p-4">
               <OthersTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
