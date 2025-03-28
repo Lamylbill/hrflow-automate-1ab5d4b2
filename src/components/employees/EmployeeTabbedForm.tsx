@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,10 +7,16 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Upload, AlertCircle } from 'lucide-react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -119,10 +124,17 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
-            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
+        if (
+          typeof cleanedObj[key] === 'string' &&
+          cleanedObj[key] === '' &&
+          (key.endsWith('_id') || key === 'id' || key === 'related_id')
+        ) {
           cleanedObj[key] = null;
-        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+        } else if (
+          cleanedObj[key] &&
+          typeof cleanedObj[key] === 'object' &&
+          !Array.isArray(cleanedObj[key])
+        ) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -243,10 +255,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             />
           </div>
         ) : (
-          <div className="overflow-x-auto border-b px-4">
-            <TabsList className="grid grid-cols-6 w-full">
+          <div className="border-b px-4">
+            <TabsList className="flex justify-between w-full">
               {TAB_OPTIONS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="flex-1 text-center"
+                >
                   {tab.label}
                 </TabsTrigger>
               ))}
