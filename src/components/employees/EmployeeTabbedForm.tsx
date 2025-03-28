@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,13 +5,11 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, Save, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -20,6 +17,15 @@ import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
 import { ProfilePhotoUploader } from './ProfilePhotoUploader';
+
+const TAB_OPTIONS = [
+  { value: 'basic-info', label: 'Basic Info' },
+  { value: 'job-details', label: 'Job Details' },
+  { value: 'compensation', label: 'Compensation' },
+  { value: 'compliance', label: 'Compliance' },
+  { value: 'documents', label: 'Documents' },
+  { value: 'others', label: 'Others' },
+];
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -103,24 +109,18 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       return;
     }
 
-    // Destructure nationality_other for local use
     const { nationality_other, ...rest } = data.employee;
-
     if (rest.nationality === 'Other' && nationality_other?.trim()) {
       rest.nationality = nationality_other.trim();
     }
 
-    // Clean up the data to prevent empty string UUIDs
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        // Convert empty strings for UUID fields to null
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' && 
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
             (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
-        }
-        // Process nested objects
-        else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -159,9 +159,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         if (error) throw error;
       } else if (mode === 'create') {
-        // For create, exclude the id field completely
         const { id, ...createData } = employeeDataForDb;
-        
+
         const { data: newEmployee, error } = await supabase
           .from('employees')
           .insert({
@@ -233,101 +232,58 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        {isMobile ? (
-          <div className="mb-4">
-            <Select value={activeTab} onValueChange={setActiveTab}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Tab" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="basic-info">Basic Info</SelectItem>
-                <SelectItem value="job-details">Job Details</SelectItem>
-                <SelectItem value="compensation">Compensation</SelectItem>
-                <SelectItem value="compliance">Compliance</SelectItem>
-                <SelectItem value="documents">Documents</SelectItem>
-                <SelectItem value="others">Others</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        ) : (
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="flex-1 flex flex-col overflow-hidden"
-          >
-            <div className="overflow-x-auto overflow-y-hidden border-b -mx-2 px-2">
-              <TabsList className="flex w-full justify-between gap-1 min-w-max">
-                <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
-                <TabsTrigger value="job-details">Job Details</TabsTrigger>
-                <TabsTrigger value="compensation">Compensation</TabsTrigger>
-                <TabsTrigger value="compliance">Compliance</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-                <TabsTrigger value="others">Others</TabsTrigger>
-              </TabsList>
-            </div>
-        
+        <Tabs
+          value={activeTab}
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <div className="overflow-x-auto border-b -mx-2 px-2">
-            <TabsList className="flex flex-nowrap gap-1 min-w-max">
-              <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
-              <TabsTrigger value="job-details">Job Details</TabsTrigger>
-              <TabsTrigger value="compensation">Compensation</TabsTrigger>
-              <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="others">Others</TabsTrigger>
-            </TabsList>
-          </div>
+          {isMobile ? (
+            <div className="px-4">
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
+              >
+                {TAB_OPTIONS.map((tab) => (
+                  <option key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="border-b px-4">
+              <TabsList className="grid grid-cols-6 w-full">
+                {TAB_OPTIONS.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          )}
 
           <div className="flex-1 overflow-auto py-6">
             <TabsContent value="basic-info" className="p-4">
-              <BasicInfoTab
-                isViewOnly={isViewOnly}
-                showAdvancedFields={showAdvancedFields}
-                onToggleAdvanced={setShowAdvancedFields}
-              />
+              <BasicInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
             <TabsContent value="job-details" className="p-4">
-              <JobDetailsTab
-                isViewOnly={isViewOnly}
-                showAdvancedFields={showAdvancedFields}
-                onToggleAdvanced={setShowAdvancedFields}
-              />
+              <JobDetailsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
             <TabsContent value="compensation" className="p-4">
-              <CompensationTab
-                isViewOnly={isViewOnly}
-                showAdvancedFields={showAdvancedFields}
-                onToggleAdvanced={setShowAdvancedFields}
-              />
+              <CompensationTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
             <TabsContent value="compliance" className="p-4">
-              <ComplianceTab
-                isViewOnly={isViewOnly}
-                showAdvancedFields={showAdvancedFields}
-                onToggleAdvanced={setShowAdvancedFields}
-              />
+              <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
             <TabsContent value="documents" className="p-4">
-              <DocumentsTab
-                isViewOnly={isViewOnly}
-                employeeId={employeeData?.id}
-                onSaveRequested={
-                  !employeeData?.id ? handleSubmit(onSubmit) : undefined
-                }
-              />
+              <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />
             </TabsContent>
             <TabsContent value="others" className="p-4">
-              <OthersTab
-                isViewOnly={isViewOnly}
-                showAdvancedFields={showAdvancedFields}
-                onToggleAdvanced={setShowAdvancedFields}
-              />
+              <OthersTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
           </div>
         </Tabs>
-        )}
 
         {!isViewOnly && (
           <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
