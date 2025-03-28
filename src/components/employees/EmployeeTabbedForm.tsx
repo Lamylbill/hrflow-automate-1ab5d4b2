@@ -10,8 +10,6 @@ import { Upload, AlertCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -19,6 +17,15 @@ import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
 import { ProfilePhotoUploader } from './ProfilePhotoUploader';
+
+const TAB_OPTIONS = [
+  { value: 'basic-info', label: 'Basic Info' },
+  { value: 'job-details', label: 'Job Details' },
+  { value: 'compensation', label: 'Compensation' },
+  { value: 'compliance', label: 'Compliance' },
+  { value: 'documents', label: 'Documents' },
+  { value: 'others', label: 'Others' },
+];
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -28,15 +35,6 @@ interface EmployeeTabbedFormProps {
   mode: 'create' | 'edit' | 'view';
   defaultTab?: string;
 }
-
-const TABS = [
-  { label: 'Basic Info', value: 'basic-info' },
-  { label: 'Job Details', value: 'job-details' },
-  { label: 'Compensation', value: 'compensation' },
-  { label: 'Compliance', value: 'compliance' },
-  { label: 'Documents', value: 'documents' },
-  { label: 'Others', value: 'others' },
-];
 
 export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   initialData,
@@ -241,23 +239,22 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         >
           {isMobile ? (
             <div className="px-4">
-              <Select value={activeTab} onValueChange={setActiveTab}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Section" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TABS.map((tab) => (
-                    <SelectItem key={tab.value} value={tab.value}>
-                      {tab.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
+              >
+                {TAB_OPTIONS.map((tab) => (
+                  <option key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </option>
+                ))}
+              </select>
             </div>
           ) : (
             <div className="border-b px-4">
               <TabsList className="grid grid-cols-6 w-full">
-                {TABS.map((tab) => (
+                {TAB_OPTIONS.map((tab) => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
                   </TabsTrigger>
