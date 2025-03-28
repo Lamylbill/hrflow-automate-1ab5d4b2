@@ -5,7 +5,7 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, Save, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
@@ -110,7 +110,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' && 
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
             (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
         } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
@@ -230,14 +230,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <div className="overflow-x-auto border-b -mx-2 px-2">
-            <TabsList className="flex w-full">
-              <TabsTrigger value="basic-info" className="flex-1">Basic Info</TabsTrigger>
-              <TabsTrigger value="job-details" className="flex-1">Job Details</TabsTrigger>
-              <TabsTrigger value="compensation" className="flex-1">Compensation</TabsTrigger>
-              <TabsTrigger value="compliance" className="flex-1">Compliance</TabsTrigger>
-              <TabsTrigger value="documents" className="flex-1">Documents</TabsTrigger>
-              <TabsTrigger value="others" className="flex-1">Others</TabsTrigger>
+          <div className="border-b px-2">
+            <TabsList className="w-full flex flex-wrap md:flex-nowrap justify-between md:justify-start gap-1">
+              <TabsTrigger value="basic-info" className="flex-1 md:flex-initial">Basic Info</TabsTrigger>
+              <TabsTrigger value="job-details" className="flex-1 md:flex-initial">Job Details</TabsTrigger>
+              <TabsTrigger value="compensation" className="flex-1 md:flex-initial">Compensation</TabsTrigger>
+              <TabsTrigger value="compliance" className="flex-1 md:flex-initial">Compliance</TabsTrigger>
+              <TabsTrigger value="documents" className="flex-1 md:flex-initial">Documents</TabsTrigger>
+              <TabsTrigger value="others" className="flex-1 md:flex-initial">Others</TabsTrigger>
             </TabsList>
           </div>
 
