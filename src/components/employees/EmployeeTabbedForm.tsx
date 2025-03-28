@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
 import { Upload, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Select } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -17,15 +19,6 @@ import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { OthersTab } from './tabs/OthersTab';
 import { ProfilePhotoUploader } from './ProfilePhotoUploader';
-
-const TAB_OPTIONS = [
-  { value: 'basic-info', label: 'Basic Info' },
-  { value: 'job-details', label: 'Job Details' },
-  { value: 'compensation', label: 'Compensation' },
-  { value: 'compliance', label: 'Compliance' },
-  { value: 'documents', label: 'Documents' },
-  { value: 'others', label: 'Others' },
-];
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -35,6 +28,15 @@ interface EmployeeTabbedFormProps {
   mode: 'create' | 'edit' | 'view';
   defaultTab?: string;
 }
+
+const TAB_OPTIONS = [
+  { value: 'basic-info', label: 'Basic Info' },
+  { value: 'job-details', label: 'Job Details' },
+  { value: 'compensation', label: 'Compensation' },
+  { value: 'compliance', label: 'Compliance' },
+  { value: 'documents', label: 'Documents' },
+  { value: 'others', label: 'Others' },
+];
 
 export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   initialData,
@@ -163,10 +165,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...createData,
-            user_id: userId,
-          })
+          .insert({ ...createData, user_id: userId })
           .select()
           .single();
 
@@ -199,10 +198,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 max-h-full overflow-hidden flex flex-col"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
         <div className="flex items-center mb-4">
           <ProfilePhotoUploader
             employeeId={employeeData?.id}
@@ -211,9 +207,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
-              {mode === 'create'
-                ? 'New Employee'
-                : employeeData?.full_name || 'Employee Details'}
+              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
             </h2>
             <p className="text-sm text-gray-500">
               {isViewOnly
@@ -232,24 +226,15 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
           {isMobile ? (
             <div className="px-4">
-              <select
+              <Select
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
-              >
-                {TAB_OPTIONS.map((tab) => (
-                  <option key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setActiveTab}
+                options={TAB_OPTIONS}
+                className="outline-none ring-0 focus:ring-0 focus:outline-none focus-visible:ring-0"
+              />
             </div>
           ) : (
             <div className="border-b px-4">
