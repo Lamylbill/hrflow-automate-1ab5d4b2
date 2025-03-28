@@ -108,11 +108,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     };
 
       if (
-    employeeDataForDb.nationality === 'Other' &&
-    employeeDataForDb.nationality_other?.trim()
-  ) {
-    employeeDataForDb.nationality = employeeDataForDb.nationality_other.trim();
-  }
+        employeeDataForDb.nationality === 'Other' &&
+        employeeDataForDb.nationality_other?.trim()
+    ) {
+        employeeDataForDb.nationality = employeeDataForDb.nationality_other.trim();
+    }
     
     if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
       toast({
