@@ -78,8 +78,10 @@ const ToastClose = React.forwardRef<
     )}
     toast-close=""
     onClick={(e) => {
-      e.stopPropagation(); // Prevent modal from closing
-      if (props.onClick) props.onClick(e); // Call user's handler if provided
+      e.stopPropagation(); // Prevent the click from reaching parent elements
+      if (typeof props.onClick === 'function') {
+        props.onClick(e); // Still call any custom handler if provided
+      }
     }}
     {...props}
   >
