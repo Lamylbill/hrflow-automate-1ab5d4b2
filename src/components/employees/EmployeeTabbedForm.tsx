@@ -91,38 +91,47 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const onSubmit = async (data: EmployeeFormData) => {
     const userId = data.employee.user_id?.trim() || user?.id;
 
-    if (!userId) {
-      toast({
-        title: 'Authentication Error',
-        description: 'You must be logged in to create or update an employee.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const onSubmit = async (data: EmployeeFormData) => {
+    const userId = data.employee.user_id?.trim() || user?.id;
 
-    const employeeDataForDb: Employee = {
-      ...data.employee,
-      user_id: userId,
-      email: data.employee.email || '',
-      full_name: data.employee.full_name || `${data.employee.first_name || ''} ${data.employee.last_name || ''}`.trim(),
-    };
+  if (!userId) {
+    toast({
+      title: 'Authentication Error',
+      description: 'You must be logged in to create or update an employee.',
+      variant: 'destructive',
+    });
+    return;
+  }
 
-      if (
-        employeeDataForDb.nationality === 'Other' &&
-        employeeDataForDb.nationality_other?.trim()
-    ) {
-        employeeDataForDb.nationality = employeeDataForDb.nationality_other.trim();
-    }
-    
-    if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
-      toast({
-        title: 'Validation Error',
-        description: 'Email and Full Name are required.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  // Destructure and exclude nationality_other from DB insert
+  const {
+    nationality_other,
+    ...rest
+  } = data.employee;
 
+  const employeeDataForDb: Employee = {
+    ...rest,
+    user_id: userId,
+    email: rest.email || '',
+    full_name: rest.full_name || `${rest.first_name || ''} ${rest.last_name || ''}`.trim(),
+  };
+
+  // Replace nationality with custom input if "Other"
+  if (
+    employeeDataForDb.nationality === 'Other' &&
+    nationality_other?.trim()
+  ) {
+    employeeDataForDb.nationality = nationality_other.trim();
+  }
+
+  if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
+    toast({
+      title: 'Validation Error',
+      description: 'Email and Full Name are required.',
+      variant: 'destructive',
+    });
+    return;
+  }
     try {
       setIsSubmitting(true);
 
