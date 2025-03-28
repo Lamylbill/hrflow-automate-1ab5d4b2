@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
 import { Upload, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Select } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -27,16 +30,7 @@ const TAB_OPTIONS = [
   { value: 'others', label: 'Others' },
 ];
 
-interface EmployeeTabbedFormProps {
-  initialData?: Partial<EmployeeFormData>;
-  onSuccess: (data: EmployeeFormData) => void;
-  onCancel: () => void;
-  isViewOnly?: boolean;
-  mode: 'create' | 'edit' | 'view';
-  defaultTab?: string;
-}
-
-export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
+export const EmployeeTabbedForm = ({
   initialData,
   onSuccess,
   onCancel,
@@ -50,11 +44,11 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState(null);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
-  const methods = useForm<EmployeeFormData>({
+  const methods = useForm({
     defaultValues: initialData || {
       employee: {
         id: '',
@@ -97,7 +91,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     checkUser();
   }, [user, setValue]);
 
-  const onSubmit = async (data: EmployeeFormData) => {
+  const onSubmit = async (data) => {
     const userId = data.employee.user_id?.trim() || user?.id;
 
     if (!userId) {
@@ -114,7 +108,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       rest.nationality = nationality_other.trim();
     }
 
-    const cleanupData = (obj: any) => {
+    const cleanupData = (obj) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
         if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
@@ -129,7 +123,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
     const cleanedRest = cleanupData(rest);
 
-    const employeeDataForDb: Employee = {
+    const employeeDataForDb = {
       ...cleanedRest,
       user_id: userId,
       email: cleanedRest.email || '',
@@ -185,7 +179,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       if (mode === 'create') {
         setTimeout(() => setActiveTab('documents'), 500);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving employee:', error);
       toast({
         title: 'Save Error',
@@ -232,29 +226,19 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           {isMobile ? (
             <div className="px-4">
-              <select
+              <Select
                 value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
-              >
-                {TAB_OPTIONS.map((tab) => (
-                  <option key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setActiveTab}
+                options={TAB_OPTIONS}
+              />
             </div>
           ) : (
             <div className="border-b px-4">
               <TabsList className="grid grid-cols-6 w-full">
-                {TAB_OPTIONS.map((tab) => (
+                {TAB_OPTIONS.map(tab => (
                   <TabsTrigger key={tab.value} value={tab.value}>
                     {tab.label}
                   </TabsTrigger>
