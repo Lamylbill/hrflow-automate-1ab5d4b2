@@ -231,13 +231,19 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           className="flex-1 flex flex-col overflow-hidden"
         >
           <div className="border-b px-2">
-            <TabsList className="w-full flex flex-wrap md:flex-nowrap justify-between md:justify-start gap-1">
-              <TabsTrigger value="basic-info" className="flex-1 md:flex-initial">Basic Info</TabsTrigger>
-              <TabsTrigger value="job-details" className="flex-1 md:flex-initial">Job Details</TabsTrigger>
-              <TabsTrigger value="compensation" className="flex-1 md:flex-initial">Compensation</TabsTrigger>
-              <TabsTrigger value="compliance" className="flex-1 md:flex-initial">Compliance</TabsTrigger>
-              <TabsTrigger value="documents" className="flex-1 md:flex-initial">Documents</TabsTrigger>
-              <TabsTrigger value="others" className="flex-1 md:flex-initial">Others</TabsTrigger>
+            <TabsList
+              className="
+                grid grid-cols-2 sm:flex sm:justify-between sm:gap-2 
+                w-full sm:w-auto px-2 sm:px-0
+                overflow-x-auto
+              "
+            >
+              <TabsTrigger className="sm:flex-1 text-center" value="basic-info">Basic Info</TabsTrigger>
+              <TabsTrigger className="sm:flex-1 text-center" value="job-details">Job Details</TabsTrigger>
+              <TabsTrigger className="sm:flex-1 text-center" value="compensation">Compensation</TabsTrigger>
+              <TabsTrigger className="sm:flex-1 text-center" value="compliance">Compliance</TabsTrigger>
+              <TabsTrigger className="sm:flex-1 text-center" value="documents">Documents</TabsTrigger>
+              <TabsTrigger className="sm:flex-1 text-center" value="others">Others</TabsTrigger>
             </TabsList>
           </div>
 
