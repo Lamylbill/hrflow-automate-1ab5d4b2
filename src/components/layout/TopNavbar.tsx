@@ -1,6 +1,7 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, Menu, X } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -12,11 +13,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui-custom/Button";
+import { NotificationBell } from '@/components/ui-custom/NotificationBell';
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
+import { getNavItems } from './NavItems';
 
 export const TopNavbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navItems = getNavItems();
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
@@ -50,12 +61,12 @@ export const TopNavbar = () => {
               <NavigationMenu>
                 <NavigationMenuList>
                   {navItems.map((item) => (
-                    <NavigationMenuItem key={item.path}>
+                    <NavigationMenuItem key={item.href}>
                       <Link
-                        to={item.path}
+                        to={item.href}
                         className={cn(
                           "inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                          location.pathname === item.path
+                          location.pathname === item.href
                             ? "bg-indigo-600 text-white"
                             : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-600"
                         )}
@@ -130,11 +141,11 @@ export const TopNavbar = () => {
             <div className="flex flex-col space-y-2">
               {navItems.map((item) => (
                 <Link
-                  key={item.path}
-                  to={item.path}
+                  key={item.href}
+                  to={item.href}
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
-                    location.pathname === item.path
+                    location.pathname === item.href
                       ? "bg-indigo-600 text-white"
                       : "bg-indigo-600/90 text-white hover:bg-indigo-700"
                   )}
