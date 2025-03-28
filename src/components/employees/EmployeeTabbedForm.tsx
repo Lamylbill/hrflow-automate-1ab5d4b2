@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/integrations/supabase/client';
 import { Upload, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Select } from '@/components/ui/select';
+
 import { BasicInfoTab } from './tabs/BasicInfoTab';
 import { JobDetailsTab } from './tabs/JobDetailsTab';
 import { CompensationTab } from './tabs/CompensationTab';
@@ -117,10 +119,17 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
-            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
+        if (
+          typeof cleanedObj[key] === 'string' &&
+          cleanedObj[key] === '' &&
+          (key.endsWith('_id') || key === 'id' || key === 'related_id')
+        ) {
           cleanedObj[key] = null;
-        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+        } else if (
+          cleanedObj[key] &&
+          typeof cleanedObj[key] === 'object' &&
+          !Array.isArray(cleanedObj[key])
+        ) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -232,37 +241,31 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
+        {isMobile ? (
+          <div className="px-4">
+            <Select
+              options={TAB_OPTIONS}
+              value={activeTab}
+              onValueChange={(val: string) => setActiveTab(val)}
+            />
+          </div>
+        ) : (
+          <div className="border-b px-4">
+            <TabsList className="grid grid-cols-6 w-full">
+              {TAB_OPTIONS.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        )}
+
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          {isMobile ? (
-            <div className="px-4">
-              <select
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
-              >
-                {TAB_OPTIONS.map((tab) => (
-                  <option key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="border-b px-4">
-              <TabsList className="grid grid-cols-6 w-full">
-                {TAB_OPTIONS.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-          )}
-
           <div className="flex-1 overflow-auto py-6">
             <TabsContent value="basic-info" className="p-4">
               <BasicInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
@@ -286,7 +289,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </Tabs>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
+          <div className="flex justify-end gap-2 pt-4 bg-white px-4 pb-6">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
