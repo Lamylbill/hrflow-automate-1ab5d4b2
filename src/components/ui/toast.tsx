@@ -46,10 +46,7 @@ const Toast = React.forwardRef<
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
-      onClick={(e) => {
-        // Prevent clicks inside toast from bubbling up to parent components
-        e.stopPropagation()
-      }}
+      onPointerDown={(e) => e.stopPropagation()}  // ✅ Add this line
       {...props}
     />
   )
