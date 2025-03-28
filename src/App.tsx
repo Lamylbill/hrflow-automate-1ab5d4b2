@@ -16,6 +16,7 @@ import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 import { Navbar } from "./components/layout/Navbar";
+import EmployeesPage from './pages/EmployeesPage';
 
 // Create a new QueryClient with better retry settings for Netlify
 const App = () => {
