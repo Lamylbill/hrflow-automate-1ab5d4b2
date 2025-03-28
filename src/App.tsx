@@ -12,13 +12,14 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { TopNavbar } from "./components/layout/TopNavbar";
+import { DashboardSidebar } from "./components/layout/DashboardSidebar";
 import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
+import { Navbar } from "./components/layout/Navbar";
 
 // Create a new QueryClient with better retry settings for Netlify
-// Fix: Created the QueryClient inside the App component to ensure it's properly initialized with React lifecycle
 const App = () => {
   // Create a new queryClient instance inside the component to ensure proper initialization
   const [queryClient] = useState(() => new QueryClient({
@@ -72,7 +73,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : null;
 };
 
-// Dashboard layout with top navbar
+// Dashboard layout with sidebar and top navbar
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -106,8 +107,13 @@ const SettingsWrapper = () => {
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<Index />} />
+      {/* Public routes with landing navbar */}
+      <Route path="/" element={
+        <>
+          <Navbar />
+          <Index />
+        </>
+      } />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       

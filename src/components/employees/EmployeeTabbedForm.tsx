@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,13 +109,32 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       rest.nationality = nationality_other.trim();
     }
 
+    // Clean up the data to prevent empty string UUIDs
+    const cleanupData = (obj: any) => {
+      const cleanedObj = { ...obj };
+      Object.keys(cleanedObj).forEach(key => {
+        // Convert empty strings for UUID fields to null
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' && 
+            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
+          cleanedObj[key] = null;
+        }
+        // Process nested objects
+        else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+          cleanedObj[key] = cleanupData(cleanedObj[key]);
+        }
+      });
+      return cleanedObj;
+    };
+
+    const cleanedRest = cleanupData(rest);
+
     const employeeDataForDb: Employee = {
-      ...rest,
+      ...cleanedRest,
       user_id: userId,
-      email: rest.email || '',
+      email: cleanedRest.email || '',
       full_name:
-        rest.full_name ||
-        `${rest.first_name || ''} ${rest.last_name || ''}`.trim(),
+        cleanedRest.full_name ||
+        `${cleanedRest.first_name || ''} ${cleanedRest.last_name || ''}`.trim(),
     };
 
     if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
@@ -138,10 +158,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         if (error) throw error;
       } else if (mode === 'create') {
+        // For create, exclude the id field completely
+        const { id, ...createData } = employeeDataForDb;
+        
         const { data: newEmployee, error } = await supabase
           .from('employees')
           .insert({
-            ...employeeDataForDb,
+            ...createData,
             user_id: userId,
           })
           .select()
@@ -163,6 +186,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         setTimeout(() => setActiveTab('documents'), 500);
       }
     } catch (error: any) {
+      console.error('Error saving employee:', error);
       toast({
         title: 'Save Error',
         description: error.message || 'An error occurred.',
