@@ -107,6 +107,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       full_name: data.employee.full_name || `${data.employee.first_name || ''} ${data.employee.last_name || ''}`.trim(),
     };
 
+      if (
+    employeeDataForDb.nationality === 'Other' &&
+    employeeDataForDb.nationality_other?.trim()
+  ) {
+    employeeDataForDb.nationality = employeeDataForDb.nationality_other.trim();
+  }
+    
     if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
       toast({
         title: 'Validation Error',
