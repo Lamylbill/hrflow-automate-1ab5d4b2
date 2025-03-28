@@ -1,5 +1,5 @@
-import React from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useFormContext, Controller, useWatch } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,7 +11,20 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { FieldsToggle } from './shared/FieldsToggle';
-import { genderOptions, nationalityOptions, maritalStatusOptions } from '../data/employeeOptions';
+import { genderOptions, maritalStatusOptions } from '../data/employeeOptions';
+
+const nationalityOptions = [
+  { label: 'Singapore', value: 'Singapore' },
+  { label: 'Malaysia', value: 'Malaysia' },
+  { label: 'China', value: 'China' },
+  { label: 'India', value: 'India' },
+  { label: 'Indonesia', value: 'Indonesia' },
+  { label: 'Philippines', value: 'Philippines' },
+  { label: 'Thailand', value: 'Thailand' },
+  { label: 'Vietnam', value: 'Vietnam' },
+  { label: 'Myanmar', value: 'Myanmar' },
+  { label: 'Other (please specify)', value: 'Other' },
+];
 
 interface BasicInfoTabProps {
   isViewOnly?: boolean;
@@ -19,20 +32,22 @@ interface BasicInfoTabProps {
   onToggleAdvanced: (value: boolean) => void;
 }
 
-export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
+export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({ 
   isViewOnly = false,
   showAdvancedFields,
   onToggleAdvanced
 }) => {
   const { control, register, formState: { errors } } = useFormContext<EmployeeFormData>();
+  const selectedNationality = useWatch({ name: 'employee.nationality' });
+
   const maxDate = new Date();
   const minDate = new Date('1900-01-01');
 
   return (
     <div className="space-y-6">
-      <FieldsToggle
-        showAdvanced={showAdvancedFields}
-        onToggle={onToggleAdvanced}
+      <FieldsToggle 
+        showAdvanced={showAdvancedFields} 
+        onToggle={onToggleAdvanced} 
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -46,7 +61,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               required
             />
             {errors.employee?.full_name && (
-              <p className="text-sm text-red-600 mt-1">{errors.employee.full_name.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.full_name.message}</p>
             )}
           </div>
 
@@ -76,16 +91,16 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               render={({ field }) => (
                 <Select
                   disabled={isViewOnly}
-                  value={field.value || ''}
                   onValueChange={field.onChange}
+                  value={field.value || ""}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
-                    {genderOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                    {genderOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -102,22 +117,33 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               render={({ field }) => (
                 <Select
                   disabled={isViewOnly}
-                  value={field.value || ''}
                   onValueChange={field.onChange}
+                  value={field.value || ""}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select nationality" />
                   </SelectTrigger>
                   <SelectContent>
-                    {nationalityOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                    {nationalityOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             />
+            {selectedNationality === 'Other' && (
+              <div className="mt-2">
+                <Label htmlFor="nationality_other">Please specify nationality</Label>
+                <Input
+                  id="nationality_other"
+                  placeholder="Enter nationality"
+                  {...register('employee.nationality_other')}
+                  disabled={isViewOnly}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -134,13 +160,13 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           <div>
             <Label htmlFor="date_of_birth">Date of Birth</Label>
             <Controller
-              name="employee.date_of_birth"
               control={control}
+              name="employee.date_of_birth"
               render={({ field }) => (
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant="outline"
+                      variant={"outline"}
                       className={cn(
                         "w-full justify-start text-left font-normal",
                         !field.value && "text-muted-foreground"
@@ -148,18 +174,19 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                       disabled={isViewOnly}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(new Date(field.value), 'PPP') : 'Pick a date'}
+                      {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={date => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
+                      captionLayout="dropdown-buttons"
                       fromYear={1900}
                       toYear={new Date().getFullYear()}
+                      selected={field.value ? new Date(field.value) : undefined}
+                      onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
+                      disabled={(date) => date > maxDate || date < minDate}
                       initialFocus
-                      disabled={date => date > maxDate || date < minDate}
                     />
                   </PopoverContent>
                 </Popover>
@@ -175,16 +202,16 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               render={({ field }) => (
                 <Select
                   disabled={isViewOnly}
-                  value={field.value || ''}
                   onValueChange={field.onChange}
+                  value={field.value || ""}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select marital status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {maritalStatusOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
+                    {maritalStatusOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -212,36 +239,20 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               required
             />
             {errors.employee?.email && (
-              <p className="text-sm text-red-600 mt-1">{errors.employee.email.message}</p>
+              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.email.message}</p>
             )}
           </div>
         </div>
       </div>
 
       {showAdvancedFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
           <div className="space-y-4">
             <div>
               <Label htmlFor="alias_name">Alias Name</Label>
               <Input
                 id="alias_name"
                 {...register('employee.alias_name')}
-                disabled={isViewOnly}
-              />
-            </div>
-            <div>
-              <Label htmlFor="local_name">Local Name</Label>
-              <Input
-                id="local_name"
-                {...register('employee.local_name')}
-                disabled={isViewOnly}
-              />
-            </div>
-            <div>
-              <Label htmlFor="web_role">Web Role</Label>
-              <Input
-                id="web_role"
-                {...register('employee.web_role')}
                 disabled={isViewOnly}
               />
             </div>
@@ -254,10 +265,26 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               />
             </div>
             <div>
+              <Label htmlFor="local_name">Local Name</Label>
+              <Input
+                id="local_name"
+                {...register('employee.local_name')}
+                disabled={isViewOnly}
+              />
+            </div>
+            <div>
               <Label htmlFor="birth_place">Birth Place</Label>
               <Input
                 id="birth_place"
                 {...register('employee.birth_place')}
+                disabled={isViewOnly}
+              />
+            </div>
+            <div>
+              <Label htmlFor="web_role">Web Role</Label>
+              <Input
+                id="web_role"
+                {...register('employee.web_role')}
                 disabled={isViewOnly}
               />
             </div>
@@ -267,13 +294,13 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             <div>
               <Label htmlFor="marriage_date">Marriage Date</Label>
               <Controller
-                name="employee.marriage_date"
                 control={control}
+                name="employee.marriage_date"
                 render={({ field }) => (
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        variant="outline"
+                        variant={"outline"}
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !field.value && "text-muted-foreground"
@@ -281,18 +308,19 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                         disabled={isViewOnly}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), 'PPP') : 'Pick a date'}
+                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={date => field.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)}
+                        captionLayout="dropdown-buttons"
                         fromYear={1900}
                         toYear={new Date().getFullYear()}
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
+                        disabled={(date) => date > maxDate || date < minDate}
                         initialFocus
-                        disabled={date => date > maxDate || date < minDate}
                       />
                     </PopoverContent>
                   </Popover>
@@ -301,7 +329,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="no_of_children">No. of Children</Label>
+              <Label htmlFor="no_of_children">Number of Children</Label>
               <Input
                 id="no_of_children"
                 type="number"
