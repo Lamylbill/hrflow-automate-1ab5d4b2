@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,9 +6,10 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, AlertCircle } from 'lucide-react';
+import { Upload, Save, AlertCircle } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -101,19 +103,24 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       return;
     }
 
+    // Destructure nationality_other for local use
     const { nationality_other, ...rest } = data.employee;
 
     if (rest.nationality === 'Other' && nationality_other?.trim()) {
       rest.nationality = nationality_other.trim();
     }
 
+    // Clean up the data to prevent empty string UUIDs
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
+        // Convert empty strings for UUID fields to null
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' && 
             (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
-        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+        }
+        // Process nested objects
+        else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -152,8 +159,9 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         if (error) throw error;
       } else if (mode === 'create') {
+        // For create, exclude the id field completely
         const { id, ...createData } = employeeDataForDb;
-
+        
         const { data: newEmployee, error } = await supabase
           .from('employees')
           .insert({
@@ -225,25 +233,50 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           </Alert>
         )}
 
-        <Tabs
-          value={activeTab}
+        {isMobile ? (
+          <div className="mb-4">
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Tab" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="basic-info">Basic Info</SelectItem>
+                <SelectItem value="job-details">Job Details</SelectItem>
+                <SelectItem value="compensation">Compensation</SelectItem>
+                <SelectItem value="compliance">Compliance</SelectItem>
+                <SelectItem value="documents">Documents</SelectItem>
+                <SelectItem value="others">Others</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
+            <div className="overflow-x-auto overflow-y-hidden border-b -mx-2 px-2">
+              <TabsList className="flex w-full justify-between gap-1 min-w-max">
+                <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
+                <TabsTrigger value="job-details">Job Details</TabsTrigger>
+                <TabsTrigger value="compensation">Compensation</TabsTrigger>
+                <TabsTrigger value="compliance">Compliance</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="others">Others</TabsTrigger>
+              </TabsList>
+            </div>
+        
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col overflow-hidden"
         >
-          <div className="border-b px-2">
-            <TabsList
-              className="
-                grid grid-cols-2 sm:flex sm:justify-between sm:gap-2 
-                w-full sm:w-auto px-2 sm:px-0
-                overflow-x-auto
-              "
-            >
-              <TabsTrigger className="sm:flex-1 text-center" value="basic-info">Basic Info</TabsTrigger>
-              <TabsTrigger className="sm:flex-1 text-center" value="job-details">Job Details</TabsTrigger>
-              <TabsTrigger className="sm:flex-1 text-center" value="compensation">Compensation</TabsTrigger>
-              <TabsTrigger className="sm:flex-1 text-center" value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger className="sm:flex-1 text-center" value="documents">Documents</TabsTrigger>
-              <TabsTrigger className="sm:flex-1 text-center" value="others">Others</TabsTrigger>
+          <div className="overflow-x-auto border-b -mx-2 px-2">
+            <TabsList className="flex flex-nowrap gap-1 min-w-max">
+              <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
+              <TabsTrigger value="job-details">Job Details</TabsTrigger>
+              <TabsTrigger value="compensation">Compensation</TabsTrigger>
+              <TabsTrigger value="compliance">Compliance</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+              <TabsTrigger value="others">Others</TabsTrigger>
             </TabsList>
           </div>
 
@@ -294,6 +327,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             </TabsContent>
           </div>
         </Tabs>
+        )}
 
         {!isViewOnly && (
           <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
