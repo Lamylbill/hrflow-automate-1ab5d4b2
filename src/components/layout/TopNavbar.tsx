@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Settings, Menu, X, Bell } from 'lucide-react';
+import { LogOut, Settings, Menu, X, Bell, LayoutDashboard, Users, FileText, Calendar, Shield } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -14,14 +14,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui-custom/Button";
 import { cn } from "@/lib/utils";
-import { getNavItems } from './NavItems';
 
 export const TopNavbar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navItems = getNavItems();
+  
+  const navigationItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
+    { name: 'Employees', path: '/employees', icon: <Users className="h-5 w-5" /> },
+    { name: 'Payroll', path: '/payroll', icon: <FileText className="h-5 w-5" /> },
+    { name: 'Leave', path: '/leave', icon: <Calendar className="h-5 w-5" /> },
+    { name: 'Compliance', path: '/compliance', icon: <Shield className="h-5 w-5" /> },
+  ];
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
@@ -42,9 +48,34 @@ export const TopNavbar = () => {
   const avatarImageUrl = user?.user_metadata?.avatar_url || null;
 
   return (
-    <header className="bg-white border-b border-gray-200 fixed top-0 right-0 left-[var(--sidebar-width,250px)] z-30">
+    <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-30">
       <nav className="px-6 py-3">
         <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Link to="/dashboard" className="flex items-center gap-2">
+              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
+              <span className="font-display font-bold text-lg text-indigo-800">Flow</span>
+            </Link>
+            
+            <div className="hidden md:flex ml-10 space-x-4">
+              {navigationItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium flex items-center",
+                    location.pathname === item.path
+                      ? "bg-indigo-600 text-white"
+                      : "text-indigo-800 hover:text-indigo-600 hover:bg-indigo-50"
+                  )}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
           <div className="md:hidden">
             <Button 
               variant="ghost" 
@@ -57,7 +88,7 @@ export const TopNavbar = () => {
             </Button>
           </div>
           
-          <div className="hidden md:flex items-center space-x-4 ml-auto">
+          <div className="hidden md:flex items-center space-x-4">
             <button className="text-indigo-700 hover:text-indigo-500">
               <Bell className="h-5 w-5" />
             </button>
@@ -105,13 +136,13 @@ export const TopNavbar = () => {
         {isMobileMenuOpen && (
           <div className="md:hidden pt-4 pb-3 border-t mt-3 animate-fade-in-up">
             <div className="flex flex-col space-y-2">
-              {navItems.map((item) => (
+              {navigationItems.map((item) => (
                 <Link
-                  key={item.href}
-                  to={item.href}
+                  key={item.path}
+                  to={item.path}
                   className={cn(
                     "px-3 py-2 rounded-md text-base font-medium flex items-center",
-                    location.pathname === item.href
+                    location.pathname === item.path
                       ? "bg-indigo-600 text-white"
                       : "bg-indigo-600/90 text-white hover:bg-indigo-700"
                   )}

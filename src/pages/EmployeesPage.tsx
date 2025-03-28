@@ -33,7 +33,7 @@ import {
   Dialog, 
   DialogContent,
 } from '@/components/ui/dialog';
-import { generateEmployeeTemplate, exportEmployeesToExcel } from '@/utils/excelUtils';
+import { exportEmployeesToExcel } from '@/utils/excelUtils';
 import { AddEmployeeForm } from '@/components/employees/AddEmployeeForm';
 import { EmployeeDetailsDialog } from '@/components/employees/EmployeeDetailsDialog';
 import { Employee } from '@/types/employee';

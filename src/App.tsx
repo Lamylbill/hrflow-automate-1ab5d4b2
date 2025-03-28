@@ -12,8 +12,6 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
 import { TopNavbar } from "./components/layout/TopNavbar";
-import { DashboardSidebar } from "./components/layout/DashboardSidebar";
-import EmployeesPage from "./pages/EmployeesPage";
 import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
@@ -73,13 +71,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : null;
 };
 
-// Dashboard layout with sidebar and top navbar
+// Dashboard layout with top navbar only
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <DashboardSidebar />
-      <div className="flex-1 overflow-auto pl-[var(--sidebar-width,250px)]">
-        <TopNavbar />
+    <div className="flex flex-col h-screen bg-gray-50">
+      <TopNavbar />
+      <div className="flex-1 overflow-auto">
         <div className="container mx-auto px-6 py-8 pt-20">
           <Suspense fallback={
             <div className="flex items-center justify-center h-[calc(100vh-128px)]">

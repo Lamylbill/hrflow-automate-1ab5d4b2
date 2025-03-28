@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Download, Upload, FileUp } from 'lucide-react';
+import { Upload, FileUp } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { generateEmployeeTemplate } from '@/utils/excelUtils';
 
 interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void
@@ -31,14 +30,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
     }
-  };
-  
-  const downloadTemplate = () => {
-    generateEmployeeTemplate();
-    toast({
-      title: "Template Downloaded",
-      description: "The employee template has been downloaded to your device.",
-    });
   };
   
   const importEmployees = async () => {
@@ -155,11 +146,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         </DialogHeader>
         <div className="grid gap-6">
           <div className="flex flex-col items-center justify-center py-4 gap-4">
-            <Button variant="outline" onClick={downloadTemplate} className="w-full">
-              <Download className="mr-2 h-4 w-4" />
-              Download Template
-            </Button>
-            
             <div className="border rounded-md p-6 w-full">
               <div className="flex flex-col items-center gap-2">
                 <FileUp className="h-10 w-10 text-gray-400" />
