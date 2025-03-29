@@ -31,7 +31,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
           <div className="flex items-center justify-center mb-4">
             <AlertCircle className="h-10 w-10 text-amber-500" />
           </div>
-          <h3 className="font-bold" className="text-lg font-bold font-medium mb-2">Documents Require Saved Employee</h3>
+          <h3 className="text-lg font-bold font-medium mb-2">Documents Require Saved Employee</h3>
           <p className="text-gray-600 mb-6 max-w-md mx-auto">
             Please save the employee information first to enable document uploads. 
             All documents will be securely linked to this employee record.

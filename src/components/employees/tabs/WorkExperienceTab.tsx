@@ -99,7 +99,7 @@ export const WorkExperienceTab: React.FC<WorkExperienceTabProps> = ({ isViewOnly
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="font-bold" className="text-lg font-bold font-medium">Work Experience</h3>
+        <h3 className="text-lg font-bold font-medium">Work Experience</h3>
         {!isViewOnly && (
           <Button 
             type="button" 

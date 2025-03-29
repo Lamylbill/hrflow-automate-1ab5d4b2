@@ -101,7 +101,7 @@ export const EducationTab: React.FC<EducationTabProps> = ({ isViewOnly = false }
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="font-bold" className="text-lg font-bold font-medium">Education</h3>
+        <h3 className="text-lg font-bold font-medium">Education</h3>
         {!isViewOnly && (
           <Button 
             type="button" 
