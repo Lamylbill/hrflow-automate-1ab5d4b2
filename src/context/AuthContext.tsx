@@ -86,6 +86,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(newSession.user);
             
             if (event === 'SIGNED_IN') {
+      if (location.pathname !== '/') {
+        navigate('/dashboard');
+      }
               toast({
                 title: "Login successful",
                 description: "Welcome to HRFlow!",
