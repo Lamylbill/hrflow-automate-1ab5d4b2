@@ -17,7 +17,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="contract_date_start">Date Start</Label>
+          <Label className="font-bold" htmlFor="contract_date_start">Date Start</Label>
           <Input 
             id="contract_date_start" 
             type="date"
@@ -27,7 +27,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
         </div>
         
         <div>
-          <Label htmlFor="contract_date_end">Date End</Label>
+          <Label className="font-bold" htmlFor="contract_date_end">Date End</Label>
           <Input 
             id="contract_date_end" 
             type="date"
@@ -37,7 +37,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
         </div>
         
         <div>
-          <Label htmlFor="contract_type">Contract Type</Label>
+          <Label className="font-bold" htmlFor="contract_type">Contract Type</Label>
           <Input 
             id="contract_type" 
             {...register('employee.contract_type')}
@@ -46,7 +46,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
         </div>
         
         <div>
-          <Label htmlFor="contract_nature">Contract Nature</Label>
+          <Label className="font-bold" htmlFor="contract_nature">Contract Nature</Label>
           <Input 
             id="contract_nature" 
             {...register('employee.contract_nature')}
@@ -55,7 +55,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
         </div>
         
         <div>
-          <Label htmlFor="renewal">Renewal</Label>
+          <Label className="font-bold" htmlFor="renewal">Renewal</Label>
           <Input 
             id="renewal" 
             {...register('employee.renewal')}
@@ -69,7 +69,7 @@ export const ContractTab: React.FC<ContractTabProps> = ({ isViewOnly = false }) 
             {...register('employee.contract_signed')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="contract_signed">Contract Signed</Label>
+          <Label className="font-bold" htmlFor="contract_signed">Contract Signed</Label>
         </div>
       </div>
     </div>
