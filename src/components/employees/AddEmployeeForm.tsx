@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { EmployeeTabbedForm } from './EmployeeTabbedForm';
 import { Employee } from '@/types/employee';
@@ -19,14 +20,14 @@ export const AddEmployeeForm = ({
 }: AddEmployeeFormProps) => {
   const getDefaultTab = (tab?: string): string => {
     const tabMapping: Record<string, string> = {
-      personal: 'basic-info',
-      employment: 'job-details',
-      compensation: 'compensation',
-      statutory: 'compliance',
+      personal: 'personal-info',
+      employment: 'employment-info',
+      contract: 'contract-lifecycle',
+      compensation: 'compensation-benefits',
+      compliance: 'compliance',
       documents: 'documents',
-      other: 'others',
     };
-    return tabMapping[tab || ''] || 'basic-info';
+    return tabMapping[tab || ''] || 'personal-info';
   };
 
   return (

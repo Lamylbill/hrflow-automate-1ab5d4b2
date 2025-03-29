@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,26 +6,26 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, AlertCircle, UserCircle, Briefcase, DollarSign, Shield, FileText, MoreHorizontal } from 'lucide-react';
+import { Upload, AlertCircle, UserCircle, Briefcase, DollarSign, Shield, FileText, Calendar, Grid3X3 } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { BasicInfoTab } from './tabs/BasicInfoTab';
-import { JobDetailsTab } from './tabs/JobDetailsTab';
-import { CompensationTab } from './tabs/CompensationTab';
+import { ProfilePhotoUploader } from './ProfilePhotoUploader';
+import { PersonalInfoTab } from './tabs/PersonalInfoTab';
+import { EmploymentInfoTab } from './tabs/EmploymentInfoTab';
+import { ContractLifecycleTab } from './tabs/ContractLifecycleTab';
+import { CompensationBenefitsTab } from './tabs/CompensationBenefitsTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
-import { OthersTab } from './tabs/OthersTab';
-import { ProfilePhotoUploader } from './ProfilePhotoUploader';
 
 const TAB_OPTIONS = [
-  { value: 'basic-info', label: 'Basic Info', icon: UserCircle },
-  { value: 'job-details', label: 'Job Details', icon: Briefcase },
-  { value: 'compensation', label: 'Compensation', icon: DollarSign },
+  { value: 'personal-info', label: 'Personal Info', icon: UserCircle },
+  { value: 'employment-info', label: 'Employment Info', icon: Briefcase },
+  { value: 'contract-lifecycle', label: 'Contract & Lifecycle', icon: Calendar },
+  { value: 'compensation-benefits', label: 'Compensation & Benefits', icon: DollarSign },
   { value: 'compliance', label: 'Compliance', icon: Shield },
   { value: 'documents', label: 'Documents', icon: FileText },
-  { value: 'others', label: 'Others', icon: MoreHorizontal },
 ];
 
 interface EmployeeTabbedFormProps {
@@ -42,7 +43,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   onCancel,
   isViewOnly = false,
   mode,
-  defaultTab = 'basic-info',
+  defaultTab = 'personal-info',
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -275,23 +276,28 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           )}
 
           <div className="flex-1 overflow-auto py-6">
-            <TabsContent value="basic-info" className="p-4">
-              <BasicInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            <TabsContent value="personal-info" className="p-4">
+              <PersonalInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
-            <TabsContent value="job-details" className="p-4">
-              <JobDetailsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            
+            <TabsContent value="employment-info" className="p-4">
+              <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
-            <TabsContent value="compensation" className="p-4">
-              <CompensationTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            
+            <TabsContent value="contract-lifecycle" className="p-4">
+              <ContractLifecycleTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
+            
+            <TabsContent value="compensation-benefits" className="p-4">
+              <CompensationBenefitsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
+            </TabsContent>
+            
             <TabsContent value="compliance" className="p-4">
               <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
+            
             <TabsContent value="documents" className="p-4">
               <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />
-            </TabsContent>
-            <TabsContent value="others" className="p-4">
-              <OthersTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
           </div>
         </Tabs>
