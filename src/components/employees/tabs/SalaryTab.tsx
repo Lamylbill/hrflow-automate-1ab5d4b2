@@ -18,7 +18,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="work_days_per_week">Work Days Per Week</Label>
+          <Label className="font-bold" htmlFor="work_days_per_week">Work Days Per Week</Label>
           <Input 
             id="work_days_per_week" 
             type="number"
@@ -29,7 +29,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="work_hours_per_day">Work Hours Per Day</Label>
+          <Label className="font-bold" htmlFor="work_hours_per_day">Work Hours Per Day</Label>
           <Input 
             id="work_hours_per_day" 
             type="number"
@@ -40,7 +40,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="work_hours_per_year">Work Hours Per Year</Label>
+          <Label className="font-bold" htmlFor="work_hours_per_year">Work Hours Per Year</Label>
           <Input 
             id="work_hours_per_year" 
             type="number"
@@ -51,7 +51,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="work_days_per_year">Work Days Per Year</Label>
+          <Label className="font-bold" htmlFor="work_days_per_year">Work Days Per Year</Label>
           <Input 
             id="work_days_per_year" 
             type="number"
@@ -62,7 +62,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_arrears">Salary Arrears</Label>
+          <Label className="font-bold" htmlFor="salary_arrears">Salary Arrears</Label>
           <Input 
             id="salary_arrears" 
             type="number"
@@ -78,11 +78,11 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
             {...register('employee.freeze_payment')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="freeze_payment">Freeze Payment</Label>
+          <Label className="font-bold" htmlFor="freeze_payment">Freeze Payment</Label>
         </div>
         
         <div>
-          <Label htmlFor="salary_currency">Salary Currency</Label>
+          <Label className="font-bold" htmlFor="salary_currency">Salary Currency</Label>
           <Input 
             id="salary_currency" 
             {...register('employee.salary_currency')}
@@ -91,7 +91,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="bank_name">Bank Code</Label>
+          <Label className="font-bold" htmlFor="bank_name">Bank Code</Label>
           <Input 
             id="bank_name" 
             {...register('employee.bank_name')}
@@ -100,7 +100,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="bank_branch">Bank Branch</Label>
+          <Label className="font-bold" htmlFor="bank_branch">Bank Branch</Label>
           <Input 
             id="bank_branch" 
             {...register('employee.bank_branch')}
@@ -109,7 +109,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="bank_account_number">Bank Account No</Label>
+          <Label className="font-bold" htmlFor="bank_account_number">Bank Account No</Label>
           <Input 
             id="bank_account_number" 
             {...register('employee.bank_account_number')}
@@ -118,7 +118,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="beneficiary_name">Beneficiary Name</Label>
+          <Label className="font-bold" htmlFor="beneficiary_name">Beneficiary Name</Label>
           <Input 
             id="beneficiary_name" 
             {...register('employee.beneficiary_name')}
@@ -127,7 +127,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="bank_currency">Bank Currency</Label>
+          <Label className="font-bold" htmlFor="bank_currency">Bank Currency</Label>
           <Input 
             id="bank_currency" 
             {...register('employee.bank_currency')}
@@ -136,7 +136,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="allocation_type">Allocation Type</Label>
+          <Label className="font-bold" htmlFor="allocation_type">Allocation Type</Label>
           <Input 
             id="allocation_type" 
             {...register('employee.allocation_type')}
@@ -145,7 +145,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="allocation_amount">Allocation Amount</Label>
+          <Label className="font-bold" htmlFor="allocation_amount">Allocation Amount</Label>
           <Input 
             id="allocation_amount" 
             type="number"
@@ -156,7 +156,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="allocation_account">Allocation Account</Label>
+          <Label className="font-bold" htmlFor="allocation_account">Allocation Account</Label>
           <Input 
             id="allocation_account" 
             {...register('employee.allocation_account')}
@@ -165,7 +165,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="allocation_run">Allocation Run</Label>
+          <Label className="font-bold" htmlFor="allocation_run">Allocation Run</Label>
           <Input 
             id="allocation_run" 
             {...register('employee.allocation_run')}
@@ -174,7 +174,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_date_start">Date Start</Label>
+          <Label className="font-bold" htmlFor="salary_date_start">Date Start</Label>
           <Input 
             id="salary_date_start" 
             type="date"
@@ -184,7 +184,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_status_change_reason">Status Change Reason</Label>
+          <Label className="font-bold" htmlFor="salary_status_change_reason">Status Change Reason</Label>
           <Input 
             id="salary_status_change_reason" 
             {...register('employee.salary_status_change_reason')}
@@ -193,7 +193,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="pay_mode">Pay Mode</Label>
+          <Label className="font-bold" htmlFor="pay_mode">Pay Mode</Label>
           <Input 
             id="pay_mode" 
             {...register('employee.pay_mode')}
@@ -202,7 +202,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="pay_type">Pay Type</Label>
+          <Label className="font-bold" htmlFor="pay_type">Pay Type</Label>
           <Input 
             id="pay_type" 
             {...register('employee.pay_type')}
@@ -211,7 +211,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_grade">Salary Grade</Label>
+          <Label className="font-bold" htmlFor="salary_grade">Salary Grade</Label>
           <Input 
             id="salary_grade" 
             {...register('employee.salary_grade')}
@@ -220,7 +220,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_fixed">Salary Fixed</Label>
+          <Label className="font-bold" htmlFor="salary_fixed">Salary Fixed</Label>
           <Input 
             id="salary_fixed" 
             type="number"
@@ -231,7 +231,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="mvc">MVC</Label>
+          <Label className="font-bold" htmlFor="mvc">MVC</Label>
           <Input 
             id="mvc" 
             type="number"
@@ -242,7 +242,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="mvc_percentage">MVC (%)</Label>
+          <Label className="font-bold" htmlFor="mvc_percentage">MVC (%)</Label>
           <Input 
             id="mvc_percentage" 
             type="number"
@@ -253,7 +253,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary_gross">Salary Gross</Label>
+          <Label className="font-bold" htmlFor="salary_gross">Salary Gross</Label>
           <Input 
             id="salary_gross" 
             type="number"
@@ -264,7 +264,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="salary">Salary</Label>
+          <Label className="font-bold" htmlFor="salary">Salary</Label>
           <Input 
             id="salary" 
             type="number"
@@ -275,7 +275,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="leave_entitlement">Leave Entitlement</Label>
+          <Label className="font-bold" htmlFor="leave_entitlement">Leave Entitlement</Label>
           <Input 
             id="leave_entitlement" 
             type="number"
@@ -286,7 +286,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="leave_balance">Leave Balance</Label>
+          <Label className="font-bold" htmlFor="leave_balance">Leave Balance</Label>
           <Input 
             id="leave_balance" 
             type="number"
@@ -297,7 +297,7 @@ export const SalaryTab: React.FC<SalaryTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label htmlFor="medical_entitlement">Medical Entitlement</Label>
+          <Label className="font-bold" htmlFor="medical_entitlement">Medical Entitlement</Label>
           <Input 
             id="medical_entitlement" 
             type="number"
