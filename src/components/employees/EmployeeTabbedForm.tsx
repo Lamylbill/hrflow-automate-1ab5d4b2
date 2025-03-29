@@ -5,7 +5,7 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus, X as CancelIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -211,11 +211,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     <FormProvider {...methods}>
       <form id="employee-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
         <div className="p-4 flex items-center border-b">
-          <ProfilePhotoUploader
-            employeeId={employeeData?.id}
-            currentPhotoUrl={employeeData?.profile_picture}
-            disabled={isViewOnly}
-          />
+          <ProfilePhotoUploader employeeId={employeeData?.id} currentPhotoUrl={employeeData?.profile_picture} disabled={isViewOnly} />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
               {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
@@ -239,11 +235,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </div>
 
         {!isViewOnly && (
-          <div className="px-4 py-4 border-t bg-white flex justify-between gap-4">
+          <div className="px-4 py-4 border-t bg-white flex justify-between items-center gap-2">
             <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]">
+              <CancelIcon className="mr-2 h-4 w-4" />
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !isUserLoaded || !!authError} className="w-[180px]">
+            <Button type="submit" className="w-[180px]" disabled={isSubmitting || !isUserLoaded || !!authError}>
+              <Plus className="mr-2 h-4 w-4" />
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
             </Button>
           </div>
