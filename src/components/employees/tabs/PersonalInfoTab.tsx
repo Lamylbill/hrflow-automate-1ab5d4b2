@@ -18,7 +18,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="employee_code">Employee Code</Label>
+          <Label className="font-bold" htmlFor="employee_code">Employee Code</Label>
           <Input 
             id="employee_code" 
             {...register('employee.employee_code')}
@@ -27,7 +27,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="login_id">Login ID</Label>
+          <Label className="font-bold" htmlFor="login_id">Login ID</Label>
           <Input 
             id="login_id" 
             {...register('employee.login_id')}
@@ -36,7 +36,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="title">Title</Label>
+          <Label className="font-bold" htmlFor="title">Title</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -58,7 +58,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="first_name" className="font-medium">First Name</Label>
+          <Label className="font-bold" htmlFor="first_name" className="font-medium">First Name</Label>
           <Input 
             id="first_name" 
             {...register('employee.first_name')}
@@ -67,7 +67,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="last_name" className="font-medium">Last Name</Label>
+          <Label className="font-bold" htmlFor="last_name" className="font-medium">Last Name</Label>
           <Input 
             id="last_name" 
             {...register('employee.last_name')}
@@ -76,7 +76,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="middle_name">Middle Name</Label>
+          <Label className="font-bold" htmlFor="middle_name">Middle Name</Label>
           <Input 
             id="middle_name" 
             {...register('employee.middle_name')}
@@ -85,7 +85,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="full_name" className="font-medium">Full Name</Label>
+          <Label className="font-bold" htmlFor="full_name" className="font-medium">Full Name</Label>
           <Input 
             id="full_name" 
             {...register('employee.full_name', { required: "Full name is required" })}
@@ -97,7 +97,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="alias_name">Alias Name</Label>
+          <Label className="font-bold" htmlFor="alias_name">Alias Name</Label>
           <Input 
             id="alias_name" 
             {...register('employee.alias_name')}
@@ -106,7 +106,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="local_name">Local Name</Label>
+          <Label className="font-bold" htmlFor="local_name">Local Name</Label>
           <Input 
             id="local_name" 
             {...register('employee.local_name')}
@@ -115,7 +115,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="gender">Gender</Label>
+          <Label className="font-bold" htmlFor="gender">Gender</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -136,7 +136,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="nationality">Nationality</Label>
+          <Label className="font-bold" htmlFor="nationality">Nationality</Label>
           <Input 
             id="nationality" 
             {...register('employee.nationality')}
@@ -145,7 +145,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="identity_no">Identity No</Label>
+          <Label className="font-bold" htmlFor="identity_no">Identity No</Label>
           <Input 
             id="identity_no" 
             {...register('employee.identity_no')}
@@ -154,7 +154,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="date_of_birth">Birth Date</Label>
+          <Label className="font-bold" htmlFor="date_of_birth">Birth Date</Label>
           <Input 
             id="date_of_birth" 
             type="date"
@@ -164,7 +164,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="birth_place">Birth Place</Label>
+          <Label className="font-bold" htmlFor="birth_place">Birth Place</Label>
           <Input 
             id="birth_place" 
             {...register('employee.birth_place')}
@@ -173,7 +173,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="marital_status">Marital Status</Label>
+          <Label className="font-bold" htmlFor="marital_status">Marital Status</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -194,7 +194,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="marriage_date">Marriage Date</Label>
+          <Label className="font-bold" htmlFor="marriage_date">Marriage Date</Label>
           <Input 
             id="marriage_date" 
             type="date"
@@ -204,7 +204,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="no_of_children">No of Children</Label>
+          <Label className="font-bold" htmlFor="no_of_children">No of Children</Label>
           <Input 
             id="no_of_children" 
             type="number"
@@ -220,7 +220,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="retire_age">Retire Age</Label>
+          <Label className="font-bold" htmlFor="retire_age">Retire Age</Label>
           <Input 
             id="retire_age" 
             type="number"
@@ -233,7 +233,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="ethnic_origin">Ethnic Origin</Label>
+          <Label className="font-bold" htmlFor="ethnic_origin">Ethnic Origin</Label>
           <Input 
             id="ethnic_origin" 
             {...register('employee.ethnic_origin')}
@@ -242,7 +242,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="religion">Religion</Label>
+          <Label className="font-bold" htmlFor="religion">Religion</Label>
           <Input 
             id="religion" 
             {...register('employee.religion')}
@@ -251,7 +251,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="qualification">Qualification</Label>
+          <Label className="font-bold" htmlFor="qualification">Qualification</Label>
           <Input 
             id="qualification" 
             {...register('employee.qualification')}
@@ -260,7 +260,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ isViewOnly = f
         </div>
         
         <div>
-          <Label htmlFor="web_role">Web Role</Label>
+          <Label className="font-bold" htmlFor="web_role">Web Role</Label>
           <Input 
             id="web_role" 
             {...register('employee.web_role')}
