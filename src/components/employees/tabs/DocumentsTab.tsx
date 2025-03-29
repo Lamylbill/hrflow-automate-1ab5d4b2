@@ -23,11 +23,11 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-6 overflow-auto">
+    <div className="space-y-6 overflow-auto px-1 sm:px-4">
       {employeeId ? (
         <DocumentManager employeeId={employeeId} isTabbed={true} />
       ) : (
-        <div className="text-center p-8 bg-gray-50 border border-gray-200 rounded-lg">
+        <div className="text-center p-6 sm:p-8 bg-gray-50 border border-gray-200 rounded-lg">
           <div className="flex items-center justify-center mb-4">
             <AlertCircle className="h-10 w-10 text-amber-500" />
           </div>

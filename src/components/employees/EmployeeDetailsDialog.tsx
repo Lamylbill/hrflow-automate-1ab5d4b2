@@ -104,14 +104,14 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
             onClick={handleDelete}
             className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
-            <Trash className="w-4 h-4" />
+            <Trash className="h-4 w-4" />
             Delete Employee
           </Button>
           <Button
             onClick={() => setViewMode('edit')}
             className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
-            <Pencil className="w-4 h-4" />
+            <Pencil className="h-4 w-4" />
             Edit Employee
           </Button>
         </div>

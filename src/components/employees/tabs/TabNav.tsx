@@ -46,7 +46,7 @@ export const TabNav: React.FC<TabNavProps> = ({
 
   if (isMobile) {
     return (
-      <div className={cn("w-full p-4 sticky top-0 bg-white z-10 border-b flex-shrink-0", className)}>
+      <div className={cn("w-full px-4 py-3 sticky top-0 bg-white z-10 border-b flex-shrink-0", className)}>
         <Select value={activeTab} onValueChange={onChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select tab" />
