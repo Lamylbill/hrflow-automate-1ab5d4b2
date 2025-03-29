@@ -73,8 +73,8 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-4 py-4 border-b">
+    <div className="flex flex-col h-full max-h-[90vh] overflow-hidden">
+      <div className="px-4 py-4 border-b flex-shrink-0">
         <DialogHeader>
           <DialogTitle>
             {viewMode === 'view' ? 'Employee Details' : 'Edit Employee'}
@@ -87,7 +87,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         </DialogHeader>
       </div>
 
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <EmployeeTabbedForm
           initialData={initialFormData}
           mode={viewMode === 'edit' ? 'edit' : 'view'}
@@ -98,7 +98,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
 
       {viewMode === 'view' && (
-        <div className="bg-white border-t px-4 py-4 flex justify-end gap-4">
+        <div className="bg-white border-t px-4 py-4 flex justify-end gap-4 flex-shrink-0 sticky bottom-0">
           <Button
             variant="destructive"
             onClick={handleDelete}

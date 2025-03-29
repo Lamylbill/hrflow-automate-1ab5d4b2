@@ -23,7 +23,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-auto">
       {employeeId ? (
         <DocumentManager employeeId={employeeId} isTabbed={true} />
       ) : (
