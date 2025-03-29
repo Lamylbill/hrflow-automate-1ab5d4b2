@@ -18,7 +18,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="mom_occupation_group">MOM Occupation Group</Label>
+          <Label className="font-bold" htmlFor="mom_occupation_group">MOM Occupation Group</Label>
           <Input 
             id="mom_occupation_group" 
             {...register('employee.mom_occupation_group')}
@@ -27,7 +27,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mom_employee_type">MOM Employee Type</Label>
+          <Label className="font-bold" htmlFor="mom_employee_type">MOM Employee Type</Label>
           <Input 
             id="mom_employee_type" 
             {...register('employee.mom_employee_type')}
@@ -36,7 +36,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mom_bc_occupation_group">MOM BC Occupation Group</Label>
+          <Label className="font-bold" htmlFor="mom_bc_occupation_group">MOM BC Occupation Group</Label>
           <Input 
             id="mom_bc_occupation_group" 
             {...register('employee.mom_bc_occupation_group')}
@@ -45,7 +45,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mom_bc_employee_type">MOM BC Employee Type</Label>
+          <Label className="font-bold" htmlFor="mom_bc_employee_type">MOM BC Employee Type</Label>
           <Input 
             id="mom_bc_employee_type" 
             {...register('employee.mom_bc_employee_type')}
@@ -54,7 +54,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mom_bc_employment_type">MOM BC Employment Type</Label>
+          <Label className="font-bold" htmlFor="mom_bc_employment_type">MOM BC Employment Type</Label>
           <Input 
             id="mom_bc_employment_type" 
             {...register('employee.mom_bc_employment_type')}
@@ -63,7 +63,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mom_bc_employee_group">MOM BC Employee Group</Label>
+          <Label className="font-bold" htmlFor="mom_bc_employee_group">MOM BC Employee Group</Label>
           <Input 
             id="mom_bc_employee_group" 
             {...register('employee.mom_bc_employee_group')}
@@ -72,7 +72,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="funds">Funds</Label>
+          <Label className="font-bold" htmlFor="funds">Funds</Label>
           <Input 
             id="funds" 
             {...register('employee.funds')}
@@ -81,7 +81,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="mso_scheme">MSO Scheme</Label>
+          <Label className="font-bold" htmlFor="mso_scheme">MSO Scheme</Label>
           <Input 
             id="mso_scheme" 
             {...register('employee.mso_scheme')}
@@ -90,7 +90,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="pr_issue_date">PR Issue Date</Label>
+          <Label className="font-bold" htmlFor="pr_issue_date">PR Issue Date</Label>
           <Input 
             id="pr_issue_date" 
             type="date"
@@ -100,7 +100,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="pr_renounce_date">PR Renounce Date</Label>
+          <Label className="font-bold" htmlFor="pr_renounce_date">PR Renounce Date</Label>
           <Input 
             id="pr_renounce_date" 
             type="date"
@@ -110,7 +110,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="residency_status">Residency Status</Label>
+          <Label className="font-bold" htmlFor="residency_status">Residency Status</Label>
           <Input 
             id="residency_status" 
             {...register('employee.residency_status')}
@@ -119,7 +119,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="union_membership">Union</Label>
+          <Label className="font-bold" htmlFor="union_membership">Union</Label>
           <Input 
             id="union_membership" 
             {...register('employee.union_membership')}
@@ -128,7 +128,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="statutory_date_start">Date Start</Label>
+          <Label className="font-bold" htmlFor="statutory_date_start">Date Start</Label>
           <Input 
             id="statutory_date_start" 
             type="date"
@@ -138,7 +138,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="statutory_date_end">Date End</Label>
+          <Label className="font-bold" htmlFor="statutory_date_end">Date End</Label>
           <Input 
             id="statutory_date_end" 
             type="date"
@@ -148,7 +148,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="membership_no">Membership No</Label>
+          <Label className="font-bold" htmlFor="membership_no">Membership No</Label>
           <Input 
             id="membership_no" 
             {...register('employee.membership_no')}
@@ -157,7 +157,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="rest_day_per_week">Rest Day Per Week</Label>
+          <Label className="font-bold" htmlFor="rest_day_per_week">Rest Day Per Week</Label>
           <Input 
             id="rest_day_per_week" 
             {...register('employee.rest_day_per_week')}
@@ -166,7 +166,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="overtime_payment_period">Overtime Payment Period</Label>
+          <Label className="font-bold" htmlFor="overtime_payment_period">Overtime Payment Period</Label>
           <Input 
             id="overtime_payment_period" 
             {...register('employee.overtime_payment_period')}
@@ -175,7 +175,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="overtime_rate_of_pay">Overtime Rate Of Pay</Label>
+          <Label className="font-bold" htmlFor="overtime_rate_of_pay">Overtime Rate Of Pay</Label>
           <Input 
             id="overtime_rate_of_pay" 
             type="number"
@@ -191,11 +191,11 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
             {...register('employee.paid_medical_examination_fee')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="paid_medical_examination_fee">Paid Medical Examination Fee</Label>
+          <Label className="font-bold" htmlFor="paid_medical_examination_fee">Paid Medical Examination Fee</Label>
         </div>
         
         <div>
-          <Label htmlFor="other_medical_benefit">Other Medical Benefit</Label>
+          <Label className="font-bold" htmlFor="other_medical_benefit">Other Medical Benefit</Label>
           <Input 
             id="other_medical_benefit" 
             {...register('employee.other_medical_benefit')}
@@ -204,7 +204,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="termination_notice_period">Notice Period For Termination Of Employment</Label>
+          <Label className="font-bold" htmlFor="termination_notice_period">Notice Period For Termination Of Employment</Label>
           <Input 
             id="termination_notice_period" 
             type="number"
@@ -214,7 +214,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="work_permit_number">Work Permit Number</Label>
+          <Label className="font-bold" htmlFor="work_permit_number">Work Permit Number</Label>
           <Input 
             id="work_permit_number" 
             {...register('employee.work_permit_number')}
@@ -223,7 +223,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="work_pass_expiry_date">Work Pass Expiry Date</Label>
+          <Label className="font-bold" htmlFor="work_pass_expiry_date">Work Pass Expiry Date</Label>
           <Input 
             id="work_pass_expiry_date" 
             type="date"
@@ -238,11 +238,11 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
             {...register('employee.cpf_contribution')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="cpf_contribution">CPF Contribution</Label>
+          <Label className="font-bold" htmlFor="cpf_contribution">CPF Contribution</Label>
         </div>
         
         <div>
-          <Label htmlFor="cpf_account_number">CPF Account Number</Label>
+          <Label className="font-bold" htmlFor="cpf_account_number">CPF Account Number</Label>
           <Input 
             id="cpf_account_number" 
             {...register('employee.cpf_account_number')}
@@ -251,7 +251,7 @@ export const StatutoryTab: React.FC<StatutoryTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="tax_identification_number">Tax Identification Number</Label>
+          <Label className="font-bold" htmlFor="tax_identification_number">Tax Identification Number</Label>
           <Input 
             id="tax_identification_number" 
             {...register('employee.tax_identification_number')}
