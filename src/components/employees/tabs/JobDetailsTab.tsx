@@ -38,7 +38,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
         {/* Core Fields */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="date_of_hire">Join Date</Label>
+            <Label className="font-bold" htmlFor="date_of_hire">Join Date</Label>
             <Controller
               control={control}
               name="employee.date_of_hire"
@@ -71,7 +71,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="department">Department</Label>
+            <Label className="font-bold" htmlFor="department">Department</Label>
             <Controller
               name="employee.department"
               control={control}
@@ -97,7 +97,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="job_title">Designation</Label>
+            <Label className="font-bold" htmlFor="job_title">Designation</Label>
             <Input
               id="job_title"
               {...register('employee.job_title')}
@@ -106,7 +106,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="employment_type">Employment Type</Label>
+            <Label className="font-bold" htmlFor="employment_type">Employment Type</Label>
             <Controller
               name="employee.employment_type"
               control={control}
@@ -134,7 +134,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="probation_period">Probation Period (days)</Label>
+            <Label className="font-bold" htmlFor="probation_period">Probation Period (days)</Label>
             <Input
               id="probation_period"
               type="number"
@@ -144,7 +144,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="reporting_manager">Manager</Label>
+            <Label className="font-bold" htmlFor="reporting_manager">Manager</Label>
             <Input
               id="reporting_manager"
               {...register('employee.reporting_manager')}
@@ -153,7 +153,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="employment_status">Employment Status</Label>
+            <Label className="font-bold" htmlFor="employment_status">Employment Status</Label>
             <Controller
               name="employee.employment_status"
               control={control}
@@ -179,7 +179,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
           </div>
           
           <div>
-            <Label htmlFor="date_of_exit">Exit Date</Label>
+            <Label className="font-bold" htmlFor="date_of_exit">Exit Date</Label>
             <Controller
               control={control}
               name="employee.date_of_exit"
@@ -218,7 +218,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="join_date_for_leave">Join Date for Leave</Label>
+              <Label className="font-bold" htmlFor="join_date_for_leave">Join Date for Leave</Label>
               <Controller
                 control={control}
                 name="employee.join_date_for_leave"
@@ -251,7 +251,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="initial_join_date">Initial Join Date</Label>
+              <Label className="font-bold" htmlFor="initial_join_date">Initial Join Date</Label>
               <Controller
                 control={control}
                 name="employee.initial_join_date"
@@ -284,7 +284,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="recruitment_type">Recruitment Type</Label>
+              <Label className="font-bold" htmlFor="recruitment_type">Recruitment Type</Label>
               <Input
                 id="recruitment_type"
                 {...register('employee.recruitment_type')}
@@ -293,7 +293,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="probation_period_type">Probation Period Type</Label>
+              <Label className="font-bold" htmlFor="probation_period_type">Probation Period Type</Label>
               <Input
                 id="probation_period_type"
                 {...register('employee.probation_period_type')}
@@ -302,7 +302,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="probation_due">Probation Due Date</Label>
+              <Label className="font-bold" htmlFor="probation_due">Probation Due Date</Label>
               <Controller
                 control={control}
                 name="employee.probation_due"
@@ -335,7 +335,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="confirmed_date">Confirmed Date</Label>
+              <Label className="font-bold" htmlFor="confirmed_date">Confirmed Date</Label>
               <Controller
                 control={control}
                 name="employee.confirmed_date"
@@ -368,7 +368,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="resignation_tender_date">Resignation Tender Date</Label>
+              <Label className="font-bold" htmlFor="resignation_tender_date">Resignation Tender Date</Label>
               <Controller
                 control={control}
                 name="employee.resignation_tender_date"
@@ -403,7 +403,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="exit_reason">Exit Reason</Label>
+              <Label className="font-bold" htmlFor="exit_reason">Exit Reason</Label>
               <Input
                 id="exit_reason"
                 {...register('employee.exit_reason')}
@@ -412,7 +412,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="exit_interview_date">Exit Interview Date</Label>
+              <Label className="font-bold" htmlFor="exit_interview_date">Exit Interview Date</Label>
               <Controller
                 control={control}
                 name="employee.exit_interview_date"
@@ -445,7 +445,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="notice_period">Notice Period (days)</Label>
+              <Label className="font-bold" htmlFor="notice_period">Notice Period (days)</Label>
               <Input
                 id="notice_period"
                 type="number"
@@ -455,7 +455,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="rehire">Rehire Eligibility</Label>
+              <Label className="font-bold" htmlFor="rehire">Rehire Eligibility</Label>
               <Controller
                 name="employee.rehire"
                 control={control}
@@ -478,7 +478,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="previous_employee_code">Previous Employee Code</Label>
+              <Label className="font-bold" htmlFor="previous_employee_code">Previous Employee Code</Label>
               <Input
                 id="previous_employee_code"
                 {...register('employee.previous_employee_code')}
@@ -487,7 +487,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="probation_status">Probation Status</Label>
+              <Label className="font-bold" htmlFor="probation_status">Probation Status</Label>
               <Controller
                 name="employee.probation_status"
                 control={control}
@@ -513,7 +513,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
             </div>
             
             <div>
-              <Label htmlFor="last_working_date">Last Working Date</Label>
+              <Label className="font-bold" htmlFor="last_working_date">Last Working Date</Label>
               <Controller
                 control={control}
                 name="employee.last_working_date"
