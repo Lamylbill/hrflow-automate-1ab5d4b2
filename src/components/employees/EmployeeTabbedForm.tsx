@@ -292,12 +292,13 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </div>
 
         {!isViewOnly && (
-          <div className="px-4 py-4 border-t bg-white flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
+          <div className="px-4 py-4 border-t bg-white flex justify-between items-center">
+            <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]"
               Cancel
             </Button>
             <Button 
-              type="submit" 
+              type="submit"
+              className="w-[180px]" 
               disabled={isSubmitting || !isUserLoaded || !!authError}
             >
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
