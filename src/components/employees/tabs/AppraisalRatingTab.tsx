@@ -103,7 +103,7 @@ export const AppraisalRatingTab: React.FC<AppraisalRatingTabProps> = ({ isViewOn
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Appraisal Ratings</h3>
+        <h3 className="font-bold" className="text-lg font-bold font-medium">Appraisal Ratings</h3>
         {!isViewOnly && (
           <Button 
             type="button" 
