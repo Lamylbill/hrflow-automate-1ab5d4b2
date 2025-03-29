@@ -5,7 +5,7 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, AlertCircle } from 'lucide-react';
+import { Upload, AlertCircle, UserCircle, Briefcase, DollarSign, Shield, FileText, MoreHorizontal } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
@@ -19,12 +19,12 @@ import { OthersTab } from './tabs/OthersTab';
 import { ProfilePhotoUploader } from './ProfilePhotoUploader';
 
 const TAB_OPTIONS = [
-  { value: 'basic-info', label: 'Basic Info' },
-  { value: 'job-details', label: 'Job Details' },
-  { value: 'compensation', label: 'Compensation' },
-  { value: 'compliance', label: 'Compliance' },
-  { value: 'documents', label: 'Documents' },
-  { value: 'others', label: 'Others' },
+  { value: 'basic-info', label: 'Basic Info', icon: UserCircle },
+  { value: 'job-details', label: 'Job Details', icon: Briefcase },
+  { value: 'compensation', label: 'Compensation', icon: DollarSign },
+  { value: 'compliance', label: 'Compliance', icon: Shield },
+  { value: 'documents', label: 'Documents', icon: FileText },
+  { value: 'others', label: 'Others', icon: MoreHorizontal },
 ];
 
 interface EmployeeTabbedFormProps {
@@ -252,15 +252,26 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               </select>
             </div>
           ) : (
-            <div className="border-b px-4">
-              <TabsList className="grid grid-cols-6 w-full">
-                {TAB_OPTIONS.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
+            <TabsList className="flex gap-4 px-4 py-2 bg-white border-b">
+              {TAB_OPTIONS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.value;
+                return (
+                  <TabsTrigger
+                    key={tab.value}
+                    value={tab.value}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                      isActive
+                        ? 'bg-primary text-white'
+                        : 'text-muted-foreground hover:bg-muted'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
                   </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
+                );
+              })}
+            </TabsList>
           )}
 
           <div className="flex-1 overflow-auto py-6">
