@@ -98,9 +98,10 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
 
       {viewMode === 'view' && (
-        <div className="bg-white border-t px-4 py-4 flex justify-end gap-4 flex-shrink-0 sticky bottom-0">
+        <div className="bg-white border-t px-4 py-4 flex justify-between items-center sticky bottom-0 w-full">
           <Button
             variant="destructive"
+            className="w-[160px]"
             onClick={handleDelete}
             className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
@@ -108,7 +109,8 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
             Delete Employee
           </Button>
           <Button
-            onClick={() => setViewMode('edit')}
+            onClick={() => setViewMode('edit')
+            className="w-[160px]"}
             className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
             <Pencil className="h-4 w-4" />
