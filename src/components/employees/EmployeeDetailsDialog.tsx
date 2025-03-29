@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
-import { 
+import {
   DialogHeader,
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee, EmployeeFormData } from '@/types/employee';
-import { Save, Trash } from 'lucide-react';
+import { Trash, Pencil } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmployeeTabbedForm } from './EmployeeTabbedForm';
@@ -56,15 +55,14 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       title: "Changes Saved",
       description: `Employee details for ${formData.employee.full_name} have been updated.`
     });
-    
-    // Since onEdit expects an Employee object, we need to combine the employee from formData
+
     const updatedEmployee: Employee = {
-      ...employee, // Keep fields not modified
-      ...formData.employee, // Update with new values
-      id: employee.id, // Ensure ID is preserved
-      user_id: employee.user_id // Ensure user_id is preserved
+      ...employee,
+      ...formData.employee,
+      id: employee.id,
+      user_id: employee.user_id
     };
-    
+
     setViewMode('view');
     onEdit(updatedEmployee);
   };
@@ -74,57 +72,49 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
   };
 
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>
-          {viewMode === 'view' ? 'Employee Details' : 'Edit Employee'}
-        </DialogTitle>
-        {viewMode === 'view' && (
-          <DialogDescription>
-            View and manage employee information
-          </DialogDescription>
-        )}
-      </DialogHeader>
+    <div className="flex flex-col h-full">
+      <div className="px-4 py-4 border-b">
+        <DialogHeader>
+          <DialogTitle>
+            {viewMode === 'view' ? 'Employee Details' : 'Edit Employee'}
+          </DialogTitle>
+          {viewMode === 'view' && (
+            <DialogDescription>
+              View and manage employee information
+            </DialogDescription>
+          )}
+        </DialogHeader>
+      </div>
 
-      {viewMode === 'view' ? (
-        <>
-          <div className="mt-2 max-h-[calc(90vh-12rem)] overflow-hidden">
-            <EmployeeTabbedForm
-              initialData={initialFormData}
-              mode="view"
-              onSuccess={() => {}}
-              onCancel={() => {}}
-              isViewOnly={true}
-            />
-          </div>
-          
-          <div className="flex justify-between mt-6 pt-4 border-t">
-            <Button 
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Delete Employee
-            </Button>
-            <Button 
-              variant="primary" 
-              onClick={() => setViewMode('edit')}
-            >
-              Edit Employee
-            </Button>
-          </div>
-        </>
-      ) : (
-        <div className="mt-2 max-h-[calc(90vh-6rem)] overflow-hidden">
-          <EmployeeTabbedForm
-            initialData={initialFormData}
-            mode="edit"
-            onSuccess={handleEmployeeUpdate}
-            onCancel={() => setViewMode('view')}
-          />
+      <div className="flex-1 overflow-auto">
+        <EmployeeTabbedForm
+          initialData={initialFormData}
+          mode={viewMode === 'edit' ? 'edit' : 'view'}
+          onSuccess={handleEmployeeUpdate}
+          onCancel={() => setViewMode('view')}
+          isViewOnly={viewMode === 'view'}
+        />
+      </div>
+
+      {viewMode === 'view' && (
+        <div className="sticky bottom-0 bg-white border-t px-4 py-4 z-50 flex justify-end gap-4">
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-6 h-10 rounded-full text-sm font-medium"
+          >
+            <Trash className="w-4 h-4" />
+            Delete Employee
+          </Button>
+          <Button
+            onClick={() => setViewMode('edit')}
+            className="flex items-center gap-2 px-6 h-10 rounded-full text-sm font-medium"
+          >
+            <Pencil className="w-4 h-4" />
+            Edit Employee
+          </Button>
         </div>
       )}
-    </>
+    </div>
   );
 };
