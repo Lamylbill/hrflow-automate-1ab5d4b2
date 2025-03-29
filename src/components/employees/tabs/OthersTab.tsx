@@ -39,7 +39,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
         {/* Core Fields */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="emergency_contact_name">Emergency Contact Name</Label>
+            <Label className="font-bold" htmlFor="emergency_contact_name">Emergency Contact Name</Label>
             <Input
               id="emergency_contact_name"
               {...register('employee.emergency_contact_name')}
@@ -48,7 +48,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="emergency_relationship">Relationship</Label>
+            <Label className="font-bold" htmlFor="emergency_relationship">Relationship</Label>
             <Input
               id="emergency_relationship"
               {...register('employee.emergency_relationship')}
@@ -57,7 +57,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="emergency_contact_phone">Mobile Number</Label>
+            <Label className="font-bold" htmlFor="emergency_contact_phone">Mobile Number</Label>
             <Input
               id="emergency_contact_phone"
               {...register('employee.emergency_contact_phone')}
@@ -66,7 +66,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="qualification">Education Qualification</Label>
+            <Label className="font-bold" htmlFor="qualification">Education Qualification</Label>
             <Input
               id="qualification"
               {...register('employee.qualification')}
@@ -77,7 +77,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="institute_name">Institute</Label>
+            <Label className="font-bold" htmlFor="institute_name">Institute</Label>
             <Input
               id="institute_name"
               disabled={isViewOnly}
@@ -85,7 +85,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="skill_set">Skills</Label>
+            <Label className="font-bold" htmlFor="skill_set">Skills</Label>
             <Controller
               name="employee.skill_set"
               control={control}
@@ -102,7 +102,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="ns_group">NS Group</Label>
+            <Label className="font-bold" htmlFor="ns_group">NS Group</Label>
             <Controller
               name="employee.ns_group"
               control={control}
@@ -128,7 +128,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="vaccination_status">Vaccination Status</Label>
+            <Label className="font-bold" htmlFor="vaccination_status">Vaccination Status</Label>
             <Controller
               name="employee.vaccination_status"
               control={control}
@@ -160,7 +160,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="graduation_year">Graduation Year</Label>
+              <Label className="font-bold" htmlFor="graduation_year">Graduation Year</Label>
               <Input
                 id="graduation_year"
                 type="number"
@@ -169,7 +169,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="major">Major</Label>
+              <Label className="font-bold" htmlFor="major">Major</Label>
               <Input
                 id="major"
                 disabled={isViewOnly}
@@ -177,7 +177,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="group_hospital_surgical_plan">Group Hospital Plan</Label>
+              <Label className="font-bold" htmlFor="group_hospital_surgical_plan">Group Hospital Plan</Label>
               <Input
                 id="group_hospital_surgical_plan"
                 {...register('employee.group_hospital_surgical_plan')}
@@ -188,7 +188,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="group_personal_accident_plan">Accident Plan</Label>
+              <Label className="font-bold" htmlFor="group_personal_accident_plan">Accident Plan</Label>
               <Input
                 id="group_personal_accident_plan"
                 {...register('employee.group_personal_accident_plan')}
@@ -197,7 +197,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="outpatient_medical_plan">Outpatient Medical</Label>
+              <Label className="font-bold" htmlFor="outpatient_medical_plan">Outpatient Medical</Label>
               <Input
                 id="outpatient_medical_plan"
                 {...register('employee.outpatient_medical_plan')}
@@ -206,7 +206,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="thirteenth_month_entitlement">13th Month Eligibility</Label>
+              <Label className="font-bold" htmlFor="thirteenth_month_entitlement">13th Month Eligibility</Label>
               <Controller
                 name="employee.thirteenth_month_entitlement"
                 control={control}
@@ -232,7 +232,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
       )}
 
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <Label htmlFor="notes">Notes</Label>
+        <Label className="font-bold" htmlFor="notes">Notes</Label>
         <Textarea
           id="notes"
           {...register('employee.notes')}
