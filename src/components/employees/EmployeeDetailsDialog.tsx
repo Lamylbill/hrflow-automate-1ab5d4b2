@@ -98,25 +98,25 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
 
       {viewMode === 'view' && (
-        <div className="bg-white border-t px-4 py-4 flex justify-between items-center sticky bottom-0 w-full">
-          <Button
-            variant="destructive"
-            className="w-[160px]"
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
-          >
-            <Trash className="h-4 w-4" />
-            Delete Employee
-          </Button>
-          <Button
-            onClick={() => setViewMode('edit')
-            className="w-[160px]"}
-            className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
-          >
-            <Pencil className="h-4 w-4" />
-            Edit Employee
-          </Button>
-        </div>
+        
+<div className="flex justify-between items-center px-4 py-4 border-t sticky bottom-0 bg-white">
+  <Button 
+    variant="destructive" 
+    className="w-[160px]" 
+    onClick={handleDelete}
+  >
+    <Trash className="mr-2 h-4 w-4" />
+    Delete Employee
+  </Button>
+
+  <Button 
+    className="w-[160px]" 
+    onClick={() => setViewMode('edit')}
+  >
+    Edit Employee
+  </Button>
+</div>
+
       )}
     </div>
   );
