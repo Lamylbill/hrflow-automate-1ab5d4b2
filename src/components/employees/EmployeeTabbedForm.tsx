@@ -205,7 +205,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         onSubmit={handleSubmit(onSubmit)}
         className="max-h-[calc(100vh-100px)] overflow-hidden flex flex-col"
       >
-        <div className="flex items-center mb-4 px-4 pt-2">
+        <div className="flex-1 overflow-auto py-4 pb-32">
           <ProfilePhotoUploader
             employeeId={employeeData?.id}
             currentPhotoUrl={employeeData?.profile_picture}
@@ -282,7 +282,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </Tabs>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
+          <div className="flex justify-end gap-2 border-t pt-4 bg-background sticky bottom-0 z-50 px-4">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
