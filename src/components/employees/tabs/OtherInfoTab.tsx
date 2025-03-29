@@ -19,7 +19,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="skill_set">Skill Set</Label>
+          <Label className="font-bold" htmlFor="skill_set">Skill Set</Label>
           <Input 
             id="skill_set" 
             {...register('employee.skill_set')}
@@ -29,7 +29,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="ns_group">NS Group</Label>
+          <Label className="font-bold" htmlFor="ns_group">NS Group</Label>
           <Input 
             id="ns_group" 
             {...register('employee.ns_group')}
@@ -38,7 +38,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="vaccination_status">Vaccination Status</Label>
+          <Label className="font-bold" htmlFor="vaccination_status">Vaccination Status</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -59,7 +59,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="group_hospital_surgical_plan">Group Hospital and Surgical Plan</Label>
+          <Label className="font-bold" htmlFor="group_hospital_surgical_plan">Group Hospital and Surgical Plan</Label>
           <Input 
             id="group_hospital_surgical_plan" 
             {...register('employee.group_hospital_surgical_plan')}
@@ -68,7 +68,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="group_personal_accident_plan">Group Personal and Accident Plan</Label>
+          <Label className="font-bold" htmlFor="group_personal_accident_plan">Group Personal and Accident Plan</Label>
           <Input 
             id="group_personal_accident_plan" 
             {...register('employee.group_personal_accident_plan')}
@@ -77,7 +77,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="outpatient_medical_plan">Outpatient Medical Plan</Label>
+          <Label className="font-bold" htmlFor="outpatient_medical_plan">Outpatient Medical Plan</Label>
           <Input 
             id="outpatient_medical_plan" 
             {...register('employee.outpatient_medical_plan')}
@@ -91,11 +91,11 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
             {...register('employee.thirteenth_month_entitlement')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="thirteenth_month_entitlement">13th Month Entitlement</Label>
+          <Label className="font-bold" htmlFor="thirteenth_month_entitlement">13th Month Entitlement</Label>
         </div>
         
         <div>
-          <Label htmlFor="benefits_enrolled">Benefits Enrolled</Label>
+          <Label className="font-bold" htmlFor="benefits_enrolled">Benefits Enrolled</Label>
           <Input 
             id="benefits_enrolled" 
             {...register('employee.benefits_enrolled')}
@@ -105,7 +105,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="probation_status">Probation Status</Label>
+          <Label className="font-bold" htmlFor="probation_status">Probation Status</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -126,7 +126,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="last_performance_review">Last Performance Review</Label>
+          <Label className="font-bold" htmlFor="last_performance_review">Last Performance Review</Label>
           <Input 
             id="last_performance_review" 
             type="date"
@@ -136,7 +136,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div>
-          <Label htmlFor="performance_score">Performance Score</Label>
+          <Label className="font-bold" htmlFor="performance_score">Performance Score</Label>
           <Input 
             id="performance_score" 
             type="number"
@@ -147,7 +147,7 @@ export const OtherInfoTab: React.FC<OtherInfoTabProps> = ({ isViewOnly = false }
         </div>
         
         <div className="md:col-span-3">
-          <Label htmlFor="notes">Notes</Label>
+          <Label className="font-bold" htmlFor="notes">Notes</Label>
           <Textarea 
             id="notes" 
             {...register('employee.notes')}
