@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   DialogHeader,
@@ -86,7 +87,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         </DialogHeader>
       </div>
 
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-hidden">
         <EmployeeTabbedForm
           initialData={initialFormData}
           mode={viewMode === 'edit' ? 'edit' : 'view'}
@@ -97,18 +98,18 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
 
       {viewMode === 'view' && (
-        <div className="sticky bottom-0 bg-white border-t px-4 py-4 z-50 flex justify-end gap-4">
+        <div className="bg-white border-t px-4 py-4 flex justify-end gap-4">
           <Button
             variant="destructive"
             onClick={handleDelete}
-            className="flex items-center gap-2 px-6 h-10 rounded-full text-sm font-medium"
+            className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
             <Trash className="w-4 h-4" />
             Delete Employee
           </Button>
           <Button
             onClick={() => setViewMode('edit')}
-            className="flex items-center gap-2 px-6 h-10 rounded-full text-sm font-medium"
+            className="flex items-center gap-2 px-6 h-10 text-sm font-medium"
           >
             <Pencil className="w-4 h-4" />
             Edit Employee

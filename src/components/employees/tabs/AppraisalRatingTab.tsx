@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui-custom/Button';
 import { Plus, Trash } from 'lucide-react';
 import { 
@@ -13,7 +12,6 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { Textarea } from '@/components/ui/textarea';
 import { EmployeeFormData, EmployeeAppraisalRating } from '@/types/employee';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';

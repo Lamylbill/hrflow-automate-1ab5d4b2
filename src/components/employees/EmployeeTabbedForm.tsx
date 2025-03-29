@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,9 +5,8 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Upload, AlertCircle, UserCircle, Briefcase, DollarSign, Shield, FileText, Calendar, Grid3X3 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProfilePhotoUploader } from './ProfilePhotoUploader';
@@ -18,15 +16,7 @@ import { ContractLifecycleTab } from './tabs/ContractLifecycleTab';
 import { CompensationBenefitsTab } from './tabs/CompensationBenefitsTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
-
-const TAB_OPTIONS = [
-  { value: 'personal-info', label: 'Personal Info', icon: UserCircle },
-  { value: 'employment-info', label: 'Employment Info', icon: Briefcase },
-  { value: 'contract-lifecycle', label: 'Contract & Lifecycle', icon: Calendar },
-  { value: 'compensation-benefits', label: 'Compensation & Benefits', icon: DollarSign },
-  { value: 'compliance', label: 'Compliance', icon: Shield },
-  { value: 'documents', label: 'Documents', icon: FileText },
-];
+import { TabNav } from './tabs/TabNav';
 
 interface EmployeeTabbedFormProps {
   initialData?: Partial<EmployeeFormData>;
@@ -198,13 +188,69 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     }
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'personal-info':
+        return (
+          <PersonalInfoTab 
+            isViewOnly={isViewOnly} 
+            showAdvancedFields={showAdvancedFields} 
+            onToggleAdvanced={setShowAdvancedFields} 
+          />
+        );
+      case 'employment-info':
+        return (
+          <EmploymentInfoTab 
+            isViewOnly={isViewOnly} 
+            showAdvancedFields={showAdvancedFields} 
+            onToggleAdvanced={setShowAdvancedFields} 
+          />
+        );
+      case 'contract-lifecycle':
+        return (
+          <ContractLifecycleTab 
+            isViewOnly={isViewOnly} 
+            showAdvancedFields={showAdvancedFields} 
+            onToggleAdvanced={setShowAdvancedFields} 
+          />
+        );
+      case 'compensation-benefits':
+        return (
+          <CompensationBenefitsTab 
+            isViewOnly={isViewOnly} 
+            showAdvancedFields={showAdvancedFields} 
+            onToggleAdvanced={setShowAdvancedFields} 
+          />
+        );
+      case 'compliance':
+        return (
+          <ComplianceTab 
+            isViewOnly={isViewOnly} 
+            showAdvancedFields={showAdvancedFields} 
+            onToggleAdvanced={setShowAdvancedFields} 
+          />
+        );
+      case 'documents':
+        return (
+          <DocumentsTab 
+            isViewOnly={isViewOnly} 
+            employeeId={employeeData?.id} 
+            onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} 
+          />
+        );
+      default:
+        return <div>Select a tab to view employee information</div>;
+    }
+  };
+
   return (
     <FormProvider {...methods}>
       <form
+        id="employee-form"
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 max-h-full overflow-hidden flex flex-col"
       >
-        <div className="flex items-center mb-4">
+        <div className="p-4 flex items-center border-b">
           <ProfilePhotoUploader
             employeeId={employeeData?.id}
             currentPhotoUrl={employeeData?.profile_picture}
@@ -227,101 +273,35 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </div>
 
         {authError && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="mx-4">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{authError}</AlertDescription>
           </Alert>
         )}
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex-1 flex flex-col overflow-hidden"
-        >
-          {isMobile ? (
-            <div className="px-4">
-              <select
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="w-full rounded-full border border-gray-300 bg-white py-2 px-4 text-sm text-gray-900 focus:outline-none"
-              >
-                {TAB_OPTIONS.map((tab) => (
-                  <option key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <TabsList className="flex gap-4 px-4 py-2 bg-white border-b">
-              {TAB_OPTIONS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.value;
-                return (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
-                      isActive
-                        ? 'bg-primary text-white'
-                        : 'text-muted-foreground hover:bg-muted'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{tab.label}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          )}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <TabNav 
+            activeTab={activeTab}
+            onChange={setActiveTab}
+          />
 
-          <div className="flex-1 overflow-auto py-6">
-            <TabsContent value="personal-info" className="p-4">
-              <PersonalInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
-            </TabsContent>
-            
-            <TabsContent value="employment-info" className="p-4">
-              <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
-            </TabsContent>
-            
-            <TabsContent value="contract-lifecycle" className="p-4">
-              <ContractLifecycleTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
-            </TabsContent>
-            
-            <TabsContent value="compensation-benefits" className="p-4">
-              <CompensationBenefitsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
-            </TabsContent>
-            
-            <TabsContent value="compliance" className="p-4">
-              <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
-            </TabsContent>
-            
-            <TabsContent value="documents" className="p-4">
-              <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />
-            </TabsContent>
+          <div className="flex-1 overflow-auto py-4">
+            {renderTabContent()}
           </div>
-        </Tabs>
+        </div>
 
         {!isViewOnly && (
-          <div className="flex justify-end gap-2 border-t pt-4 bg-white sticky bottom-0 z-30 px-4">
+          <div className="px-4 py-4 border-t bg-white flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !isUserLoaded || !!authError}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || !isUserLoaded || !!authError}
+            >
               {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
             </Button>
           </div>
-        )}
-
-        {!isViewOnly && employeeData?.id && activeTab !== 'documents' && (
-          <Button
-            variant="primary"
-            className={`fixed bottom-20 right-4 z-20 ${isMobile ? 'rounded-full w-14 h-14 p-0' : ''}`}
-            onClick={() => setActiveTab('documents')}
-          >
-            <Upload className={`h-${isMobile ? '6' : '4'} w-${isMobile ? '6' : '4'} ${isMobile ? '' : 'mr-2'}`} />
-            {!isMobile && 'Manage Documents'}
-          </Button>
         )}
       </form>
     </FormProvider>

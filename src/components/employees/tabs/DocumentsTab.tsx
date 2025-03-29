@@ -19,7 +19,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
   employeeId,
   onSaveRequested 
 }) => {
-  const { control, register, formState: { errors } } = useFormContext<EmployeeFormData>();
+  const { formState: { errors } } = useFormContext<EmployeeFormData>();
   const isMobile = useIsMobile();
 
   return (
