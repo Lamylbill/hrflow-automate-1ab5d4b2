@@ -17,7 +17,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="attendance_calendar">Calendar</Label>
+          <Label className="font-bold" htmlFor="attendance_calendar">Calendar</Label>
           <Input 
             id="attendance_calendar" 
             {...register('employee.attendance_calendar')}
@@ -26,7 +26,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="ot_group">OT Group</Label>
+          <Label className="font-bold" htmlFor="ot_group">OT Group</Label>
           <Input 
             id="ot_group" 
             {...register('employee.ot_group')}
@@ -40,7 +40,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
             {...register('employee.must_clock')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="must_clock">Must Clock</Label>
+          <Label className="font-bold" htmlFor="must_clock">Must Clock</Label>
         </div>
         
         <div className="flex items-center space-x-2 pt-6">
@@ -49,11 +49,11 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
             {...register('employee.all_work_day')}
             disabled={isViewOnly}
           />
-          <Label htmlFor="all_work_day">All Work Day</Label>
+          <Label className="font-bold" htmlFor="all_work_day">All Work Day</Label>
         </div>
         
         <div>
-          <Label htmlFor="badge_no">Badge No</Label>
+          <Label className="font-bold" htmlFor="badge_no">Badge No</Label>
           <Input 
             id="badge_no" 
             {...register('employee.badge_no')}
@@ -62,7 +62,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="imei_uuid_no">IMEI/UUID No</Label>
+          <Label className="font-bold" htmlFor="imei_uuid_no">IMEI/UUID No</Label>
           <Input 
             id="imei_uuid_no" 
             {...register('employee.imei_uuid_no')}
@@ -71,7 +71,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="clock_codes">Clock Codes</Label>
+          <Label className="font-bold" htmlFor="clock_codes">Clock Codes</Label>
           <Input 
             id="clock_codes" 
             {...register('employee.clock_codes')}
@@ -81,7 +81,7 @@ export const AttendanceTab: React.FC<AttendanceTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="clock_area_codes">Clock Area Codes</Label>
+          <Label className="font-bold" htmlFor="clock_area_codes">Clock Area Codes</Label>
           <Input 
             id="clock_area_codes" 
             {...register('employee.clock_area_codes')}
