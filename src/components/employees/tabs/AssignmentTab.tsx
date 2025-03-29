@@ -17,7 +17,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="assignment_date_start">Date Start</Label>
+          <Label className="font-bold" htmlFor="assignment_date_start">Date Start</Label>
           <Input 
             id="assignment_date_start" 
             type="date"
@@ -27,7 +27,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="status_change_reason">Status Change Reason</Label>
+          <Label className="font-bold" htmlFor="status_change_reason">Status Change Reason</Label>
           <Input 
             id="status_change_reason" 
             {...register('employee.status_change_reason')}
@@ -36,7 +36,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="company">Company</Label>
+          <Label className="font-bold" htmlFor="company">Company</Label>
           <Input 
             id="company" 
             {...register('employee.company')}
@@ -45,7 +45,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="department">Department</Label>
+          <Label className="font-bold" htmlFor="department">Department</Label>
           <Input 
             id="department" 
             {...register('employee.department')}
@@ -54,7 +54,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="job_title">Designation</Label>
+          <Label className="font-bold" htmlFor="job_title">Designation</Label>
           <Input 
             id="job_title" 
             {...register('employee.job_title')}
@@ -63,7 +63,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="cost_center">Cost Center</Label>
+          <Label className="font-bold" htmlFor="cost_center">Cost Center</Label>
           <Input 
             id="cost_center" 
             {...register('employee.cost_center')}
@@ -72,7 +72,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="job_grade">Job Grade</Label>
+          <Label className="font-bold" htmlFor="job_grade">Job Grade</Label>
           <Input 
             id="job_grade" 
             {...register('employee.job_grade')}
@@ -81,7 +81,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="employment_type">Employment Type</Label>
+          <Label className="font-bold" htmlFor="employment_type">Employment Type</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -103,7 +103,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="employment_status">Employment Status</Label>
+          <Label className="font-bold" htmlFor="employment_status">Employment Status</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -125,7 +125,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="hr_rpt_job_category">HR Rpt Job Category</Label>
+          <Label className="font-bold" htmlFor="hr_rpt_job_category">HR Rpt Job Category</Label>
           <Input 
             id="hr_rpt_job_category" 
             {...register('employee.hr_rpt_job_category')}
@@ -134,7 +134,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="hr_rpt_division_category">HR Rpt Division Category</Label>
+          <Label className="font-bold" htmlFor="hr_rpt_division_category">HR Rpt Division Category</Label>
           <Input 
             id="hr_rpt_division_category" 
             {...register('employee.hr_rpt_division_category')}
@@ -143,7 +143,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="leave_grade">Leave Grade</Label>
+          <Label className="font-bold" htmlFor="leave_grade">Leave Grade</Label>
           <Input 
             id="leave_grade" 
             {...register('employee.leave_grade')}
@@ -152,7 +152,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="pay_group">Pay Group</Label>
+          <Label className="font-bold" htmlFor="pay_group">Pay Group</Label>
           <Input 
             id="pay_group" 
             {...register('employee.pay_group')}
@@ -161,7 +161,7 @@ export const AssignmentTab: React.FC<AssignmentTabProps> = ({ isViewOnly = false
         </div>
         
         <div>
-          <Label htmlFor="manager">Manager</Label>
+          <Label className="font-bold" htmlFor="manager">Manager</Label>
           <Input 
             id="manager" 
             {...register('employee.manager')}
