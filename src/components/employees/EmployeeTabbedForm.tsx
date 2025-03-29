@@ -283,9 +283,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           <TabNav 
             activeTab={activeTab}
             onChange={setActiveTab}
+            className="px-4 sm:px-6 md:px-8"
           />
 
-          <div className="flex-1 overflow-auto py-4">
+          <div className="flex-1 overflow-auto">
             {renderTabContent()}
           </div>
         </div>

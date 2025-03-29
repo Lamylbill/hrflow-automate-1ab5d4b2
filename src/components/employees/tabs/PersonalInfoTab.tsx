@@ -46,7 +46,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   const minDate = new Date('1900-01-01');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <FieldsToggle 
         showAdvanced={showAdvancedFields} 
         onToggle={onToggleAdvanced} 
