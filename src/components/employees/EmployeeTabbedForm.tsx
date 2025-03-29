@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { Employee, EmployeeFormData } from '@/types/employee';
@@ -280,18 +279,18 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               <OthersTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />
             </TabsContent>
           </div>
-        </Tabs>
 
-        {!isViewOnly && (
-          <div className="flex justify-end gap-2 border-t pt-4 bg-background sticky bottom-0 z-50 px-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || !isUserLoaded || !!authError}>
-              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
-            </Button>
-          </div>
-        )}
+          {!isViewOnly && (
+            <div className="flex justify-end gap-2 border-t pt-4 bg-background sticky bottom-0 z-50 px-4">
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !isUserLoaded || !!authError}>
+                {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
+              </Button>
+            </div>
+          )}
+        </Tabs>
 
         {!isViewOnly && employeeData?.id && activeTab !== 'documents' && (
           <Button
