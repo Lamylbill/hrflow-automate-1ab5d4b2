@@ -52,7 +52,7 @@ export const TopNavbar = () => {
       <nav className="px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
               <span className="font-display font-bold text-lg text-indigo-800">Flow</span>
             </Link>
