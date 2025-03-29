@@ -18,7 +18,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="address_type">Address Type</Label>
+          <Label className="font-bold" htmlFor="address_type">Address Type</Label>
           <Select 
             disabled={isViewOnly}
             onValueChange={(value) => {
@@ -39,7 +39,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div>
-          <Label htmlFor="address_line_1">Address Line 1</Label>
+          <Label className="font-bold" htmlFor="address_line_1">Address Line 1</Label>
           <Input 
             id="address_line_1" 
             {...register('employee.address_line_1')}
@@ -48,7 +48,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div>
-          <Label htmlFor="address_line_2">Address Line 2</Label>
+          <Label className="font-bold" htmlFor="address_line_2">Address Line 2</Label>
           <Input 
             id="address_line_2" 
             {...register('employee.address_line_2')}
@@ -57,7 +57,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div>
-          <Label htmlFor="city">City</Label>
+          <Label className="font-bold" htmlFor="city">City</Label>
           <Input 
             id="city" 
             {...register('employee.city')}
@@ -66,7 +66,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div>
-          <Label htmlFor="postal_code">Postal Code</Label>
+          <Label className="font-bold" htmlFor="postal_code">Postal Code</Label>
           <Input 
             id="postal_code" 
             {...register('employee.postal_code')}
@@ -75,7 +75,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div>
-          <Label htmlFor="country_region">Country/Region</Label>
+          <Label className="font-bold" htmlFor="country_region">Country/Region</Label>
           <Input 
             id="country_region" 
             {...register('employee.country_region')}
@@ -84,7 +84,7 @@ export const AddressTab: React.FC<AddressTabProps> = ({ isViewOnly = false }) =>
         </div>
         
         <div className="md:col-span-2">
-          <Label htmlFor="home_address">Full Address (Legacy)</Label>
+          <Label className="font-bold" htmlFor="home_address">Full Address (Legacy)</Label>
           <Textarea 
             id="home_address" 
             {...register('employee.home_address')}
