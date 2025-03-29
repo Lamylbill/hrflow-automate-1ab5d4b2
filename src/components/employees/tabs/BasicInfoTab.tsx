@@ -54,7 +54,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="full_name">Full Name *</Label>
+            <Label className="font-bold" htmlFor="full_name">Full Name *</Label>
             <Input
               id="full_name"
               {...register('employee.full_name', { required: "Full name is required" })}
@@ -62,12 +62,12 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               required
             />
             {errors.employee?.full_name && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.full_name.message}</p>
+              <p className="text-sm font-bold font-medium text-destructive mt-1">{errors.employee.full_name.message}</p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="first_name">First Name</Label>
+            <Label className="font-bold" htmlFor="first_name">First Name</Label>
             <Input
               id="first_name"
               {...register('employee.first_name')}
@@ -76,7 +76,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="last_name">Last Name</Label>
+            <Label className="font-bold" htmlFor="last_name">Last Name</Label>
             <Input
               id="last_name"
               {...register('employee.last_name')}
@@ -85,7 +85,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="gender">Gender</Label>
+            <Label className="font-bold" htmlFor="gender">Gender</Label>
             <Controller
               name="employee.gender"
               control={control}
@@ -111,7 +111,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="nationality">Nationality</Label>
+            <Label className="font-bold" htmlFor="nationality">Nationality</Label>
             {isViewOnly ? (
               <Input
                 value={selectedNationality === 'Other' && otherNationality?.trim() ? otherNationality : selectedNationality || ''}
@@ -143,7 +143,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
                 />
                 {selectedNationality === 'Other' && (
                   <div className="mt-2">
-                    <Label htmlFor="nationality_other">Please specify nationality</Label>
+                    <Label className="font-bold" htmlFor="nationality_other">Please specify nationality</Label>
                     <Input
                       id="nationality_other"
                       placeholder="Enter nationality"
@@ -159,7 +159,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="identity_no">Identity Number</Label>
+            <Label className="font-bold" htmlFor="identity_no">Identity Number</Label>
             <Input
               id="identity_no"
               {...register('employee.identity_no')}
@@ -168,7 +168,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="date_of_birth">Date of Birth</Label>
+            <Label className="font-bold" htmlFor="date_of_birth">Date of Birth</Label>
             <Controller
               control={control}
               name="employee.date_of_birth"
@@ -205,7 +205,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="marital_status">Marital Status</Label>
+            <Label className="font-bold" htmlFor="marital_status">Marital Status</Label>
             <Controller
               name="employee.marital_status"
               control={control}
@@ -231,7 +231,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="phone_number">Contact Number</Label>
+            <Label className="font-bold" htmlFor="phone_number">Contact Number</Label>
             <Input
               id="phone_number"
               {...register('employee.phone_number')}
@@ -240,7 +240,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="email">Email *</Label>
+            <Label className="font-bold" htmlFor="email">Email *</Label>
             <Input
               id="email"
               type="email"
@@ -249,7 +249,7 @@ export const BasicInfoTab: React.FC<BasicInfoTabProps> = ({
               required
             />
             {errors.employee?.email && (
-              <p className="text-sm font-medium text-destructive mt-1">{errors.employee.email.message}</p>
+              <p className="text-sm font-bold font-medium text-destructive mt-1">{errors.employee.email.message}</p>
             )}
           </div>
         </div>
