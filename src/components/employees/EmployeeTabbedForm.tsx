@@ -4,8 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { AlertCircle, Plus, X as CancelIcon } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,7 +14,7 @@ import { EmploymentInfoTab } from './tabs/EmploymentInfoTab';
 import { ContractLifecycleTab } from './tabs/ContractLifecycleTab';
 import { CompensationBenefitsTab } from './tabs/CompensationBenefitsTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
-import { DocumentsTab } from './tabs/DocumentsTab';
+import { DocumentsTab } from './DocumentsTab';
 import { TabNav } from './tabs/TabNav';
 
 interface EmployeeTabbedFormProps {
@@ -37,7 +36,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
 
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,17 +106,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (
-          typeof cleanedObj[key] === 'string' &&
-          cleanedObj[key] === '' &&
-          (key.endsWith('_id') || key === 'id' || key === 'related_id')
-        ) {
+        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
+            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
-        } else if (
-          cleanedObj[key] &&
-          typeof cleanedObj[key] === 'object' &&
-          !Array.isArray(cleanedObj[key])
-        ) {
+        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -161,7 +152,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({ ...createData, user_id: userId })
+          .insert({
+            ...createData,
+            user_id: userId,
+          })
           .select()
           .single();
 
@@ -205,7 +199,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       case 'compliance':
         return <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
       case 'documents':
-        return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />;
+        return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} />;
       default:
         return <div className="px-4 sm:px-6 md:px-8">Select a tab to view employee information</div>;
     }
@@ -213,15 +207,29 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
   return (
     <FormProvider {...methods}>
-      <form id="employee-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
+      <form
+        id="employee-form"
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4 max-h-full overflow-hidden flex flex-col"
+      >
         <div className="p-4 md:px-6 flex items-center border-b">
-          <ProfilePhotoUploader employeeId={employeeData?.id} currentPhotoUrl={employeeData?.profile_picture} disabled={isViewOnly} />
+          <ProfilePhotoUploader
+            employeeId={employeeData?.id}
+            currentPhotoUrl={employeeData?.profile_picture}
+            disabled={isViewOnly}
+          />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
-              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
+              {mode === 'create'
+                ? 'New Employee'
+                : employeeData?.full_name || 'Employee Details'}
             </h2>
             <p className="text-sm text-gray-500">
-              {isViewOnly ? 'Viewing employee details' : mode === 'create' ? 'Add a new employee' : 'Update employee information'}
+              {isViewOnly
+                ? 'Viewing employee details'
+                : mode === 'create'
+                ? 'Add a new employee'
+                : 'Update employee information'}
             </p>
           </div>
         </div>
