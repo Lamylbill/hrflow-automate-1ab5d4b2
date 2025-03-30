@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, Settings, Menu, X, Bell, LayoutDashboard, Users, FileText, Calendar, Shield } from 'lucide-react';
@@ -20,7 +19,7 @@ export const TopNavbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   const navigationItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" /> },
     { name: 'Employees', path: '/employees', icon: <Users className="h-5 w-5" /> },
@@ -31,7 +30,6 @@ export const TopNavbar = () => {
 
   const getUserInitials = () => {
     if (!user?.email) return 'U';
-    
     const metadata = user.user_metadata || {};
     if (metadata.full_name) {
       return metadata.full_name
@@ -41,7 +39,6 @@ export const TopNavbar = () => {
         .toUpperCase()
         .substring(0, 2);
     }
-    
     return user.email.substring(0, 2).toUpperCase();
   };
 
@@ -49,14 +46,14 @@ export const TopNavbar = () => {
 
   return (
     <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-30">
-      <nav className="px-6 py-3">
+      <nav className="px-4 sm:px-6 md:px-8 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link to="/" replace className="flex items-center gap-2">
+            <Link to="/dashboard" className="flex items-center gap-2">
               <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
               <span className="font-display font-bold text-lg text-indigo-800">Flow</span>
             </Link>
-            
+
             <div className="hidden md:flex ml-10 space-x-4">
               {navigationItems.map((item) => (
                 <Link
@@ -76,27 +73,15 @@ export const TopNavbar = () => {
             </div>
           </div>
 
-          <div className="md:hidden">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
-              className="text-indigo-800"
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            <button className="text-indigo-700 hover:text-indigo-500">
+          <div className="flex items-center space-x-4">
+            <button className="text-indigo-700 hover:text-indigo-500 hidden md:inline-block">
               <Bell className="h-5 w-5" />
             </button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative rounded-full p-0">
-                  <div className="flex items-center gap-2 border border-indigo-100 p-1 pl-3 pr-2 rounded-full bg-white hover:bg-indigo-50">
+                  <div className="flex items-center gap-2 border border-indigo-100 pl-3 pr-2 py-1 rounded-full bg-white hover:bg-indigo-50">
                     <span className="text-indigo-800 font-medium text-sm">My Account</span>
                     <Avatar className="h-8 w-8 border-2 border-indigo-600/20">
                       {avatarImageUrl ? (
@@ -130,6 +115,18 @@ export const TopNavbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <div className="md:hidden">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                className="text-indigo-800"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -152,7 +149,7 @@ export const TopNavbar = () => {
                   <span className="ml-2">{item.name}</span>
                 </Link>
               ))}
-              
+
               <div className="pt-2 border-t border-gray-200 mt-2">
                 <Link 
                   to="/settings" 
