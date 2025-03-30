@@ -150,3 +150,5 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     </div>
   );
 };
+
+export { EmployeeTabbedForm };
