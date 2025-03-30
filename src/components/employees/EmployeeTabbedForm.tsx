@@ -9,7 +9,6 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { Trash, Pencil, X as CancelIcon, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { EmployeeTabbedForm } from './EmployeeTabbedForm';
 
 interface EmployeeDetailsDialogProps {
   employee: Employee;
