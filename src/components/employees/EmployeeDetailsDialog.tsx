@@ -74,7 +74,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
 
   return (
     <div className="flex flex-col h-full max-h-[90vh] overflow-hidden">
-      <div className="px-4 py-4 border-b flex-shrink-0">
+      <div className="px-6 py-4 border-b flex-shrink-0">
         <DialogHeader>
           <DialogTitle>
             {viewMode === 'view' ? 'Employee Details' : 'Edit Employee'}
@@ -97,8 +97,6 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         />
       </div>
 
-      
-    
       <div className="bg-white border-t px-6 py-4 flex justify-between items-center flex-shrink-0 sticky bottom-0">
         {viewMode === 'view' ? (
           <>
@@ -139,5 +137,4 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
     </div>
   );
-
 };

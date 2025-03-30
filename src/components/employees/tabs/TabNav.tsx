@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   User, Briefcase, Calendar, DollarSign, 
@@ -45,7 +46,7 @@ export const TabNav: React.FC<TabNavProps> = ({
 
   if (isMobile) {
     return (
-      <div className={cn("w-full px-4 sm:px-6 py-3 sticky top-0 bg-white z-10 border-b flex-shrink-0", className)}>
+      <div className={cn("w-full px-4 sm:px-6 md:px-8 py-3 sticky top-0 bg-white z-10 border-b flex-shrink-0", className)}>
         <Select value={activeTab} onValueChange={onChange}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select tab" />
@@ -76,7 +77,7 @@ export const TabNav: React.FC<TabNavProps> = ({
         onValueChange={(value) => {
           if (value) onChange(value);
         }}
-        className="flex flex-wrap justify-between w-full gap-1"
+        className="flex flex-wrap gap-2 w-full justify-between"
       >
         {TAB_OPTIONS.map((tab) => {
           const Icon = tab.icon;

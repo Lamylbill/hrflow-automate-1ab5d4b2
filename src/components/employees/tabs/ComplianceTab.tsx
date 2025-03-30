@@ -4,7 +4,6 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmployeeFormData } from '@/types/employee';
 import { FieldsToggle } from './shared/FieldsToggle';
 
@@ -19,10 +18,10 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
   showAdvancedFields,
   onToggleAdvanced
 }) => {
-  const { control, register } = useFormContext<EmployeeFormData>();
+  const { register } = useFormContext<EmployeeFormData>();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <FieldsToggle 
         showAdvanced={showAdvancedFields} 
         onToggle={onToggleAdvanced} 
@@ -40,20 +39,12 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
             />
           </div>
 
-          <div>
-            <Label className="font-bold" htmlFor="work_permit_number">Work Permit Number</Label>
-            <Input
-              id="work_permit_number"
-              {...register('employee.work_permit_number')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div className="flex items-center space-x-2 py-2">
+          <div className="flex items-center space-x-2">
             <Checkbox
               id="cpf_contribution"
               {...register('employee.cpf_contribution')}
               disabled={isViewOnly}
+              defaultChecked={true}
             />
             <Label className="font-bold" htmlFor="cpf_contribution">CPF Contribution</Label>
           </div>
@@ -67,11 +58,72 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
             />
           </div>
         </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label className="font-bold" htmlFor="work_permit_number">Work Permit Number</Label>
+            <Input
+              id="work_permit_number"
+              {...register('employee.work_permit_number')}
+              disabled={isViewOnly}
+            />
+          </div>
+
+          <div>
+            <Label className="font-bold" htmlFor="work_pass_expiry_date">Work Pass Expiry Date</Label>
+            <Input
+              id="work_pass_expiry_date"
+              type="date"
+              {...register('employee.work_pass_expiry_date')}
+              disabled={isViewOnly}
+            />
+          </div>
+
+          <div>
+            <Label className="font-bold" htmlFor="residency_status">Residency Status</Label>
+            <Input
+              id="residency_status"
+              {...register('employee.residency_status')}
+              disabled={isViewOnly}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Advanced Fields */}
       {showAdvancedFields && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
+          <div className="space-y-4">
+            <div>
+              <Label className="font-bold" htmlFor="statutory_date_start">Statutory Date Start</Label>
+              <Input
+                id="statutory_date_start"
+                type="date"
+                {...register('employee.statutory_date_start')}
+                disabled={isViewOnly}
+              />
+            </div>
+            
+            <div>
+              <Label className="font-bold" htmlFor="statutory_date_end">Statutory Date End</Label>
+              <Input
+                id="statutory_date_end"
+                type="date"
+                {...register('employee.statutory_date_end')}
+                disabled={isViewOnly}
+              />
+            </div>
+
+            <div>
+              <Label className="font-bold" htmlFor="funds">Funds</Label>
+              <Input
+                id="funds"
+                {...register('employee.funds')}
+                disabled={isViewOnly}
+              />
+            </div>
+          </div>
+
           <div className="space-y-4">
             <div>
               <Label className="font-bold" htmlFor="pr_issue_date">PR Issue Date</Label>
@@ -92,143 +144,12 @@ export const ComplianceTab: React.FC<ComplianceTabProps> = ({
                 disabled={isViewOnly}
               />
             </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="statutory_date_start">Statutory Date Start</Label>
-              <Input
-                id="statutory_date_start"
-                type="date"
-                {...register('employee.statutory_date_start')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="statutory_date_end">Statutory Date End</Label>
-              <Input
-                id="statutory_date_end"
-                type="date"
-                {...register('employee.statutory_date_end')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="membership_no">Membership No</Label>
-              <Input
-                id="membership_no"
-                {...register('employee.membership_no')}
-                disabled={isViewOnly}
-              />
-            </div>
-          </div>
 
-          <div className="space-y-4">
             <div>
-              <Label className="font-bold" htmlFor="mom_occupation_group">MOM Occupation Group</Label>
+              <Label className="font-bold" htmlFor="mso_scheme">MSO Scheme</Label>
               <Input
-                id="mom_occupation_group"
-                {...register('employee.mom_occupation_group')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="mom_employee_type">MOM Employee Type</Label>
-              <Input
-                id="mom_employee_type"
-                {...register('employee.mom_employee_type')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="mom_bc_occupation_group">MOM BC Occupation Group</Label>
-              <Input
-                id="mom_bc_occupation_group"
-                {...register('employee.mom_bc_occupation_group')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="mom_bc_employee_type">MOM BC Employee Type</Label>
-              <Input
-                id="mom_bc_employee_type"
-                {...register('employee.mom_bc_employee_type')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="mom_bc_employment_type">MOM BC Employment Type</Label>
-              <Input
-                id="mom_bc_employment_type"
-                {...register('employee.mom_bc_employment_type')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="mom_bc_employee_group">MOM BC Employee Group</Label>
-              <Input
-                id="mom_bc_employee_group"
-                {...register('employee.mom_bc_employee_group')}
-                disabled={isViewOnly}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="imei_uuid_no">IMEI/UUID No</Label>
-              <Input
-                id="imei_uuid_no"
-                {...register('employee.imei_uuid_no')}
-                disabled={isViewOnly}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="work_days_per_week">Work Days Per Week</Label>
-              <Input
-                id="work_days_per_week"
-                type="number"
-                step="0.5"
-                {...register('employee.work_days_per_week', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="work_hours_per_day">Work Hours Per Day</Label>
-              <Input
-                id="work_hours_per_day"
-                type="number"
-                step="0.5"
-                {...register('employee.work_hours_per_day', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="work_days_per_year">Work Days Per Year</Label>
-              <Input
-                id="work_days_per_year"
-                type="number"
-                {...register('employee.work_days_per_year', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="work_hours_per_year">Work Hours Per Year</Label>
-              <Input
-                id="work_hours_per_year"
-                type="number"
-                {...register('employee.work_hours_per_year', { valueAsNumber: true })}
+                id="mso_scheme"
+                {...register('employee.mso_scheme')}
                 disabled={isViewOnly}
               />
             </div>

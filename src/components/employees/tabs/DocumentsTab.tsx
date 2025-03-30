@@ -1,12 +1,7 @@
 
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
+import { DocumentManager } from '../documents/DocumentManager';
 import { EmployeeFormData } from '@/types/employee';
-import { DocumentManager } from '@/components/employees/documents/DocumentManager';
-import { Button } from '@/components/ui-custom/Button';
-import { AlertCircle, Save } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DocumentsTabProps {
   isViewOnly?: boolean;
@@ -15,40 +10,27 @@ interface DocumentsTabProps {
 }
 
 export const DocumentsTab: React.FC<DocumentsTabProps> = ({ 
-  isViewOnly = false, 
+  isViewOnly = false,
   employeeId,
-  onSaveRequested 
+  onSaveRequested
 }) => {
-  const { formState: { errors } } = useFormContext<EmployeeFormData>();
-  const isMobile = useIsMobile();
-
   return (
-    <div className="space-y-6 overflow-auto px-1 sm:px-4">
-      {employeeId ? (
-        <DocumentManager employeeId={employeeId} isTabbed={true} />
-      ) : (
-        <div className="text-center p-6 sm:p-8 bg-gray-50 border border-gray-200 rounded-lg">
-          <div className="flex items-center justify-center mb-4">
-            <AlertCircle className="h-10 w-10 text-amber-500" />
-          </div>
-          <h3 className="text-lg font-bold font-medium mb-2">Documents Require Saved Employee</h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            Please save the employee information first to enable document uploads. 
-            All documents will be securely linked to this employee record.
-          </p>
-          
-          {onSaveRequested && (
-            <Button 
-              variant="primary" 
-              size={isMobile ? "lg" : "default"}
-              className="mx-auto"
-              onClick={onSaveRequested}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              Save Employee Now
-            </Button>
-          )}
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
+      {!employeeId && onSaveRequested ? (
+        <div className="p-6 bg-gray-50 rounded-lg text-center">
+          <p className="text-gray-600 mb-4">Please save the employee record first before adding documents.</p>
+          <button 
+            className="bg-hrflow-blue hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={onSaveRequested}
+          >
+            Save Employee Record
+          </button>
         </div>
+      ) : (
+        <DocumentManager
+          employeeId={employeeId || ''}
+          isReadOnly={isViewOnly}
+        />
       )}
     </div>
   );

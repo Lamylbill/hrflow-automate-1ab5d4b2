@@ -22,7 +22,7 @@ export const EmploymentInfoTab: React.FC<EmploymentInfoTabProps> = ({
   const { control, register } = useFormContext<EmployeeFormData>();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <FieldsToggle 
         showAdvanced={showAdvancedFields} 
         onToggle={onToggleAdvanced} 

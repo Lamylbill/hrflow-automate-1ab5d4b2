@@ -203,14 +203,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       case 'documents':
         return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />;
       default:
-        return <div>Select a tab to view employee information</div>;
+        return <div className="px-4 sm:px-6 md:px-8">Select a tab to view employee information</div>;
     }
   };
 
   return (
     <FormProvider {...methods}>
       <form id="employee-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
-        <div className="p-4 flex items-center border-b">
+        <div className="p-4 md:px-6 flex items-center border-b">
           <ProfilePhotoUploader employeeId={employeeData?.id} currentPhotoUrl={employeeData?.profile_picture} disabled={isViewOnly} />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
@@ -223,19 +223,19 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         </div>
 
         {authError && (
-          <Alert variant="destructive" className="mx-4">
+          <Alert variant="destructive" className="mx-4 sm:mx-6 md:mx-8">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{authError}</AlertDescription>
           </Alert>
         )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <TabNav activeTab={activeTab} onChange={setActiveTab} className="px-4 sm:px-6 md:px-8" />
+          <TabNav activeTab={activeTab} onChange={setActiveTab} />
           <div className="flex-1 overflow-auto">{renderTabContent()}</div>
         </div>
 
         {!isViewOnly && (
-          <div className="px-4 py-4 border-t bg-white flex justify-between items-center gap-2">
+          <div className="px-4 sm:px-6 md:px-8 py-4 border-t bg-white flex justify-between items-center gap-2">
             <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]">
               <CancelIcon className="mr-2 h-4 w-4" />
               Cancel

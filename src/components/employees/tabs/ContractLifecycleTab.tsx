@@ -4,7 +4,6 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmployeeFormData } from '@/types/employee';
 import { FieldsToggle } from './shared/FieldsToggle';
 
@@ -19,10 +18,10 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
   showAdvancedFields,
   onToggleAdvanced
 }) => {
-  const { control, register } = useFormContext<EmployeeFormData>();
+  const { register } = useFormContext<EmployeeFormData>();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
       <FieldsToggle 
         showAdvanced={showAdvancedFields} 
         onToggle={onToggleAdvanced} 
@@ -31,16 +30,6 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Basic Fields */}
         <div className="space-y-4">
-          <div>
-            <Label className="font-bold" htmlFor="date_of_hire">Date of Hire</Label>
-            <Input
-              id="date_of_hire"
-              type="date"
-              {...register('employee.date_of_hire')}
-              disabled={isViewOnly}
-            />
-          </div>
-
           <div>
             <Label className="font-bold" htmlFor="contract_date_start">Contract Start Date</Label>
             <Input
@@ -62,18 +51,6 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
           </div>
 
           <div>
-            <Label className="font-bold" htmlFor="service_length_total">Service Length (Total)</Label>
-            <Input
-              id="service_length_total"
-              type="number"
-              {...register('employee.service_length_total', { valueAsNumber: true })}
-              disabled={isViewOnly}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
             <Label className="font-bold" htmlFor="contract_type">Contract Type</Label>
             <Input
               id="contract_type"
@@ -82,22 +59,42 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
             />
           </div>
 
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="contract_signed"
+              {...register('employee.contract_signed')}
+              disabled={isViewOnly}
+            />
+            <Label className="font-bold" htmlFor="contract_signed">Contract Signed</Label>
+          </div>
+        </div>
+
+        <div className="space-y-4">
           <div>
-            <Label className="font-bold" htmlFor="work_experience_to_date">Work Experience (To Date)</Label>
+            <Label className="font-bold" htmlFor="date_of_hire">Date of Hire</Label>
             <Input
-              id="work_experience_to_date"
-              type="number"
-              {...register('employee.work_experience_to_date', { valueAsNumber: true })}
+              id="date_of_hire"
+              type="date"
+              {...register('employee.date_of_hire')}
               disabled={isViewOnly}
             />
           </div>
 
           <div>
-            <Label className="font-bold" htmlFor="previous_work_experience">Previous Work Experience</Label>
+            <Label className="font-bold" htmlFor="date_of_exit">Date of Exit</Label>
             <Input
-              id="previous_work_experience"
-              type="number"
-              {...register('employee.previous_work_experience', { valueAsNumber: true })}
+              id="date_of_exit"
+              type="date"
+              {...register('employee.date_of_exit')}
+              disabled={isViewOnly}
+            />
+          </div>
+
+          <div>
+            <Label className="font-bold" htmlFor="contract_nature">Contract Nature</Label>
+            <Input
+              id="contract_nature"
+              {...register('employee.contract_nature')}
               disabled={isViewOnly}
             />
           </div>
@@ -119,27 +116,7 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
             </div>
             
             <div>
-              <Label className="font-bold" htmlFor="probation_period">Probation Period</Label>
-              <Input
-                id="probation_period"
-                type="number"
-                {...register('employee.probation_period', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="probation_due">Probation Due</Label>
-              <Input
-                id="probation_due"
-                type="date"
-                {...register('employee.probation_due')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="confirmed_date">Confirmed Date</Label>
+              <Label className="font-bold" htmlFor="confirmed_date">Confirmation Date</Label>
               <Input
                 id="confirmed_date"
                 type="date"
@@ -147,38 +124,19 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
                 disabled={isViewOnly}
               />
             </div>
-            
+
             <div>
-              <Label className="font-bold" htmlFor="probation_status">Probation Status</Label>
+              <Label className="font-bold" htmlFor="last_working_date">Last Working Date</Label>
               <Input
-                id="probation_status"
-                {...register('employee.probation_status')}
+                id="last_working_date"
+                type="date"
+                {...register('employee.last_working_date')}
                 disabled={isViewOnly}
               />
             </div>
           </div>
 
           <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="resignation_tender_date">Resignation Tender Date</Label>
-              <Input
-                id="resignation_tender_date"
-                type="date"
-                {...register('employee.resignation_tender_date')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="date_of_exit">Exit Date</Label>
-              <Input
-                id="date_of_exit"
-                type="date"
-                {...register('employee.date_of_exit')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
             <div>
               <Label className="font-bold" htmlFor="exit_reason">Exit Reason</Label>
               <Input
@@ -189,64 +147,23 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
             </div>
             
             <div>
-              <Label className="font-bold" htmlFor="exit_interview_date">Exit Interview Date</Label>
-              <Input
-                id="exit_interview_date"
-                type="date"
-                {...register('employee.exit_interview_date')}
-                disabled={isViewOnly}
-              />
+              <Label className="font-bold" htmlFor="rehire">Rehireable</Label>
+              <div className="mt-2">
+                <Checkbox
+                  id="rehire"
+                  {...register('employee.rehire')}
+                  disabled={isViewOnly}
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-4">
             <div>
-              <Label className="font-bold" htmlFor="notice_period">Notice Period</Label>
-              <Input
-                id="notice_period"
-                type="number"
-                {...register('employee.notice_period', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="termination_notice_period">Termination Notice Period</Label>
-              <Input
-                id="termination_notice_period"
-                type="number"
-                {...register('employee.termination_notice_period', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox
-                id="rehire"
-                {...register('employee.rehire')}
-                disabled={isViewOnly}
-              />
-              <Label className="font-bold" htmlFor="rehire">Rehire</Label>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="renewal">Renewal</Label>
+              <Label className="font-bold" htmlFor="renewal">Renewal Status</Label>
               <Input
                 id="renewal"
                 {...register('employee.renewal')}
                 disabled={isViewOnly}
               />
-            </div>
-            
-            <div className="flex items-center space-x-2 pt-6">
-              <Checkbox
-                id="contract_signed"
-                {...register('employee.contract_signed')}
-                disabled={isViewOnly}
-              />
-              <Label className="font-bold" htmlFor="contract_signed">Contract Signed</Label>
             </div>
           </div>
         </div>
