@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+""import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
@@ -108,10 +108,17 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     const cleanupData = (obj: any) => {
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
-            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
+        if (
+          typeof cleanedObj[key] === 'string' &&
+          cleanedObj[key] === '' &&
+          (key.endsWith('_id') || key === 'id' || key === 'related_id')
+        ) {
           cleanedObj[key] = null;
-        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
+        } else if (
+          cleanedObj[key] &&
+          typeof cleanedObj[key] === 'object' &&
+          !Array.isArray(cleanedObj[key])
+        ) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
         }
       });
@@ -154,10 +161,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...createData,
-            user_id: userId,
-          })
+          .insert({ ...createData, user_id: userId })
           .select()
           .single();
 
@@ -233,19 +237,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           <TabNav activeTab={activeTab} onChange={setActiveTab} />
           <div className="flex-1 overflow-auto">{renderTabContent()}</div>
         </div>
-
-        {!isViewOnly && (
-          <div className="px-4 sm:px-6 md:px-8 py-4 border-t bg-white flex justify-between items-center gap-2">
-            <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]">
-              <CancelIcon className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button type="submit" className="w-[180px]" disabled={isSubmitting || !isUserLoaded || !!authError}>
-              <Plus className="mr-2 h-4 w-4" />
-              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
-            </Button>
-          </div>
-        )}
       </form>
     </FormProvider>
   );
