@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus, X as CancelIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -65,13 +65,9 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         setIsUserLoaded(true);
         return;
       }
-
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          setAuthError('Unable to verify session. Please log in again.');
-          return;
-        }
+        if (error) throw error;
         if (session?.user?.id) {
           setValue('employee.user_id', session.user.id);
           setIsUserLoaded(true);
@@ -82,17 +78,15 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         setAuthError('Authentication error. Please try again.');
       }
     };
-
     checkUser();
   }, [user, setValue]);
 
   const onSubmit = async (data: EmployeeFormData) => {
     const userId = data.employee.user_id?.trim() || user?.id;
-
     if (!userId) {
       toast({
         title: 'Authentication Error',
-        description: 'You must be logged in to create or update an employee.',
+        description: 'You must be logged in.',
         variant: 'destructive',
       });
       return;
@@ -107,7 +101,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       const cleanedObj = { ...obj };
       Object.keys(cleanedObj).forEach(key => {
         if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
-            (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
+          (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
           cleanedObj[key] = null;
         } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
           cleanedObj[key] = cleanupData(cleanedObj[key]);
@@ -117,7 +111,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     };
 
     const cleanedRest = cleanupData(rest);
-
     const employeeDataForDb: Employee = {
       ...cleanedRest,
       user_id: userId,
@@ -138,42 +131,30 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
     try {
       setIsSubmitting(true);
-
       if (mode === 'edit' && employeeDataForDb.id) {
         const { error } = await supabase
           .from('employees')
           .update(employeeDataForDb)
           .eq('id', employeeDataForDb.id)
           .eq('user_id', userId);
-
         if (error) throw error;
       } else if (mode === 'create') {
         const { id, ...createData } = employeeDataForDb;
-
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...createData,
-            user_id: userId,
-          })
+          .insert({ ...createData, user_id: userId })
           .select()
           .single();
-
         if (error) throw error;
         if (newEmployee) {
           data.employee.id = newEmployee.id;
         }
       }
-
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
         description: `${employeeDataForDb.full_name} has been saved.`,
       });
-
       onSuccess(data);
-      if (mode === 'create') {
-        setTimeout(() => setActiveTab('documents'), 500);
-      }
     } catch (error: any) {
       console.error('Error saving employee:', error);
       toast({
@@ -199,7 +180,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       case 'compliance':
         return <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
       case 'documents':
-        return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} />;
+        return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />;
       default:
         return <div className="px-4 sm:px-6 md:px-8">Select a tab to view employee information</div>;
     }
@@ -220,9 +201,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           />
           <div className="ml-4">
             <h2 className="text-lg font-medium">
-              {mode === 'create'
-                ? 'New Employee'
-                : employeeData?.full_name || 'Employee Details'}
+              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
             </h2>
             <p className="text-sm text-gray-500">
               {isViewOnly
@@ -245,6 +224,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           <TabNav activeTab={activeTab} onChange={setActiveTab} />
           <div className="flex-1 overflow-auto">{renderTabContent()}</div>
         </div>
+
+        {/* Buttons only rendered via EmployeeDetailsDialog or Create Flow */}
       </form>
     </FormProvider>
   );
