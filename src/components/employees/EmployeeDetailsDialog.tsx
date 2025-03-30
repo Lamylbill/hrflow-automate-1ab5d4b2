@@ -73,7 +73,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[90vh] overflow-hidden">
+    <div className="flex flex-col h-full">
       <div className="px-4 py-4 border-b flex-shrink-0">
         <DialogHeader>
           <DialogTitle>
@@ -116,6 +116,25 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           </Button>
         </div>
       )}
+    
+      <div className="mt-auto flex justify-between items-center gap-4 px-6 py-4 border-t bg-white">
+        <Button
+          variant="destructive"
+          onClick={handleDelete}
+          className="text-base px-6 py-2 rounded-full"
+        >
+          <Trash className="mr-2 h-4 w-4" />
+          Delete Employee
+        </Button>
+        <Button
+          onClick={() => setViewMode('edit')}
+          className="text-base px-6 py-2 rounded-full"
+        >
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit Employee
+        </Button>
+      </div>
     </div>
   );
+
 };
