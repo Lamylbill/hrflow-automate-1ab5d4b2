@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee, EmployeeFormData } from '@/types/employee';
-import { Trash, Pencil, Plus, X } from 'lucide-react';
+import { Trash, Pencil, X as CancelIcon, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmployeeTabbedForm } from './EmployeeTabbedForm';
@@ -23,6 +23,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
   onDelete
 }) => {
   const [viewMode, setViewMode] = useState<'view' | 'edit'>('view');
+  const [formKey, setFormKey] = useState(0); // Reset form instance when toggling modes
   const { toast } = useToast();
 
   const handleDelete = async () => {
@@ -64,6 +65,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     };
 
     setViewMode('view');
+    setFormKey(prev => prev + 1); // Reset the form to clear any lingering inputs
     onEdit(updatedEmployee);
   };
 
@@ -88,10 +90,14 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
 
       <div className="flex-1 overflow-auto">
         <EmployeeTabbedForm
+          key={formKey} // force remount
           initialData={initialFormData}
           mode={viewMode === 'edit' ? 'edit' : 'view'}
           onSuccess={handleEmployeeUpdate}
-          onCancel={() => setViewMode('view')}
+          onCancel={() => {
+            setViewMode('view');
+            setFormKey(prev => prev + 1);
+          }}
           isViewOnly={viewMode === 'view'}
         />
       </div>
@@ -102,14 +108,17 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 min-w-[180px]"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Trash className="h-4 w-4" />
               Delete Employee
             </Button>
             <Button
-              onClick={() => setViewMode('edit')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 min-w-[180px]"
+              onClick={() => {
+                setViewMode('edit');
+                setFormKey(prev => prev + 1);
+              }}
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Pencil className="h-4 w-4" />
               Edit Employee
@@ -119,17 +128,21 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
           <>
             <Button
               variant="outline"
-              onClick={() => setViewMode('view')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 min-w-[180px]"
+              onClick={() => {
+                setViewMode('view');
+                setFormKey(prev => prev + 1);
+              }}
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
-              <X className="h-4 w-4" />
+              <CancelIcon className="h-4 w-4" />
               Cancel
             </Button>
             <Button
-              onClick={() => document.getElementById('employee-form')?.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 min-w-[180px]"
+              form="employee-form"
+              type="submit"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
-              <Plus className="h-4 w-4" />
+              <Save className="h-4 w-4" />
               Save Changes
             </Button>
           </>
