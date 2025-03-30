@@ -52,11 +52,13 @@ interface DocumentManagerProps {
   employeeId: string;
   refreshTrigger?: number;
   isTabbed?: boolean;
+  isReadOnly?: boolean; // Added this prop to match what's being passed from DocumentsTab
 }
 
 export const DocumentManager: React.FC<DocumentManagerProps> = ({
   employeeId,
-  refreshTrigger = 0
+  refreshTrigger = 0,
+  isReadOnly = false // Set default value to false
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
@@ -234,10 +236,12 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Documents</h2>
-        <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!!bucketError} size="sm">
-          <Upload className="w-4 h-4 mr-2" />
-          Upload Documents
-        </Button>
+        {!isReadOnly && (
+          <Button onClick={() => setIsUploadDialogOpen(true)} disabled={!!bucketError} size="sm">
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Documents
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
@@ -335,14 +339,16 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => handleDelete(doc.id)}
-                      title="Delete"
-                    >
-                      <Trash className="w-4 h-4 text-red-500" />
-                    </Button>
+                    {!isReadOnly && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDelete(doc.id)}
+                        title="Delete"
+                      >
+                        <Trash className="w-4 h-4 text-red-500" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
