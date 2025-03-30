@@ -14,7 +14,7 @@ import { EmploymentInfoTab } from './tabs/EmploymentInfoTab';
 import { ContractLifecycleTab } from './tabs/ContractLifecycleTab';
 import { CompensationBenefitsTab } from './tabs/CompensationBenefitsTab';
 import { ComplianceTab } from './tabs/ComplianceTab';
-import { DocumentsTab } from './DocumentsTab';
+import { DocumentsTab } from './tabs/DocumentsTab';
 import { TabNav } from './tabs/TabNav';
 
 interface EmployeeTabbedFormProps {
