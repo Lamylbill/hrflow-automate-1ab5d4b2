@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   DialogHeader,
@@ -7,7 +6,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui-custom/Button';
 import { Employee, EmployeeFormData } from '@/types/employee';
-import { Trash, Pencil } from 'lucide-react';
+import { Trash, Pencil, X, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { EmployeeTabbedForm } from './EmployeeTabbedForm';
@@ -103,14 +102,14 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Trash className="h-4 w-4" />
               Delete Employee
             </Button>
             <Button
               onClick={() => setViewMode('edit')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Pencil className="h-4 w-4" />
               Edit Employee
@@ -121,16 +120,18 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
             <Button
               variant="outline"
               onClick={() => setViewMode('view')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
-              ✕ Cancel
+              <X className="h-4 w-4" />
+              Cancel
             </Button>
             <Button
               form="employee-form"
               type="submit"
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2"
+              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
-              ＋ Save Changes
+              <Save className="h-4 w-4" />
+              Save Changes
             </Button>
           </>
         )}
