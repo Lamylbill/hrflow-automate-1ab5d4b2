@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight, Menu, X, LogOut, Info, Users, Phone,
-  Home, BarChart, FileText, Calendar, Shield, Settings
+  ChevronRight, Menu, X, LogOut, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -14,11 +13,9 @@ import {
 import {
   NavigationMenu, NavigationMenuItem,
   NavigationMenuLink, NavigationMenuList,
-  navigationMenuTriggerStyle
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getNavItems } from './NavItems';
-import { toast } from "sonner";
 
 interface NavbarProps {
   showLogo?: boolean;
@@ -26,11 +23,48 @@ interface NavbarProps {
 
 export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isCompact, setIsCompact] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setIsCompact(entry.contentRect.width < 880);
+      }
+    });
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  const handleScroll = useCallback(() => {
+    const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+    const scrollY = window.scrollY + 120;
+    for (const section of sections) {
+      const el = document.getElementById(section) || (section === 'home' ? document.body : null);
+      if (el) {
+        const top = el.offsetTop;
+        const bottom = top + el.offsetHeight;
+        if (scrollY >= top && scrollY < bottom) {
+          setActiveSection(section);
+          break;
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const publicNavItems = getNavItems();
 
@@ -44,51 +78,15 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
 
   const getUserAvatar = () => user?.user_metadata?.avatar_url || null;
 
-  const handleScroll = useCallback(() => {
-    if (location.pathname === '/') {
-      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-      const scrollPosition = window.scrollY + 100;
-      for (const section of sections) {
-        const element = document.getElementById(section) || (section === 'home' ? document.body : null);
-        if (element) {
-          const top = element.offsetTop;
-          const bottom = top + element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < bottom) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setIsCompact(entry.contentRect.width < 880);
-      }
-    });
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
-    const targetId = sectionId.startsWith('#') ? sectionId.substring(1) : sectionId;
-    const element = document.getElementById(targetId);
-    if (element) {
-      window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' });
+    const id = sectionId.startsWith('#') ? sectionId.slice(1) : sectionId;
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+      setIsMobileMenuOpen(false);
     } else if (location.pathname !== '/') {
       navigate('/' + sectionId);
-      toast.info(`Navigating to ${targetId} section`);
     }
   };
 
@@ -105,11 +103,7 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const isSectionActive = (section: string) => activeSection === section.toLowerCase();
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-hrflow-gray-medium transition-all duration-300'
-      )}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-200">
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
         <div className="flex items-center justify-between">
           {showLogo && (
@@ -128,10 +122,10 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
                       href={item.href}
                       onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
                       className={cn(
-                        navigationMenuTriggerStyle(),
-                        isSectionActive(item.name.toLowerCase())
-                          ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                          : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700'
+                        'inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200',
+                        isSectionActive(item.name)
+                          ? 'bg-indigo-600 text-white'
+                          : 'text-indigo-800 hover:bg-indigo-100'
                       )}
                     >
                       {item.icon}
@@ -191,8 +185,8 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
           </div>
 
           <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsCompact(!isCompact)} className="text-indigo-800">
-              {isCompact ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-indigo-800">
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
