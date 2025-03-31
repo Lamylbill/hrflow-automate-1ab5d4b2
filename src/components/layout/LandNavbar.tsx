@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight, Menu, X, LogOut, Settings
+  ChevronRight, Menu, X, LogOut, Info, Users, Phone,
+  Home, BarChart, FileText, Calendar, Shield, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -13,9 +14,11 @@ import {
 import {
   NavigationMenu, NavigationMenuItem,
   NavigationMenuLink, NavigationMenuList,
+  navigationMenuTriggerStyle
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getNavItems } from './NavItems';
+import { toast } from "sonner";
 
 interface NavbarProps {
   showLogo?: boolean;
@@ -23,6 +26,7 @@ interface NavbarProps {
 
 export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const { isAuthenticated, user, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isCompact, setIsCompact] = useState(false);
@@ -36,7 +40,9 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
         setIsCompact(entry.contentRect.width < 880);
       }
     });
-    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
     return () => resizeObserver.disconnect();
   }, []);
 
@@ -45,20 +51,24 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   }, [location]);
 
   const handleScroll = useCallback(() => {
-    const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-    const scrollY = window.scrollY + 120;
-    for (const section of sections) {
-      const el = document.getElementById(section) || (section === 'home' ? document.body : null);
-      if (el) {
-        const top = el.offsetTop;
-        const bottom = top + el.offsetHeight;
-        if (scrollY >= top && scrollY < bottom) {
-          setActiveSection(section);
-          break;
+    setIsScrolled(window.scrollY > 10);
+
+    if (location.pathname === '/') {
+      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+      const scrollPosition = window.scrollY + 110;
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const top = element.offsetTop;
+          const bottom = top + element.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < bottom) {
+            setActiveSection(section);
+            break;
+          }
         }
       }
     }
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -80,13 +90,17 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
-    const id = sectionId.startsWith('#') ? sectionId.slice(1) : sectionId;
-    const el = document.getElementById(id);
-    if (el) {
-      window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+    const targetId = sectionId.startsWith('#') ? sectionId.substring(1) : sectionId;
+    const element = document.getElementById(targetId);
+    if (element) {
+      window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' });
+      setActiveSection(targetId);
       setIsMobileMenuOpen(false);
     } else if (location.pathname !== '/') {
       navigate('/' + sectionId);
+      toast.info(`Navigating to ${targetId} section`);
+    } else {
+      toast.info(`Navigating to ${targetId} section`);
     }
   };
 
@@ -103,7 +117,11 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const isSectionActive = (section: string) => activeSection === section.toLowerCase();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-gray-200">
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white border-b border-gray-200 shadow-sm'
+      )}
+    >
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
         <div className="flex items-center justify-between">
           {showLogo && (
@@ -122,10 +140,10 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
                       href={item.href}
                       onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
                       className={cn(
-                        'inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-all duration-200',
-                        isSectionActive(item.name)
-                          ? 'bg-indigo-600 text-white'
-                          : 'text-indigo-800 hover:bg-indigo-100'
+                        navigationMenuTriggerStyle(),
+                        isSectionActive(item.name.toLowerCase())
+                          ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                          : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700'
                       )}
                     >
                       {item.icon}
