@@ -231,18 +231,27 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
           <div className="flex-1 overflow-auto">{renderTabContent()}</div>
         </div>
 
-        {!isViewOnly && mode !== 'edit' && (
-          <div className="px-4 sm:px-6 md:px-8 py-4 border-t bg-white flex justify-between items-center gap-2">
-            <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]">
-              <CancelIcon className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button type="submit" className="w-[180px]" disabled={isSubmitting || !isUserLoaded || !!authError}>
-              <Plus className="mr-2 h-4 w-4" />
-              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
-            </Button>
-          </div>
-        )}
+        
+    {mode === 'edit' && (
+      <div className="px-4 sm:px-6 md:px-8 py-4 border-t bg-white flex justify-between items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          <CancelIcon className="mr-2 h-4 w-4" />
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          ＋ Save Changes
+        </Button>
+      </div>
+    )}
+    
       </form>
     </FormProvider>
   );
