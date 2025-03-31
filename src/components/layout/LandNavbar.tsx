@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight, Menu, X, LogOut, Info, Users, Phone,
-  Home, BarChart, FileText, Calendar, Shield, Settings
+  ChevronRight, Menu, X, LogOut, Settings
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -13,70 +11,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   NavigationMenu, NavigationMenuItem,
-  NavigationMenuLink, NavigationMenuList,
-  navigationMenuTriggerStyle
+  NavigationMenuLink, NavigationMenuList
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getNavItems, getFeaturesItems } from './NavItems';
-import { toast } from "sonner";
+import { getNavItems } from './NavItems';
+import { cn } from '@/lib/utils';
 
 interface NavbarProps {
   showLogo?: boolean;
 }
 
-export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
+export const LandNavbar: React.FC<NavbarProps> = ({ showLogo = true }) => {
   const { isAuthenticated, user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCompact, setIsCompact] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setIsCompact(entry.contentRect.width < 880);
-      }
-    });
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-    return () => resizeObserver.disconnect();
-  }, []);
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
-
-  const handleScroll = useCallback(() => {
-    setIsScrolled(window.scrollY > 10);
-
-    if (location.pathname === '/') {
-      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-      const scrollPosition = window.scrollY + 100;
-      for (const section of sections) {
-        const element = document.getElementById(section) || (section === 'home' ? document.body : null);
-        if (element) {
-          const top = element.offsetTop;
-          const bottom = top + element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < bottom) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
-  const publicNavItems = getNavItems();
   const getUserInitials = () => {
     if (user?.user_metadata?.full_name) {
       const parts = user.user_metadata.full_name.split(' ');
@@ -84,44 +38,68 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
     }
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
+
   const getUserAvatar = () => user?.user_metadata?.avatar_url || null;
 
-  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(entries => {
+      for (let entry of entries) {
+        setIsCompact(entry.contentRect.width < 880);
+      }
+    });
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+
+      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+      const scrollPos = window.scrollY + 120;
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const top = el.offsetTop;
+          const bottom = top + el.offsetHeight;
+          if (scrollPos >= top && scrollPos < bottom) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const publicNavItems = getNavItems();
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
-    const targetId = sectionId.startsWith('#') ? sectionId.substring(1) : sectionId;
-    const element = document.getElementById(targetId);
+    const element = document.getElementById(id);
     if (element) {
       window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' });
+      setActiveSection(id);
       setIsMobileMenuOpen(false);
-    } else if (location.pathname !== '/') {
-      navigate('/' + sectionId);
-      toast.info(`Navigating to ${targetId} section`);
-    } else {
-      toast.info(`Navigating to ${targetId} section`);
     }
   };
 
   const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (location.pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setActiveSection('home');
-    } else {
-      navigate('/');
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveSection('home');
   };
 
   const isSectionActive = (section: string) => activeSection === section.toLowerCase();
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        isScrolled || isAuthenticated || location.pathname !== '/'
-          ? 'bg-white shadow-md border-b border-hrflow-gray-medium'
-          : 'bg-white shadow-sm'
-      )}
-    >
+    <header className={cn(
+      'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+      isScrolled ? 'bg-white shadow-sm border-b border-gray-200' : 'bg-white'
+    )}>
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
         <div className="flex items-center justify-between">
           {showLogo && (
@@ -134,22 +112,23 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
           <div className="hidden md:block">
             <NavigationMenu>
               <NavigationMenuList>
-                {publicNavItems.map((item) => {
-                  const isActive = isSectionActive(item.name);
-                  const pillClass = isActive ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700';
-                  return (
-                    <NavigationMenuItem key={item.name}>
-                      <a
-                        href={item.href}
-                        onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
-                        className={cn(navigationMenuTriggerStyle(), pillClass)}
-                      >
-                        {item.icon}
-                        {!isCompact && <span className={isActive ? 'ml-2 text-white' : 'ml-2 text-indigo-800'}>{item.name}</span>}
-                      </a>
-                    </NavigationMenuItem>
-                  );
-                })}
+                {publicNavItems.map((item) => (
+                  <NavigationMenuItem key={item.name}>
+                    <a
+                      href={item.href}
+                      onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href.slice(1))}
+                      className={cn(
+                        'inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+                        isSectionActive(item.name) ?
+                          'bg-indigo-600 text-white hover:bg-indigo-700' :
+                          'text-indigo-800 hover:bg-indigo-100'
+                      )}
+                    >
+                      {item.icon}
+                      {!isCompact && <span className="ml-2">{item.name}</span>}
+                    </a>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
@@ -181,7 +160,7 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logout()} className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer">
+                  <DropdownMenuItem onClick={logout} className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
