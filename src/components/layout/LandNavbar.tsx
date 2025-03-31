@@ -17,7 +17,7 @@ import {
   navigationMenuTriggerStyle
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getNavItems } from './NavItems';
+import { getNavItems, getFeaturesItems } from './NavItems';
 import { toast } from "sonner";
 
 interface NavbarProps {
@@ -55,9 +55,9 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
 
     if (location.pathname === '/') {
       const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-      const scrollPosition = window.scrollY + 110;
+      const scrollPosition = window.scrollY + 100;
       for (const section of sections) {
-        const element = document.getElementById(section);
+        const element = document.getElementById(section) || (section === 'home' ? document.body : null);
         if (element) {
           const top = element.offsetTop;
           const bottom = top + element.offsetHeight;
@@ -77,7 +77,6 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   }, [handleScroll]);
 
   const publicNavItems = getNavItems();
-
   const getUserInitials = () => {
     if (user?.user_metadata?.full_name) {
       const parts = user.user_metadata.full_name.split(' ');
@@ -85,7 +84,6 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
     }
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
-
   const getUserAvatar = () => user?.user_metadata?.avatar_url || null;
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
@@ -94,7 +92,6 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
     const element = document.getElementById(targetId);
     if (element) {
       window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' });
-      setActiveSection(targetId);
       setIsMobileMenuOpen(false);
     } else if (location.pathname !== '/') {
       navigate('/' + sectionId);
@@ -119,7 +116,10 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white border-b border-gray-200 shadow-sm'
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled || isAuthenticated || location.pathname !== '/'
+          ? 'bg-white shadow-md border-b border-hrflow-gray-medium'
+          : 'bg-white shadow-sm'
       )}
     >
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
@@ -134,23 +134,22 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
           <div className="hidden md:block">
             <NavigationMenu>
               <NavigationMenuList>
-                {publicNavItems.map((item) => (
-                  <NavigationMenuItem key={item.name}>
-                    <a
-                      href={item.href}
-                      onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        isSectionActive(item.name.toLowerCase())
-                          ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                          : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700'
-                      )}
-                    >
-                      {item.icon}
-                      {!isCompact && <span className="ml-2">{item.name}</span>}
-                    </a>
-                  </NavigationMenuItem>
-                ))}
+                {publicNavItems.map((item) => {
+                  const isActive = isSectionActive(item.name);
+                  const pillClass = isActive ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700';
+                  return (
+                    <NavigationMenuItem key={item.name}>
+                      <a
+                        href={item.href}
+                        onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
+                        className={cn(navigationMenuTriggerStyle(), pillClass)}
+                      >
+                        {item.icon}
+                        {!isCompact && <span className={isActive ? 'ml-2 text-white' : 'ml-2 text-indigo-800'}>{item.name}</span>}
+                      </a>
+                    </NavigationMenuItem>
+                  );
+                })}
               </NavigationMenuList>
             </NavigationMenu>
           </div>
