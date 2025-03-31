@@ -102,27 +102,27 @@ export const TopNavbar = () => {
             <DropdownMenu>
               
 <DropdownMenu>
+  
+<DropdownMenu>
   <DropdownMenuTrigger asChild>
-    <div className="cursor-pointer">
-      <button
-        className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-indigo-100 hover:bg-indigo-50 text-indigo-800"
-      >
-        My Account
-        <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
-          {avatarImageUrl ? (
-            <AvatarImage
-              src={avatarImageUrl}
-              alt="Profile"
-              className="object-cover w-full h-full rounded-full"
-            />
-          ) : (
-            <AvatarFallback className="bg-indigo-600 text-white text-sm font-medium">
-              {getUserInitials()}
-            </AvatarFallback>
-          )}
-        </Avatar>
-      </button>
-    </div>
+    <button
+      className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium text-indigo-800 border-indigo-200 hover:bg-indigo-50"
+    >
+      My Account
+      <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
+        {avatarImageUrl ? (
+          <AvatarImage
+            src={avatarImageUrl}
+            alt="Profile"
+            className="object-cover w-full h-full rounded-full"
+          />
+        ) : (
+          <AvatarFallback className="bg-indigo-600 text-white text-sm font-medium">
+            {getUserInitials()}
+          </AvatarFallback>
+        )}
+      </Avatar>
+    </button>
   </DropdownMenuTrigger>
 
   <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg border border-gray-200 z-50">
@@ -147,6 +147,8 @@ export const TopNavbar = () => {
       <span>Log out</span>
     </DropdownMenuItem>
   </DropdownMenuContent>
+</DropdownMenu>
+
 </DropdownMenu>
 
             </DropdownMenu>
