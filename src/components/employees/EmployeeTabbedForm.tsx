@@ -52,6 +52,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         full_name: '',
       },
     },
+    mode: 'onSubmit', // Ensure validation occurs only on form submission
   });
 
   const { handleSubmit, watch, setValue } = methods;
@@ -190,60 +191,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       case 'personal-info':
         return <PersonalInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
       case 'employment-info':
-        return <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
-      case 'contract-lifecycle':
-        return <ContractLifecycleTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
-      case 'compensation-benefits':
-        return <CompensationBenefitsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
-      case 'compliance':
-        return <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
-      case 'documents':
-        return <DocumentsTab isViewOnly={isViewOnly} employeeId={employeeData?.id} onSaveRequested={!employeeData?.id ? handleSubmit(onSubmit) : undefined} />;
-      default:
-        return <div className="px-4 sm:px-6 md:px-8">Select a tab to view employee information</div>;
-    }
-  };
-
-  return (
-    <FormProvider {...methods}>
-      <form id="employee-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-full overflow-hidden flex flex-col">
-        <div className="p-4 md:px-6 flex items-center border-b">
-          <ProfilePhotoUploader employeeId={employeeData?.id} currentPhotoUrl={employeeData?.profile_picture} disabled={isViewOnly} />
-          <div className="ml-4">
-            <h2 className="text-lg font-medium">
-              {mode === 'create' ? 'New Employee' : employeeData?.full_name || 'Employee Details'}
-            </h2>
-            <p className="text-sm text-gray-500">
-              {isViewOnly ? 'Viewing employee details' : mode === 'create' ? 'Add a new employee' : 'Update employee information'}
-            </p>
-          </div>
-        </div>
-
-        {authError && (
-          <Alert variant="destructive" className="mx-4 sm:mx-6 md:mx-8">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{authError}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <TabNav activeTab={activeTab} onChange={setActiveTab} />
-          <div className="flex-1 overflow-auto">{renderTabContent()}</div>
-        </div>
-
-        {!isViewOnly && mode !== 'edit' && (
-          <div className="px-4 sm:px-6 md:px-8 py-4 border-t bg-white flex justify-between items-center gap-2">
-            <Button type="button" variant="outline" onClick={onCancel} className="w-[180px]">
-              <CancelIcon className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button type="submit" className="w-[180px]" disabled={isSubmitting || !isUserLoaded || !!authError}>
-              <Plus className="mr-2 h-4 w-4" />
-              {isSubmitting ? 'Saving...' : mode === 'create' ? 'Create Employee' : 'Save Changes'}
-            </Button>
-          </div>
-        )}
-      </form>
-    </FormProvider>
-  );
-};
+        return <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields
+::contentReference[oaicite:0]{index=0}
+ 
