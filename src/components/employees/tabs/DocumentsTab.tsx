@@ -17,7 +17,7 @@ export const DocumentsTab: React.FC<DocumentsTabProps> = ({
         employeeId={employeeId} 
         refreshTrigger={0}
         isTabbed={true}
-        isViewOnly={isReadOnly} // This prop name needs to match what DocumentManager expects
+        isReadOnly={isReadOnly} // Changed from isViewOnly to isReadOnly to match DocumentManager props
       />
     </div>
   );

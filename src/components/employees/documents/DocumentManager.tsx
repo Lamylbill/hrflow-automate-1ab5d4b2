@@ -52,13 +52,14 @@ interface DocumentManagerProps {
   employeeId: string;
   refreshTrigger?: number;
   isTabbed?: boolean;
-  isReadOnly?: boolean; // Added this prop to match what's being passed from DocumentsTab
+  isReadOnly?: boolean; // Use consistent naming with DocumentsTab
 }
 
 export const DocumentManager: React.FC<DocumentManagerProps> = ({
   employeeId,
   refreshTrigger = 0,
-  isReadOnly = false // Set default value to false
+  isTabbed = false,
+  isReadOnly = false 
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);

@@ -3,6 +3,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { cva, VariantProps } from 'class-variance-authority';
 import { Button as ShadcnButton } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 // Completely redesigned button variants with modern, vibrant styles and subtle color shifts
 const buttonVariants = cva(
@@ -42,16 +43,17 @@ export interface ButtonProps
   asChild?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  isLoading?: boolean; // Add this prop to support loading state
 }
 
 // Button component with enhanced styling
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, children, leftIcon, rightIcon, style, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, leftIcon, rightIcon, isLoading, style, ...props }, ref) => {
     // Default placeholder text if no children provided
     const buttonContent = children || "Button";
     
     // Determine if additional styles are needed for icons
-    const hasIcons = leftIcon || rightIcon;
+    const hasIcons = leftIcon || rightIcon || isLoading;
     
     // Enhanced styling with depth effects
     const buttonStyle: React.CSSProperties = {
@@ -77,9 +79,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         style={buttonStyle}
         {...props}
       >
-        {leftIcon && <span className="inline-flex">{leftIcon}</span>}
-        {buttonContent}
-        {rightIcon && <span className="inline-flex">{rightIcon}</span>}
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            {buttonContent}
+          </>
+        ) : (
+          <>
+            {leftIcon && <span className="inline-flex">{leftIcon}</span>}
+            {buttonContent}
+            {rightIcon && <span className="inline-flex">{rightIcon}</span>}
+          </>
+        )}
       </ShadcnButton>
     );
   }
