@@ -358,9 +358,11 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                 {publicNavItems.map((item) => (
   <a
     href={item.href}
-    onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
-    className={cn(>
-    <span className="ml-2">{item.name}</span>>
+    onClick={(e) => item.name === "Home" ? handleHomeClick(e) : scrollToSection(e, item.href)}
+    className={cn("text-indigo-800 font-medium text-sm hover:text-indigo-600", item.href === activeSection ? "underline underline-offset-4" : "")}
+  >
+    className={cn("text-indigo-800 font-medium text-sm hover:text-indigo-600", item.href === activeSection ? "underline underline-offset-4" : "")}
+  >
   </a>
                 ))}
                 {!isAuthenticated && (
