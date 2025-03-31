@@ -11,11 +11,11 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./context/AuthContext";
-import { TopNavbar } from "./components/layout/TopNavbar";
+import { DashNavbar } from "./components/layout/DashNavbar";
 import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
-import { Navbar } from "./components/layout/Navbar";
+import { LandNavbar } from "./components/layout/LandNavbar";
 import EmployeesPage from './pages/EmployeesPage';
 
 // Create a new QueryClient with better retry settings for Netlify
