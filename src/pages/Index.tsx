@@ -60,7 +60,7 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-blue">
-      <Navbar showLogo={true} />
+      <LandNavbar showLogo={true} />
       
       {/* Hero Section - Completely Redesigned */}
       <section className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 bg-gradient-to-br from-white via-blue-50 to-indigo-100">
