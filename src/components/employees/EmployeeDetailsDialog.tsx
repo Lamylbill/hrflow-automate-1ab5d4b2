@@ -108,7 +108,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
               Delete Employee
             </Button>
             <Button
-              onClick={() => setViewMode('edit')}
+              type="button" onClick={() => setViewMode(\'edit\')}
               className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Pencil className="h-4 w-4" />
