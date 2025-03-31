@@ -363,29 +363,19 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
             <div className="h-full overflow-y-auto px-6">
               <div className="flex flex-col space-y-2">
                 {publicNavItems.map((item) => (
-  return (
-    <a
-      key={item.name}
-      href={item.href}
-      onClick={(e) => item.name === "Home" ? handleHomeClick(e) : scrollToSection(e, item.href)}
-      className={cn(
-        "text-indigo-800 font-medium text-sm hover:text-indigo-600",
-        item.href === activeSection ? "underline underline-offset-4" : ""
-      )}
-    >
-      <span className='ml-2'>{item.name}</span>
-    </a>
-  );
-                    className={cn(
-                      "px-4 py-3 rounded-md text-base font-medium flex items-center",
-                      isSectionActive(item.name.toLowerCase())
-                        ? "bg-indigo-600 text-white" 
-                        : "bg-indigo-50 text-indigo-800 hover:bg-indigo-100"
-                    )}
-                  >
-                    {item.icon}
-                    <span className="ml-2">{item.name}</span>
-                  </a>
+          (
+            <a
+              key={item.name}
+              href={item.href}
+              onClick={(e) => item.name === "Home" ? handleHomeClick(e) : scrollToSection(e, item.href)}
+              className={cn(
+                "text-indigo-800 font-medium text-sm hover:text-indigo-600",
+                item.href === activeSection ? "underline underline-offset-4" : ""
+              )}
+            >
+              <span className='ml-2'>{item.name}</span>
+            </a>
+          )
                 ))}
                 {!isAuthenticated && (
                   <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200 mt-4">
