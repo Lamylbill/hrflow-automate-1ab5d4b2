@@ -3,6 +3,26 @@ import type { Config } from "tailwindcss";
 
 export default {
 	darkMode: ["class"],
+
+	safelist: [
+		'data-[state=open]',
+		'data-[state=closed]',
+		'data-[side=bottom]',
+		'data-[side=top]',
+		'data-[side=left]',
+		'data-[side=right]',
+		'slide-in-from-top-2',
+		'slide-in-from-bottom-2',
+		'slide-in-from-left-2',
+		'slide-in-from-right-2',
+		'fade-in-0',
+		'fade-out-0',
+		'zoom-in-95',
+		'zoom-out-95',
+		'animate-in',
+		'animate-out'
+	],
+
 	content: [
 		"./pages/**/*.{ts,tsx}",
 		"./components/**/*.{ts,tsx}",
