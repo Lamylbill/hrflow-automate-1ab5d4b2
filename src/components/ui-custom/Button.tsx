@@ -41,13 +41,39 @@ export const Button: React.FC<ButtonProps> = ({
     <ShadcnButton
       className={cn(
         {
-          'bg-hrflow-blue hover:bg-hrflow-blue/90 text-white': variant === 'primary',
-          'bg-gradient-to-r from-blue-600 to-indigo-600 hover:to-indigo-700 text-white shadow-lg': variant === 'premium',
-          'backdrop-blur-xl bg-white/20 hover:bg-white/30 border border-white/30': variant === 'glass',
-          'bg-green-500 hover:bg-green-600 text-white': variant === 'success',
+          // Improved primary button with better contrast
+          'bg-hrflow-blue hover:bg-hrflow-blue/90 text-white font-medium': variant === 'primary',
+          
+          // Enhanced premium button with stronger contrast
+          'bg-gradient-to-r from-blue-600 to-indigo-600 hover:to-indigo-700 text-white font-medium shadow-lg': variant === 'premium',
+          
+          // Improved glass button with better text contrast
+          'backdrop-blur-xl bg-white/30 hover:bg-white/40 border border-white/40 text-white font-medium shadow-md': variant === 'glass',
+          
+          // Better contrast for success button
+          'bg-green-600 hover:bg-green-700 text-white font-medium': variant === 'success',
+          
+          // Improved outline button
+          'border-2 border-hrflow-blue text-hrflow-blue hover:bg-hrflow-blue/10 font-medium': variant === 'outline',
+          
+          // Better secondary button
+          'bg-gray-200 text-gray-800 hover:bg-gray-300 border border-gray-300 font-medium': variant === 'secondary',
+          
+          // Improved ghost button
+          'hover:bg-gray-100 text-hrflow-blue hover:text-hrflow-blue/90 font-medium': variant === 'ghost',
+          
+          // Better destructive button
+          'bg-red-600 hover:bg-red-700 text-white font-medium': variant === 'destructive',
+          
+          // Enhanced link button
+          'text-hrflow-blue hover:text-hrflow-blue/90 underline-offset-4 hover:underline font-medium': variant === 'link',
         },
         // Apply additional styling for xl size
-        size === 'xl' && 'h-14 rounded-md px-8 text-lg',
+        size === 'xl' && 'h-14 rounded-md px-8 text-lg font-medium',
+        // Improved focus state for all buttons
+        'focus:ring-2 focus:ring-offset-2 focus:ring-hrflow-blue/40 focus:outline-none',
+        // Better disabled state
+        disabled && 'opacity-60 cursor-not-allowed hover:bg-opacity-100',
         className
       )}
       variant={mappedVariant as any}

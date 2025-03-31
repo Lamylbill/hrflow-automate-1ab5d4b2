@@ -10,17 +10,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm",
+        default: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm border border-transparent",
         destructive:
-          "bg-red-500 text-white hover:bg-red-600/90 shadow-sm",
+          "bg-red-600 text-white hover:bg-red-700 shadow-sm border border-transparent",
         outline:
           "border-2 border-hrflow-blue bg-transparent text-hrflow-blue hover:bg-hrflow-blue/10",
         secondary:
           "bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200",
         ghost: "hover:bg-gray-100 text-gray-700 hover:text-hrflow-blue",
         link: "text-hrflow-blue underline-offset-4 hover:underline",
-        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm",
-        success: "bg-green-500 text-white hover:bg-green-600/90 shadow-sm",
+        primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm border border-transparent",
+        success: "bg-green-600 text-white hover:bg-green-700 shadow-sm border border-transparent",
       },
       size: {
         default: "h-11 px-5 py-2.5",
