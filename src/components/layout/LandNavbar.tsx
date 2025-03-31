@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight, Menu, X, LogOut, Info, Users, Phone,
-  Home, BarChart, FileText, Calendar, Shield, Settings
+  ChevronRight, Menu, X, LogOut, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -17,8 +16,8 @@ import {
   navigationMenuTriggerStyle
 } from '@/components/ui/navigation-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { getNavItems, getFeaturesItems } from './NavItems';
-import { toast } from "sonner";
+import { getNavItems } from './NavItems';
+import { toast } from 'sonner';
 
 interface NavbarProps {
   showLogo?: boolean;
@@ -30,9 +29,11 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isCompact, setIsCompact] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<'up' | 'down'>('up');
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
+  const lastScrollTop = useRef(0);
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -51,17 +52,23 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   }, [location]);
 
   const handleScroll = useCallback(() => {
-    setIsScrolled(window.scrollY > 10);
+    const currentScroll = window.scrollY;
+    setIsScrolled(currentScroll > 10);
+
+    if (currentScroll > lastScrollTop.current) {
+      setScrollDirection('down');
+    } else {
+      setScrollDirection('up');
+    }
+    lastScrollTop.current = currentScroll <= 0 ? 0 : currentScroll;
 
     if (location.pathname === '/') {
       const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-      const scrollPosition = window.scrollY + 100;
       for (const section of sections) {
-        const element = document.getElementById(section) || (section === 'home' ? document.body : null);
+        const element = document.getElementById(section);
         if (element) {
-          const top = element.offsetTop;
-          const bottom = top + element.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < bottom) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 150 && rect.bottom >= 150) {
             setActiveSection(section);
             break;
           }
@@ -116,10 +123,9 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-        isScrolled || isAuthenticated || location.pathname !== '/'
-          ? 'bg-white shadow-md border-b border-hrflow-gray-medium'
-          : 'bg-white shadow-sm'
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 transform',
+        isScrolled ? 'bg-white shadow-md border-b border-hrflow-gray-medium' : 'bg-white',
+        scrollDirection === 'down' ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'
       )}
     >
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
@@ -159,7 +165,7 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button type="button" className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium text-indigo-800 border-indigo-200 hover:bg-indigo-50">
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium text-indigo-800 border-indigo-200 hover:bg-indigo-50">
                     My Account
                     <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
                       {getUserAvatar() ? (
