@@ -25,6 +25,8 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<'view' | 'edit'>('view');
   const { toast } = useToast();
+  // Reference to the form to trigger submit programmatically
+  const formRef = React.useRef<HTMLFormElement>(null);
 
   const handleDelete = async () => {
     try {
@@ -72,6 +74,15 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
     employee: employee,
   };
 
+  // Function to trigger form submission from outside the form
+  const triggerFormSubmit = () => {
+    if (formRef.current) {
+      formRef.current.dispatchEvent(
+        new Event('submit', { cancelable: true, bubbles: true })
+      );
+    }
+  };
+
   return (
     <div className="flex flex-col h-full max-h-[90vh] overflow-hidden">
       <div className="px-6 py-4 border-b flex-shrink-0">
@@ -88,13 +99,14 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
       </div>
 
       <div className="flex-1 overflow-auto">
-        {/* Only render EmployeeTabbedForm in the appropriate mode */}
         <EmployeeTabbedForm
           initialData={initialFormData}
           mode={viewMode}
           onSuccess={handleEmployeeUpdate}
           onCancel={() => setViewMode('view')}
           isViewOnly={viewMode === 'view'}
+          formRef={formRef}
+          hideControls={true} // Hide controls in the form since we'll show them in the dialog
         />
       </div>
 
@@ -132,8 +144,8 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
               Cancel
             </Button>
             <Button
-              type="submit"
-              form="employee-form"
+              type="button"
+              onClick={triggerFormSubmit}
               className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
             >
               <Check className="h-4 w-4" />

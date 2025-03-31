@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +25,8 @@ interface EmployeeTabbedFormProps {
   isViewOnly?: boolean;
   mode: 'create' | 'edit' | 'view';
   defaultTab?: string;
+  formRef?: React.RefObject<HTMLFormElement>;
+  hideControls?: boolean;
 }
 
 export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
@@ -33,6 +36,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   isViewOnly = false,
   mode,
   defaultTab = 'personal-info',
+  formRef,
+  hideControls = false,
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -220,6 +225,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       <FormProvider {...methods}>
         <form
           id="employee-form"
+          ref={formRef}
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-col h-full overflow-hidden"
         >
@@ -234,7 +240,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             {renderTabContent()}
           </div>
 
-          {!isViewOnly && mode === 'create' && (
+          {!isViewOnly && !hideControls && (
             <div className="flex justify-end gap-2 p-4 border-t bg-white mt-auto">
               <Button
                 type="button"
@@ -248,7 +254,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                isLoading={isSubmitting}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 {mode === 'create' ? 'Create Employee' : 'Save Changes'}
