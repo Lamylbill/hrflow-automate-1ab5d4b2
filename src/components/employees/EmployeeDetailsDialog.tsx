@@ -96,46 +96,49 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         />
       </div>
 
-      <div className="bg-white border-t px-6 py-4 flex justify-between items-center flex-shrink-0 sticky bottom-0">
-        {viewMode === 'view' ? (
-          <>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
-            >
-              <Trash className="h-4 w-4" />
-              Delete Employee
-            </Button>
-            <Button
-              type="button" onClick={() => setViewMode('edit')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
-            >
-              <Pencil className="h-4 w-4" />
-              Edit Employee
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="outline"
-              onClick={() => setViewMode('view')}
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
-            >
-              <CancelIcon className="h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              form="employee-form"
-              type="submit"
-              className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
-            >
-              <Check className="h-4 w-4" />
-              Save Changes
-            </Button>
-          </>
-        )}
-      </div>
-    </div>
-  );
+      
+  <div className="bg-white border-t px-6 py-4 flex justify-between items-center flex-shrink-0 sticky bottom-0">
+    {viewMode === 'view' ? (
+      <>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={handleDelete}
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          <Trash className="h-4 w-4" />
+          Delete Employee
+        </Button>
+        <Button
+          type="button"
+          onClick={() => setViewMode('edit')}
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          <Pencil className="h-4 w-4" />
+          Edit Employee
+        </Button>
+      </>
+    ) : (
+      <>
+        <Button
+          type="button"
+          onClick={() => setViewMode('view')}
+          variant="outline"
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          ✕ Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="employee-form"
+          className="text-base px-6 py-2 rounded-full flex items-center gap-2 w-[180px]"
+        >
+          ＋ Save Changes
+        </Button>
+      </>
+    )}
+  </div>
+</div>
+);
+
 };
