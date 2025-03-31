@@ -98,6 +98,7 @@ export const EmployeeDetailsDialog: React.FC<EmployeeDetailsDialogProps> = ({
         />
       </div>
 
+      {/* These are the controls that appear at the bottom of the dialog */}
       <div className="bg-white border-t px-6 py-4 flex justify-between items-center flex-shrink-0 sticky bottom-0">
         {viewMode === 'view' ? (
           <>

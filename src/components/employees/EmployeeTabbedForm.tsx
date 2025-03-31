@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,8 +42,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const [authError, setAuthError] = useState<string | null>(null);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
-  // Add a new state to track if the form should be submitted automatically
-  const [shouldSubmit, setShouldSubmit] = useState(false);
 
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
@@ -55,7 +52,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         full_name: '',
       },
     },
-    mode: 'onSubmit', // Ensure validation occurs only on form submission
+    mode: 'onSubmit',
   });
 
   const { handleSubmit, watch, setValue } = methods;
@@ -89,12 +86,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
     checkUser();
   }, [user, setValue]);
-
-  // This useEffect will prevent automatic form submission
-  useEffect(() => {
-    // Reset the shouldSubmit flag when the component mounts
-    setShouldSubmit(false);
-  }, []);
 
   const onSubmit = async (data: EmployeeFormData) => {
     const userId = data.employee.user_id?.trim() || user?.id;
@@ -243,7 +234,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
             {renderTabContent()}
           </div>
 
-          {!isViewOnly && (
+          {!isViewOnly && mode === 'create' && (
             <div className="flex justify-end gap-2 p-4 border-t bg-white mt-auto">
               <Button
                 type="button"
