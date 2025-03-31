@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronRight, Menu, X, LogOut, Settings
+  ChevronRight, Menu, X, LogOut, Info, Users, Phone,
+  Home, BarChart, FileText, Calendar, Shield, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
@@ -25,35 +26,28 @@ interface NavbarProps {
 
 export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   const { isAuthenticated, user, logout } = useAuth();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isCompact, setIsCompact] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setIsCompact(entry.contentRect.width < 880);
-      }
-    });
-    if (containerRef.current) resizeObserver.observe(containerRef.current);
-    return () => resizeObserver.disconnect();
-  }, []);
+  const publicNavItems = getNavItems();
 
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
+  const getUserInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const parts = user.user_metadata.full_name.split(' ');
+      return parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : parts[0].substring(0, 2).toUpperCase();
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || 'U';
+  };
+
+  const getUserAvatar = () => user?.user_metadata?.avatar_url || null;
 
   const handleScroll = useCallback(() => {
-    const scrollY = window.scrollY;
-    setIsScrolled(scrollY > 10);
-
     if (location.pathname === '/') {
       const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-      const scrollPosition = scrollY + 110;
+      const scrollPosition = window.scrollY + 100;
       for (const section of sections) {
         const element = document.getElementById(section) || (section === 'home' ? document.body : null);
         if (element) {
@@ -69,22 +63,22 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   }, [location.pathname]);
 
   useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setIsCompact(entry.contentRect.width < 880);
+      }
+    });
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
-
-  const publicNavItems = getNavItems();
-
-  const getUserInitials = () => {
-    if (user?.user_metadata?.full_name) {
-      const parts = user.user_metadata.full_name.split(' ');
-      return parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : parts[0].substring(0, 2).toUpperCase();
-    }
-    return user?.email?.substring(0, 2).toUpperCase() || 'U';
-  };
-
-  const getUserAvatar = () => user?.user_metadata?.avatar_url || null;
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
@@ -92,7 +86,6 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
     const element = document.getElementById(targetId);
     if (element) {
       window.scrollTo({ top: element.offsetTop - 100, behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
     } else if (location.pathname !== '/') {
       navigate('/' + sectionId);
       toast.info(`Navigating to ${targetId} section`);
@@ -114,10 +107,7 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md',
-        isScrolled || isAuthenticated || location.pathname !== '/'
-          ? 'bg-white/90 shadow-md border-b border-gray-200'
-          : 'bg-white/60'
+        'fixed top-0 left-0 right-0 z-50 bg-white shadow-md border-b border-hrflow-gray-medium transition-all duration-300'
       )}
     >
       <nav className="container mx-auto px-6 py-3" ref={containerRef}>
@@ -139,10 +129,9 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
                       onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
                       className={cn(
                         navigationMenuTriggerStyle(),
-                        'transition-colors duration-200',
                         isSectionActive(item.name.toLowerCase())
                           ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                          : 'text-indigo-800 hover:bg-indigo-100'
+                          : 'text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700'
                       )}
                     >
                       {item.icon}
@@ -202,8 +191,8 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
           </div>
 
           <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-indigo-800">
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Button variant="ghost" size="icon" onClick={() => setIsCompact(!isCompact)} className="text-indigo-800">
+              {isCompact ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
