@@ -2,6 +2,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -21,6 +22,8 @@ const buttonVariants = cva(
         link: "text-hrflow-blue underline-offset-4 hover:underline",
         primary: "bg-hrflow-blue text-white hover:bg-hrflow-blue/90 shadow-sm border border-transparent",
         success: "bg-green-600 text-white hover:bg-green-700 shadow-sm border border-transparent",
+        premium: "bg-gradient-to-r from-blue-600 to-indigo-600 hover:to-indigo-700 text-white font-medium shadow-lg",
+        glass: "backdrop-blur-xl bg-white/30 hover:bg-white/40 border border-white/40 text-white font-medium shadow-md",
       },
       size: {
         default: "h-11 px-5 py-2.5",
@@ -45,7 +48,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, style, isLoading, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, style, isLoading, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
     // Enhanced styling with proper typing
@@ -62,8 +65,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         data-variant={variant}
         style={enhancedStyle}
+        disabled={isLoading || props.disabled}
         {...props}
-      />
+      >
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {children}
+      </Comp>
     )
   }
 )

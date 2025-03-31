@@ -1,7 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield, Settings, Camera } from 'lucide-react';
+import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui-custom/Button';
 import { useAuth } from '@/context/AuthContext';
@@ -15,11 +15,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,35 +74,38 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 10);
+    
+    // Enhanced scrollspy functionality
+    if (location.pathname === '/') {
+      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+      const scrollPosition = window.scrollY + 100; // Adjusted offset for better accuracy
       
-      // Implement scrollspy functionality
-      if (location.pathname === '/') {
-        const sections = ['home', 'features', 'pricing', 'contact', 'about'];
-        const scrollPosition = window.scrollY + 150; // Offset for header
+      // Find the section that's currently in view
+      for (const section of sections) {
+        const element = document.getElementById(section) || 
+                       (section === 'home' ? document.body : null);
         
-        for (const section of sections) {
-          const element = document.getElementById(section) || 
-                         (section === 'home' ? document.body : null);
+        if (element) {
+          const elementTop = element.offsetTop;
+          const elementBottom = elementTop + element.offsetHeight;
           
-          if (element) {
-            const elementTop = element.offsetTop;
-            const elementBottom = elementTop + element.offsetHeight;
-            
-            if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
-              setActiveSection(section);
-              break;
-            }
+          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+            setActiveSection(section);
+            break;
           }
         }
       }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    }
   }, [location.pathname]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    // Initialize activeSection on component mount
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const publicNavItems = getNavItems();
   const featuresItems = getFeaturesItems();
@@ -210,10 +211,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={handleHomeClick}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-medium text-indigo-800 transition-colors",
+                      "font-medium transition-colors",
                       isSectionActive('home') 
                         ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-                        : "hover:bg-indigo-50 hover:text-indigo-700"
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     <Home className="h-4 w-4 mr-2" />
@@ -227,10 +228,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#features')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-medium text-indigo-800 transition-colors",
+                      "font-medium transition-colors",
                       isSectionActive('features')
                         ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-                        : "hover:bg-indigo-50 hover:text-indigo-700"
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     <BarChart className="h-4 w-4 mr-2" />
@@ -244,10 +245,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#pricing')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-medium text-indigo-800 transition-colors",
+                      "font-medium transition-colors",
                       isSectionActive('pricing')
                         ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-                        : "hover:bg-indigo-50 hover:text-indigo-700"
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     <FileText className="h-4 w-4 mr-2" />
@@ -261,10 +262,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#contact')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-medium text-indigo-800 transition-colors",
+                      "font-medium transition-colors",
                       isSectionActive('contact')
                         ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-                        : "hover:bg-indigo-50 hover:text-indigo-700"
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     <Phone className="h-4 w-4 mr-2" />
@@ -278,10 +279,10 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     onClick={(e) => scrollToSection(e, '#about')}
                     className={cn(
                       navigationMenuTriggerStyle(), 
-                      "font-medium text-indigo-800 transition-colors",
+                      "font-medium transition-colors",
                       isSectionActive('about')
                         ? "bg-indigo-600 text-white hover:bg-indigo-700" 
-                        : "hover:bg-indigo-50 hover:text-indigo-700"
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     <Info className="h-4 w-4 mr-2" />
@@ -308,7 +309,7 @@ export const Navbar = ({ showLogo = true }: NavbarProps) => {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg border border-gray-200 z-50">
+                <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg border border-gray-200">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
