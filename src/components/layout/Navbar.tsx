@@ -1,164 +1,859 @@
 
-import type { Config } from "tailwindcss";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { ChevronRight, Menu, X, LogOut, Info, Users, Phone, Home, BarChart, FileText, Calendar, Shield, Settings } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui-custom/Button';
+import { useAuth } from '@/context/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getNavItems, getFeaturesItems } from './NavItems';
+import { toast } from "sonner";
 
-export default {
-	darkMode: ["class"],
+interface NavbarProps {
+  showLogo?: boolean;
+}
 
-	safelist: [
-		'data-[state=open]',
-		'data-[state=closed]',
-		'data-[side=bottom]',
-		'data-[side=top]',
-		'data-[side=left]',
-		'data-[side=right]',
-		'slide-in-from-top-2',
-		'slide-in-from-bottom-2',
-		'slide-in-from-left-2',
-		'slide-in-from-right-2',
-		'fade-in-0',
-		'fade-out-0',
-		'zoom-in-95',
-		'zoom-out-95',
-		'animate-in',
-		'animate-out'
-	],
+// Fixed interface definition to properly handle ReactNode type for title
+interface ListItemProps {
+  title: React.ReactNode;
+  children: React.ReactNode;
+  href?: string;
+  className?: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>, href: string) => void;
+}
 
-	content: [
-		"./pages/**/*.{ts,tsx}",
-		"./components/**/*.{ts,tsx}",
-		"./app/**/*.{ts,tsx}",
-		"./src/**/*.{ts,tsx}",
-	],
-	prefix: "",
-	theme: {
-		container: {
-			center: true,
-			padding: '2rem',
-			screens: {
-				'2xl': '1400px'
-			}
-		},
-		extend: {
-			colors: {
-				border: 'hsl(var(--border))',
-				input: 'hsl(var(--input))',
-				ring: 'hsl(var(--ring))',
-				background: 'hsl(var(--background))',
-				foreground: 'hsl(var(--foreground))',
-				primary: {
-					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
-				},
-				secondary: {
-					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))'
-				},
-				accent: {
-					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
-				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))'
-				},
-				// Completely new color scheme
-				hrflow: {
-					'primary': '#6C63FF',
-					'secondary': '#9D94FF',
-					'accent': '#FF64DA',
-					'dark': '#2D2B55',
-					'light': '#F8F7FF',
-					'gray': '#A0A0B0',
-				}
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			boxShadow: {
-				'sm': '0 4px 8px rgba(0,0,0,0.05)',
-				DEFAULT: '0 6px 16px rgba(0,0,0,0.08), 0 3px 6px -4px rgba(0,0,0,0.04)',
-				'md': '0 12px 24px -4px rgba(0,0,0,0.12), 0 6px 12px -6px rgba(0,0,0,0.08)',
-				'lg': '0 20px 32px -8px rgba(0,0,0,0.16), 0 10px 16px -8px rgba(0,0,0,0.08)',
-				'xl': '0 24px 48px -12px rgba(0,0,0,0.24)',
-				'2xl': '0 32px 64px -16px rgba(0,0,0,0.32)',
-			},
-			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
-				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				},
-				'fade-in': {
-					'0%': { opacity: '0' },
-					'100%': { opacity: '1' }
-				},
-				'fade-in-up': {
-					'0%': { opacity: '0', transform: 'translateY(20px)' },
-					'100%': { opacity: '1', transform: 'translateY(0)' }
-				},
-				'slide-in-right': {
-					'0%': { transform: 'translateX(100%)' },
-					'100%': { transform: 'translateX(0)' }
-				},
-				'pulse-subtle': {
-					'0%, 100%': { opacity: '1' },
-					'50%': { opacity: '0.85' }
-				},
-				'float': {
-					'0%, 100%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-10px)' }
-				},
-				'spin-slow': {
-					'0%': { transform: 'rotate(0deg)' },
-					'100%': { transform: 'rotate(360deg)' }
-				}
-			},
-			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.6s ease-out',
-				'fade-in-up': 'fade-in-up 0.6s ease-out',
-				'slide-in-right': 'slide-in-right 0.5s ease-out',
-				'pulse-subtle': 'pulse-subtle 3s infinite ease-in-out',
-				'float': 'float 6s infinite ease-in-out',
-				'spin-slow': 'spin-slow 10s linear infinite'
-			},
-			fontFamily: {
-				'sans': ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-				'display': ['Montserrat', 'sans-serif'],
-			},
-			backgroundImage: {
-				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-				'hero-pattern': 'linear-gradient(to right bottom, rgba(255, 255, 255, 0.9), rgba(108, 99, 255, 0.05))',
-				'card-pattern': 'linear-gradient(to right bottom, rgba(255, 255, 255, 1), rgba(248, 247, 255, 1))',
-				'cta-pattern': 'linear-gradient(to right, #6C63FF, #9D94FF, #FF64DA)',
-			}
-		}
-	},
-	plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+const ListItem = React.forwardRef<React.ElementRef<"a">, ListItemProps & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'title' | 'children'>>(
+  ({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-hrflow-blue hover:text-white focus:bg-hrflow-blue focus:text-white",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  }
+);
+ListItem.displayName = "ListItem";
+
+export const Navbar = ({ showLogo = true }: NavbarProps) => {
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 10);
+    
+    // Enhanced scrollspy functionality
+    if (location.pathname === '/') {
+      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+      const scrollPosition = window.scrollY + 100; // Adjusted offset for better accuracy
+      
+      // Find the section that's currently in view
+      for (const section of sections) {
+        const element = document.getElementById(section) || 
+                       (section === 'home' ? document.body : null);
+        
+        if (element) {
+          const elementTop = element.offsetTop;
+          const elementBottom = elementTop + element.offsetHeight;
+          
+          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    // Initialize activeSection on component mount
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const publicNavItems = getNavItems();
+  const featuresItems = getFeaturesItems();
+
+  const getUserInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const nameParts = user.user_metadata.full_name.split(' ');
+      if (nameParts.length >= 2) {
+        return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+      }
+      return user.user_metadata.full_name.substring(0, 2).toUpperCase();
+    }
+    if (user?.email) return user.email.substring(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  const getUserAvatar = () => {
+    return user?.user_metadata?.avatar_url || null;
+  };
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    
+    if (sectionId.startsWith('#')) {
+      const targetId = sectionId.substring(1);
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 100, // Offset for header
+          behavior: 'smooth'
+        });
+        setMobileMenuOpen(false); // Close mobile menu after navigation
+      } else {
+        // If we're not on the home page, navigate to home with the hash
+        if (location.pathname !== '/') {
+          navigate('/' + sectionId);
+          toast.info(`Navigating to ${targetId} section`);
+        } else {
+          // If we are on the home page but section doesn't exist, just notify
+          toast.info(`Navigating to ${targetId} section`);
+        }
+      }
+    } else {
+      navigate(sectionId);
+    }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (location.pathname === '/') {
+      // If on home page, scroll to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      setActiveSection('home');
+    } else {
+      // Navigate to home page
+      navigate('/');
+    }
+  };
+  
+  const setMobileMenuOpen = (isOpen: boolean) => {
+    setIsMobileMenuOpen(isOpen);
+    // When opening the mobile menu, we need to prevent body scrolling
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  };
+  
+  // Check if a section is active for highlighting in the navbar
+  const isSectionActive = (sectionName: string) => {
+    if (sectionName === 'home') {
+      return activeSection === 'home';
+    }
+    return activeSection === sectionName.toLowerCase().replace('#', '');
+  };
+
+  return (
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled || isAuthenticated || location.pathname !== '/' 
+          ? 'bg-white shadow-md border-b border-hrflow-gray-medium' 
+          : 'bg-white shadow-sm'
+      )}
+    >
+      <nav className="container mx-auto px-6 py-3">
+        <div className="flex items-center justify-between">
+          {showLogo && (
+            <Link to="/" className="flex items-center gap-2">
+              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+              <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
+            </Link>
+          )}
+
+          <div className="hidden md:block">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <a 
+                    href="/" 
+                    onClick={handleHomeClick}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('home') 
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    <span>Home</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#features" 
+                    onClick={(e) => scrollToSection(e, '#features')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('features')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <BarChart className="h-4 w-4 mr-2" />
+                    <span>Features</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#pricing" 
+                    onClick={(e) => scrollToSection(e, '#pricing')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('pricing')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    <span>Pricing</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#contact" 
+                    onClick={(e) => scrollToSection(e, '#contact')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('contact')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    <span>Contact</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#about" 
+                    onClick={(e) => scrollToSection(e, '#about')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('about')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Info className="h-4 w-4 mr-2" />
+                    <span>About</span>
+                  </a>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated ? (
+              <DropdownMenu>
+                
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <div className="cursor-pointer">
+      <button
+        className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-indigo-100 hover:bg-indigo-50 text-indigo-800"
+      >
+        My Account
+        <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
+          {user?.user_metadata?.avatar_url ? (
+            <AvatarImage
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              className="object-cover w-full h-full rounded-full"
+            />
+          ) : (
+            <AvatarFallback className="bg-indigo-600 text-white text-sm font-medium">
+              {user?.email?.slice(0, 2).toUpperCase() || "U"}
+            </AvatarFallback>
+          )}
+        </Avatar>
+      </button>
+    </div>
+  </DropdownMenuTrigger>
+
+  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg border border-gray-200 z-50">
+    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem>
+      <Link
+        to="/settings"
+        className="flex w-full items-center text-gray-700 hover:text-indigo-700"
+        state={{ from: location.pathname }}
+      >
+        <Settings className="mr-2 h-4 w-4" />
+        <span>Settings</span>
+      </Link>
+    </DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem
+      onClick={() => logout()}
+      className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+    >
+      <LogOut className="mr-2 h-4 w-4" />
+      <span>Log out</span>
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline" size="sm" className="text-indigo-700 border-indigo-200 hover:bg-indigo-50">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    Sign Up <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="text-indigo-800"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-[61px] bg-white z-40 pt-4 pb-3 animate-fade-in-up">
+            <div className="h-full overflow-y-auto px-6">
+              <div className="flex flex-col space-y-2">
+                {publicNavItems.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
+                    className={cn(
+                      "px-4 py-3 rounded-md text-base font-medium flex items-center",
+                      isSectionActive(item.name.toLowerCase())
+                        ? "bg-indigo-600 text-white" 
+                        : "bg-indigo-50 text-indigo-800 hover:bg-indigo-100"
+                    )}
+                  >
+                    {item.icon}
+                    <span className="ml-2">{item.name}</span>
+                  </a>
+                ))}
+                {!isAuthenticated && (
+                  <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200 mt-4">
+                    <Link to="/login" className="w-full">
+                      <Button variant="outline" className="w-full text-indigo-700 border-indigo-300">
+                        Log In
+                      </Button>
+                    </Link>
+                    <Link to="/signup" className="w-full">
+                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+                {isAuthenticated && (
+                  <div className="pt-4 border-t border-gray-200 mt-4">
+                    <div className="flex items-center gap-3 mb-4 p-3 bg-indigo-50 rounded-md">
+                      <Avatar className="h-10 w-10 border-2 border-indigo-600/20">
+                        <AvatarImage src={getUserAvatar()} alt="User avatar" />
+                        <AvatarFallback className="bg-indigo-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-indigo-800">
+                          {user?.user_metadata?.full_name || user?.email || 'User'}
+                        </p>
+                        <p className="text-sm text-gray-600">{user?.email}</p>
+                      </div>
+                    </div>
+                    <Link 
+                      to="/settings" 
+                      state={{ from: location.pathname }}
+                      className="w-full"
+                    >
+                      <Button variant="outline" className="w-full mb-3 text-indigo-800 border-indigo-200">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Button>
+                    </Link>
+                    <Button onClick={() => logout()} variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  );
+};
+sChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-hrflow-blue hover:text-white focus:bg-hrflow-blue focus:text-white",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  }
+);
+ListItem.displayName = "ListItem";
+
+export const Navbar = ({ showLogo = true }: NavbarProps) => {
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location]);
+
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 10);
+    
+    // Enhanced scrollspy functionality
+    if (location.pathname === '/') {
+      const sections = ['home', 'features', 'pricing', 'contact', 'about'];
+      const scrollPosition = window.scrollY + 100; // Adjusted offset for better accuracy
+      
+      // Find the section that's currently in view
+      for (const section of sections) {
+        const element = document.getElementById(section) || 
+                       (section === 'home' ? document.body : null);
+        
+        if (element) {
+          const elementTop = element.offsetTop;
+          const elementBottom = elementTop + element.offsetHeight;
+          
+          if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    // Initialize activeSection on component mount
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
+  const publicNavItems = getNavItems();
+  const featuresItems = getFeaturesItems();
+
+  const getUserInitials = () => {
+    if (user?.user_metadata?.full_name) {
+      const nameParts = user.user_metadata.full_name.split(' ');
+      if (nameParts.length >= 2) {
+        return `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase();
+      }
+      return user.user_metadata.full_name.substring(0, 2).toUpperCase();
+    }
+    if (user?.email) return user.email.substring(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  const getUserAvatar = () => {
+    return user?.user_metadata?.avatar_url || null;
+  };
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    
+    if (sectionId.startsWith('#')) {
+      const targetId = sectionId.substring(1);
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 100, // Offset for header
+          behavior: 'smooth'
+        });
+        setMobileMenuOpen(false); // Close mobile menu after navigation
+      } else {
+        // If we're not on the home page, navigate to home with the hash
+        if (location.pathname !== '/') {
+          navigate('/' + sectionId);
+          toast.info(`Navigating to ${targetId} section`);
+        } else {
+          // If we are on the home page but section doesn't exist, just notify
+          toast.info(`Navigating to ${targetId} section`);
+        }
+      }
+    } else {
+      navigate(sectionId);
+    }
+  };
+
+  const handleHomeClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    if (location.pathname === '/') {
+      // If on home page, scroll to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      setActiveSection('home');
+    } else {
+      // Navigate to home page
+      navigate('/');
+    }
+  };
+  
+  const setMobileMenuOpen = (isOpen: boolean) => {
+    setIsMobileMenuOpen(isOpen);
+    // When opening the mobile menu, we need to prevent body scrolling
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  };
+  
+  // Check if a section is active for highlighting in the navbar
+  const isSectionActive = (sectionName: string) => {
+    if (sectionName === 'home') {
+      return activeSection === 'home';
+    }
+    return activeSection === sectionName.toLowerCase().replace('#', '');
+  };
+
+  return (
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled || isAuthenticated || location.pathname !== '/' 
+          ? 'bg-white shadow-md border-b border-hrflow-gray-medium' 
+          : 'bg-white shadow-sm'
+      )}
+    >
+      <nav className="container mx-auto px-6 py-3">
+        <div className="flex items-center justify-between">
+          {showLogo && (
+            <Link to="/" className="flex items-center gap-2">
+              <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md">HR</span>
+              <span className="font-display font-bold text-xl text-indigo-800">Flow</span>
+            </Link>
+          )}
+
+          <div className="hidden md:block">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <a 
+                    href="/" 
+                    onClick={handleHomeClick}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('home') 
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    <span>Home</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#features" 
+                    onClick={(e) => scrollToSection(e, '#features')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('features')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <BarChart className="h-4 w-4 mr-2" />
+                    <span>Features</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#pricing" 
+                    onClick={(e) => scrollToSection(e, '#pricing')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('pricing')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    <span>Pricing</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#contact" 
+                    onClick={(e) => scrollToSection(e, '#contact')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('contact')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    <span>Contact</span>
+                  </a>
+                </NavigationMenuItem>
+                
+                <NavigationMenuItem>
+                  <a 
+                    href="#about" 
+                    onClick={(e) => scrollToSection(e, '#about')}
+                    className={cn(
+                      navigationMenuTriggerStyle(), 
+                      "font-medium transition-colors",
+                      isSectionActive('about')
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700" 
+                        : "text-indigo-800 hover:bg-indigo-50 hover:text-indigo-700"
+                    )}
+                  >
+                    <Info className="h-4 w-4 mr-2" />
+                    <span>About</span>
+                  </a>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          <div className="hidden md:flex items-center gap-2">
+            {isAuthenticated ? (
+              <DropdownMenu>
+                
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <div className="cursor-pointer">
+      <button
+        className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-indigo-100 hover:bg-indigo-50 text-indigo-800"
+      >
+        My Account
+        <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
+          {user?.user_metadata?.avatar_url ? (
+            <AvatarImage
+              src={user.user_metadata.avatar_url}
+              alt="Profile"
+              className="object-cover w-full h-full rounded-full"
+            />
+          ) : (
+            <AvatarFallback className="bg-indigo-600 text-white text-sm font-medium">
+              {user?.email?.slice(0, 2).toUpperCase() || "U"}
+            </AvatarFallback>
+          )}
+        </Avatar>
+      </button>
+    </div>
+  </DropdownMenuTrigger>
+
+  <DropdownMenuContent align="end" className="w-56 bg-white shadow-lg border border-gray-200 z-50">
+    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem>
+      <Link
+        to="/settings"
+        className="flex w-full items-center text-gray-700 hover:text-indigo-700"
+        state={{ from: location.pathname }}
+      >
+        <Settings className="mr-2 h-4 w-4" />
+        <span>Settings</span>
+      </Link>
+    </DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem
+      onClick={() => logout()}
+      className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+    >
+      <LogOut className="mr-2 h-4 w-4" />
+      <span>Log out</span>
+    </DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+
+              </DropdownMenu>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="outline" size="sm" className="text-indigo-700 border-indigo-200 hover:bg-indigo-50">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                    Sign Up <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              className="text-indigo-800"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 top-[61px] bg-white z-40 pt-4 pb-3 animate-fade-in-up">
+            <div className="h-full overflow-y-auto px-6">
+              <div className="flex flex-col space-y-2">
+                {publicNavItems.map((item) => (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    onClick={(e) => item.name === 'Home' ? handleHomeClick(e) : scrollToSection(e, item.href)}
+                    className={cn(
+                      "px-4 py-3 rounded-md text-base font-medium flex items-center",
+                      isSectionActive(item.name.toLowerCase())
+                        ? "bg-indigo-600 text-white" 
+                        : "bg-indigo-50 text-indigo-800 hover:bg-indigo-100"
+                    )}
+                  >
+                    {item.icon}
+                    <span className="ml-2">{item.name}</span>
+                  </a>
+                ))}
+                {!isAuthenticated && (
+                  <div className="flex flex-col space-y-3 pt-4 border-t border-gray-200 mt-4">
+                    <Link to="/login" className="w-full">
+                      <Button variant="outline" className="w-full text-indigo-700 border-indigo-300">
+                        Log In
+                      </Button>
+                    </Link>
+                    <Link to="/signup" className="w-full">
+                      <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+                {isAuthenticated && (
+                  <div className="pt-4 border-t border-gray-200 mt-4">
+                    <div className="flex items-center gap-3 mb-4 p-3 bg-indigo-50 rounded-md">
+                      <Avatar className="h-10 w-10 border-2 border-indigo-600/20">
+                        <AvatarImage src={getUserAvatar()} alt="User avatar" />
+                        <AvatarFallback className="bg-indigo-600 text-white">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-indigo-800">
+                          {user?.user_metadata?.full_name || user?.email || 'User'}
+                        </p>
+                        <p className="text-sm text-gray-600">{user?.email}</p>
+                      </div>
+                    </div>
+                    <Link 
+                      to="/settings" 
+                      state={{ from: location.pathname }}
+                      className="w-full"
+                    >
+                      <Button variant="outline" className="w-full mb-3 text-indigo-800 border-indigo-200">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Settings</span>
+                      </Button>
+                    </Link>
+                    <Button onClick={() => logout()} variant="outline" className="w-full text-red-600 border-red-200 hover:bg-red-50">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  );
+};
