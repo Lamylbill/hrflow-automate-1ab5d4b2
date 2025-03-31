@@ -159,7 +159,7 @@ export const LandNavbar = ({ showLogo = true }: NavbarProps) => {
             {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium text-indigo-800 border-indigo-200 hover:bg-indigo-50">
+                  <button type="button" className="flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium text-indigo-800 border-indigo-200 hover:bg-indigo-50">
                     My Account
                     <Avatar className="h-7 w-7 border-2 border-indigo-600/20">
                       {getUserAvatar() ? (
