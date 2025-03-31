@@ -6,7 +6,7 @@ import { Button } from '@/components/ui-custom/Button';
 import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
-import { Navbar } from '@/components/layout/Navbar';
+import { LandNavbar } from '@/components/layout/LandNavbar';
 import { getFeaturesItems } from '@/components/layout/NavItems';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
