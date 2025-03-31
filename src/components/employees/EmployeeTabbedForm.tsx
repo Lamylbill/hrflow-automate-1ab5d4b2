@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -42,6 +43,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const [authError, setAuthError] = useState<string | null>(null);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
+  // Add a new state to track if the form should be submitted automatically
+  const [shouldSubmit, setShouldSubmit] = useState(false);
 
   const methods = useForm<EmployeeFormData>({
     defaultValues: initialData || {
@@ -86,6 +89,12 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
     checkUser();
   }, [user, setValue]);
+
+  // This useEffect will prevent automatic form submission
+  useEffect(() => {
+    // Reset the shouldSubmit flag when the component mounts
+    setShouldSubmit(false);
+  }, []);
 
   const onSubmit = async (data: EmployeeFormData) => {
     const userId = data.employee.user_id?.trim() || user?.id;
@@ -191,6 +200,72 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       case 'personal-info':
         return <PersonalInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
       case 'employment-info':
-        return <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields
-::contentReference[oaicite:0]{index=0}
- 
+        return <EmploymentInfoTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
+      case 'contract-lifecycle':
+        return <ContractLifecycleTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
+      case 'compensation-benefits':
+        return <CompensationBenefitsTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
+      case 'compliance':
+        return <ComplianceTab isViewOnly={isViewOnly} showAdvancedFields={showAdvancedFields} onToggleAdvanced={setShowAdvancedFields} />;
+      case 'documents':
+        return employeeData?.id ? (
+          <DocumentsTab employeeId={employeeData.id} isReadOnly={isViewOnly} />
+        ) : (
+          <div className="p-6 flex flex-col items-center justify-center text-center">
+            <AlertCircle className="h-12 w-12 text-yellow-500 mb-4" />
+            <h3 className="text-lg font-medium mb-2">Save Required</h3>
+            <p className="mb-4 text-muted-foreground">Please save the employee details before accessing documents.</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <TabNav activeTab={activeTab} onChange={setActiveTab} />
+
+      <FormProvider {...methods}>
+        <form
+          id="employee-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col h-full overflow-hidden"
+        >
+          {authError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{authError}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="flex-1 overflow-auto p-4">
+            {renderTabContent()}
+          </div>
+
+          {!isViewOnly && (
+            <div className="flex justify-end gap-2 p-4 border-t bg-white mt-auto">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={onCancel}
+              >
+                <CancelIcon className="mr-2 h-4 w-4" />
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                {mode === 'create' ? 'Create Employee' : 'Save Changes'}
+              </Button>
+            </div>
+          )}
+        </form>
+      </FormProvider>
+    </div>
+  );
+};
