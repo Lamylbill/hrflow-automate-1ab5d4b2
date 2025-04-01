@@ -27,6 +27,16 @@ import { Employee } from '@/types/employee';
 import { EmployeeCard } from '@/components/employees/EmployeeCard';
 import { ImportEmployeesDialog } from '@/components/employees/ImportEmployeesDialog';
 import { AdvancedFilterDropdown } from '@/components/employees/AdvancedFilterDropdown';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const StatusBadge = ({ status }: { status: string | null | undefined }) => {
   if (!status) return <Badge variant="outline">Unknown</Badge>;
@@ -53,6 +63,9 @@ const EmployeesPage = () => {
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -148,20 +161,31 @@ const EmployeesPage = () => {
   };
 
   const handleDeleteEmployee = async (employee: Employee) => {
+    setEmployeeToDelete(employee);
+    setDeleteConfirmText('');
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteEmployee = async () => {
+    if (!employeeToDelete || deleteConfirmText !== 'DELETE') return;
+    
     try {
       const { error } = await supabase
         .from('employees')
         .delete()
-        .eq('id', employee.id);
+        .eq('id', employeeToDelete.id);
 
       if (error) throw error;
 
       toast({
         title: "Employee Deleted",
-        description: `${employee.full_name} has been removed.`,
+        description: `${employeeToDelete.full_name} has been removed.`,
       });
 
       fetchEmployees();
+      setIsDeleteDialogOpen(false);
+      setEmployeeToDelete(null);
+      setDeleteConfirmText('');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -328,6 +352,42 @@ const EmployeesPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete {employeeToDelete?.full_name}'s 
+              record and all associated data.
+              <div className="mt-4">
+                <p className="font-medium mb-2">Type DELETE to confirm:</p>
+                <Input 
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE here"
+                  className="mt-1"
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeleteConfirmText('');
+              setEmployeeToDelete(null);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteEmployee}
+              disabled={deleteConfirmText !== 'DELETE'}
+              className={`${deleteConfirmText !== 'DELETE' ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              Delete Employee
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

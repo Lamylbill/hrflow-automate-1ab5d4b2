@@ -1,3 +1,4 @@
+
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
@@ -284,32 +285,45 @@ export function generateEmployeeTemplate() {
   // Get all employee fields organized by category
   const fieldsByCategory = getEmployeeFieldsByCategory();
   
-  // Flatten all fields into a single array, preserving category information
-  const allFields = Object.entries(fieldsByCategory).flatMap(([category, fields]) => 
-    fields.map(field => ({
-      ...field,
-      category
-    }))
-  );
+  // Create a single header row with all fields in proper category order
+  const headerRow: string[] = [];
+  const exampleRow: string[] = [];
   
-  // Create the headers row (field names only)
-  const headerRow = allFields.map(field => field.field);
+  // Process each category in the desired order
+  const categoryOrder = ['personal', 'employment', 'probation', 'contract', 'compensation', 'benefits', 'compliance', 'address', 'emergency', 'exit', 'attendance', 'others'];
   
-  // Create the Singapore example row
-  const exampleRow = allFields.map(field => field.example || '');
+  categoryOrder.forEach(category => {
+    if (fieldsByCategory[category]) {
+      fieldsByCategory[category].forEach(field => {
+        headerRow.push(field.field);
+        exampleRow.push(field.example || '');
+      });
+    }
+  });
   
-  // Create the field descriptions for the instructions sheet
+  // Add one empty row for user to start filling
+  const emptyRow = Array(headerRow.length).fill("");
+  
+  // Create the instructions data for the separate sheet
   const instructionsData = [
     ["Field", "Description", "Example", "Type", "Required", "Category"],
-    ...allFields.map(field => [
-      field.field,
-      field.description,
-      field.example,
-      field.type,
-      field.required ? "Yes" : "No",
-      field.category.charAt(0).toUpperCase() + field.category.slice(1)
-    ])
   ];
+  
+  // Add all fields to instructions sheet
+  categoryOrder.forEach(category => {
+    if (fieldsByCategory[category]) {
+      fieldsByCategory[category].forEach(field => {
+        instructionsData.push([
+          field.field,
+          field.description,
+          field.example,
+          field.type,
+          field.required ? "Yes" : "No",
+          category.charAt(0).toUpperCase() + category.slice(1)
+        ]);
+      });
+    }
+  });
   
   // Create the template with multiple sheets
   generateExcel("employee_template", [
@@ -319,7 +333,7 @@ export function generateEmployeeTemplate() {
     },
     {
       name: "Template",
-      data: [headerRow, exampleRow, Array(headerRow.length).fill("")]
+      data: [headerRow, exampleRow, emptyRow]
     }
   ]);
   
