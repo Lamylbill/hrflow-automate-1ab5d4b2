@@ -1,3 +1,4 @@
+export function exportEmployeesToExcel(employees: Employee[]) {
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
