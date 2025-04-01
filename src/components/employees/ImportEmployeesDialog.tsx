@@ -52,7 +52,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     generateEmployeeTemplate();
     toast({
       title: "Template Downloaded",
-      description: "Employee import template has been downloaded.",
+      description: "Complete employee import template has been downloaded with all fields organized by category.",
     });
   };
 
@@ -254,7 +254,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             <DialogTitle>Import Employees</DialogTitle>
             <DialogDescription>
               Upload an Excel file with employee data. 
-              You can download a template file to ensure proper formatting.
+              Download the template file to ensure proper formatting with all required and optional fields.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-6">
