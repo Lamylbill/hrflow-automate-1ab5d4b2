@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
-import { getEmployeeFieldsByCategory } from '@/utils/employeeFieldUtils'; // Adjust if needed
+import { getEmployeeFieldsByCategory } from './employeeFieldUtils';
 
 export function generateExcel(
   filename: string,
@@ -65,8 +65,7 @@ export function exportEmployeesToExcel(employees: Employee[]) {
 }
 
 export function generateEmployeeTemplate() {
-  const fieldGroups = getEmployeeFieldsByCategory(); // returns { category: string, fields: FieldMeta[] }
-
+  const fieldGroups = getEmployeeFieldsByCategory();
   const allFields = fieldGroups.flatMap(group => {
     return group.fields.map(field => ({
       label: field.label,
@@ -79,23 +78,22 @@ export function generateEmployeeTemplate() {
     }));
   });
 
-  const fieldLabels = allFields.map(field => field.label);
-  const fieldNames = allFields.map(field => field.name);
-  const descriptions = allFields.map(field => field.description);
-  const examples = allFields.map(field => field.example);
-  const types = allFields.map(field => field.type);
-  const required = allFields.map(field => field.required);
-  const categories = allFields.map(field => field.category);
+  const sheetData: any[][] = [];
 
-  const sheetData = [
-    fieldLabels,
-    fieldNames,
-    descriptions,
-    examples,
-    types,
-    required,
-    categories
-  ];
+  // Desired row order: Required (1st), Field Label, Category, Example (last)
+  const maxLength = allFields.length;
+  for (let i = 0; i < maxLength; i++) {
+    const field = allFields[i];
+    sheetData[0] = sheetData[0] || [];
+    sheetData[1] = sheetData[1] || [];
+    sheetData[2] = sheetData[2] || [];
+    sheetData[3] = sheetData[3] || [];
+
+    sheetData[0].push(field.required); // First row: Required
+    sheetData[1].push(field.label);    // Second row: Field Label
+    sheetData[2].push(field.category); // Third row: Category
+    sheetData[3].push(field.example);  // Fourth row: Example (last)
+  }
 
   generateExcel('employee_template', [
     {
