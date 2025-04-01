@@ -78,22 +78,38 @@ export function generateEmployeeTemplate() {
     }));
   });
 
-  const sheetData: any[][] = [];
+  // Ensure all fields from Employee type are included
+  const fieldNamesSet = new Set(allFields.map(f => f.name));
+  const employeeFieldNames = Object.keys({} as Employee).filter(
+    key => key !== 'id' && key !== 'user_id' && key !== 'created_at' && key !== 'updated_at'
+  );
 
-  // Desired row order: Required (1st), Field Label, Category, Example (last)
-  const maxLength = allFields.length;
-  for (let i = 0; i < maxLength; i++) {
-    const field = allFields[i];
-    sheetData[0] = sheetData[0] || [];
-    sheetData[1] = sheetData[1] || [];
-    sheetData[2] = sheetData[2] || [];
-    sheetData[3] = sheetData[3] || [];
+  employeeFieldNames.forEach(name => {
+    if (!fieldNamesSet.has(name)) {
+      allFields.push({
+        name,
+        label: name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        type: 'Text',
+        required: false,
+        category: 'Other',
+        example: ''
+      });
+    }
+  });
 
-    sheetData[0].push(field.required); // First row: Required
-    sheetData[1].push(field.label);    // Second row: Field Label
-    sheetData[2].push(field.category); // Third row: Category
-    sheetData[3].push(field.example);  // Fourth row: Example (last)
-  }
+  const requiredRow: string[] = [];
+  const labelRow: string[] = [];
+  const categoryRow: string[] = [];
+  const exampleRow: string[] = [];
+
+  allFields.forEach(field => {
+    requiredRow.push(field.required);
+    labelRow.push(field.label);
+    categoryRow.push(field.category);
+    exampleRow.push(field.example);
+  });
+
+  const sheetData = [requiredRow, labelRow, categoryRow, exampleRow];
 
   generateExcel('employee_template', [
     {
