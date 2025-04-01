@@ -14,94 +14,55 @@ export function generateExcel(
     const ws = XLSX.utils.aoa_to_sheet(sheet.data);
     XLSX.utils.book_append_sheet(wb, ws, sheet.name);
   });
+
   const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const data = new Blob([excelBuffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   saveAs(data, `${filename}.xlsx`);
 }
 
-export function exportEmployeesToExcel(employees: Employee[]) {
-  if (!employees || employees.length === 0) return false;
-
-  const allFields = new Set<string>();
-  employees.forEach(emp => {
-    Object.keys(emp).forEach(key => {
-      if (key !== 'id' && key !== 'user_id') {
-        allFields.add(key);
-      }
-    });
-  });
-
-  const headers = Array.from(allFields).map(field =>
-    field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  );
-
-  const data = employees.map(emp => {
-    return Array.from(allFields).map(field => {
-      const val = emp[field as keyof Employee];
-      if (val === null || val === undefined) return '';
-      if (Array.isArray(val)) return val.join(', ');
-      if (typeof val === 'boolean') return val ? 'Yes' : 'No';
-      return val;
-    });
-  });
-
-  generateExcel('employees_export', [
-    {
-      name: 'Employees',
-      data: [headers, ...data]
-    }
-  ]);
-  return true;
-}
-
-function getEmployeeFieldsByCategory() {
-  return {
-    personal: [
-      { field: 'full_name', label: 'Full Name', example: 'Tan Wei Ming' },
-      { field: 'email', label: 'Email', example: 'wei.ming@example.com.sg' },
-      { field: 'date_of_birth', label: 'Date of Birth', example: '1990-01-15' },
-      { field: 'gender', label: 'Gender', example: 'Male' }
-    ],
-    employment: [
-      { field: 'job_title', label: 'Job Title', example: 'Software Engineer' },
-      { field: 'department', label: 'Department', example: 'IT' },
-      { field: 'employment_status', label: 'Employment Status', example: 'Active' },
-      { field: 'date_of_hire', label: 'Date of Hire', example: '2022-01-15' }
-    ],
-    compensation: [
-      { field: 'salary', label: 'Salary', example: '5000' },
-      { field: 'bank_name', label: 'Bank Name', example: 'DBS' },
-      { field: 'bank_account_number', label: 'Bank Account Number', example: '123456789' }
-    ],
-    compliance: [
-      { field: 'cpf_contribution', label: 'CPF Contribution', example: 'true' },
-      { field: 'tax_identification_number', label: 'Tax ID Number', example: 'S9812345A' }
-    ]
-  };
-}
-
-export function generateEmployeeTemplate() {
-  const fieldsByCategory = getEmployeeFieldsByCategory();
-  const categoryOrder = ['personal', 'employment', 'compensation', 'compliance'];
+export function generateEmployeeTemplate(fieldsByCategory: Record<string, any[]>) {
+  const categoryOrder = ['personal', 'address', 'emergency', 'employment', 'probation', 'contract', 'compensation', 'benefits', 'compliance', 'attendance', 'exit', 'others'];
 
   const headers: string[] = [];
-  const examples: string[] = [];
-  const empty: string[] = [];
+  const sampleValues: string[] = [];
 
   categoryOrder.forEach(category => {
-    fieldsByCategory[category].forEach(field => {
-      headers.push(field.label);
-      examples.push(field.example || '');
-      empty.push('');
-    });
+    const fields = fieldsByCategory[category];
+    if (fields) {
+      fields.forEach(field => {
+        headers.push(field.label);
+        sampleValues.push(field.example || '');
+      });
+    }
+  });
+
+  const emptyRow = new Array(headers.length).fill('');
+
+  const templateSheetData = [headers, sampleValues, emptyRow];
+
+  const instructionsSheetData: any[][] = [
+    ['Field Label', 'Field Name', 'Description', 'Example', 'Type', 'Required', 'Category']
+  ];
+
+  categoryOrder.forEach(category => {
+    const fields = fieldsByCategory[category];
+    if (fields) {
+      fields.forEach(field => {
+        instructionsSheetData.push([
+          field.label,
+          field.field,
+          field.description,
+          field.example,
+          field.type,
+          field.required ? 'Yes' : 'No',
+          category.charAt(0).toUpperCase() + category.slice(1)
+        ]);
+      });
+    }
   });
 
   generateExcel('employee_template', [
-    {
-      name: 'Template',
-      data: [headers, examples, empty]
-    }
+    { name: 'Template', data: templateSheetData },
+    { name: 'Instructions', data: instructionsSheetData }
   ]);
 }
