@@ -2,15 +2,13 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
 
-interface SheetData {
-  name: string;
-  data: any[][];
-}
-
-/**
- * Generates and downloads an Excel file with the provided data
- */
-export function generateExcel(filename: string, sheets: SheetData[]) {
+export function generateExcel(
+  filename: string,
+  sheets: {
+    name: string,
+    data: any[][]
+  }[]
+) {
   const wb = XLSX.utils.book_new();
   sheets.forEach(sheet => {
     const ws = XLSX.utils.aoa_to_sheet(sheet.data);
@@ -23,83 +21,87 @@ export function generateExcel(filename: string, sheets: SheetData[]) {
   saveAs(data, `${filename}.xlsx`);
 }
 
-/**
- * Export all employee data to Excel including all fields
- */
 export function exportEmployeesToExcel(employees: Employee[]) {
   if (!employees || employees.length === 0) return false;
 
-  const headers = Object.keys(employees[0]).filter(k => k !== 'id' && k !== 'user_id');
-  const data = employees.map(emp => headers.map(h => emp[h as keyof Employee] ?? ''));
-  const readableHeaders = headers.map(h => h.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  const allFields = new Set<string>();
+  employees.forEach(emp => {
+    Object.keys(emp).forEach(key => {
+      if (key !== 'id' && key !== 'user_id') {
+        allFields.add(key);
+      }
+    });
+  });
+
+  const headers = Array.from(allFields).map(field =>
+    field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  );
+
+  const data = employees.map(emp => {
+    return Array.from(allFields).map(field => {
+      const val = emp[field as keyof Employee];
+      if (val === null || val === undefined) return '';
+      if (Array.isArray(val)) return val.join(', ');
+      if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+      return val;
+    });
+  });
+
   generateExcel('employees_export', [
-    { name: 'Employees', data: [readableHeaders, ...data] }
+    {
+      name: 'Employees',
+      data: [headers, ...data]
+    }
   ]);
   return true;
 }
 
-/**
- * Generates and downloads a template Excel file for importing employee data
- */
+function getEmployeeFieldsByCategory() {
+  return {
+    personal: [
+      { field: 'full_name', label: 'Full Name', example: 'Tan Wei Ming' },
+      { field: 'email', label: 'Email', example: 'wei.ming@example.com.sg' },
+      { field: 'date_of_birth', label: 'Date of Birth', example: '1990-01-15' },
+      { field: 'gender', label: 'Gender', example: 'Male' }
+    ],
+    employment: [
+      { field: 'job_title', label: 'Job Title', example: 'Software Engineer' },
+      { field: 'department', label: 'Department', example: 'IT' },
+      { field: 'employment_status', label: 'Employment Status', example: 'Active' },
+      { field: 'date_of_hire', label: 'Date of Hire', example: '2022-01-15' }
+    ],
+    compensation: [
+      { field: 'salary', label: 'Salary', example: '5000' },
+      { field: 'bank_name', label: 'Bank Name', example: 'DBS' },
+      { field: 'bank_account_number', label: 'Bank Account Number', example: '123456789' }
+    ],
+    compliance: [
+      { field: 'cpf_contribution', label: 'CPF Contribution', example: 'true' },
+      { field: 'tax_identification_number', label: 'Tax ID Number', example: 'S9812345A' }
+    ]
+  };
+}
+
 export function generateEmployeeTemplate() {
   const fieldsByCategory = getEmployeeFieldsByCategory();
-  const categoryOrder = [
-    'personal', 'address', 'emergency', 'employment', 'probation', 'contract',
-    'compensation', 'benefits', 'compliance', 'attendance', 'exit', 'others'
-  ];
+  const categoryOrder = ['personal', 'employment', 'compensation', 'compliance'];
 
-  const headerRow: string[] = [];
-  const exampleRow: string[] = [];
+  const headers: string[] = [];
+  const examples: string[] = [];
+  const empty: string[] = [];
 
   categoryOrder.forEach(category => {
-    const fields = fieldsByCategory[category] || [];
-    fields.forEach(field => {
-      headerRow.push(field.label);
-      exampleRow.push(field.example || '');
-    });
-  });
-
-  const emptyRow = Array(headerRow.length).fill('');
-  const templateSheet = [headerRow, exampleRow, emptyRow];
-
-  const instructionsSheet = [
-    ['Field Label', 'Field Name', 'Description', 'Example', 'Type', 'Required', 'Category']
-  ];
-  categoryOrder.forEach(category => {
-    const fields = fieldsByCategory[category] || [];
-    fields.forEach(field => {
-      instructionsSheet.push([
-        field.label,
-        field.field,
-        field.description,
-        field.example,
-        field.type,
-        field.required ? 'Yes' : 'No',
-        category
-      ]);
+    fieldsByCategory[category].forEach(field => {
+      headers.push(field.label);
+      examples.push(field.example || '');
+      empty.push('');
     });
   });
 
   generateExcel('employee_template', [
-    { name: 'Instructions', data: instructionsSheet },
-    { name: 'Template', data: templateSheet }
+    {
+      name: 'Template',
+      data: [headers, examples, empty]
+    }
   ]);
-}
-
-/**
- * Placeholder: Populate this with your actual grouped schema
- */
-function getEmployeeFieldsByCategory(): Record<string, any[]> {
-  return {
-    personal: [
-      { field: 'full_name', label: 'Full Name', description: 'Employee full name', example: 'Tan Wei Ming', type: 'Text', required: true },
-      { field: 'email', label: 'Email', description: 'Employee email', example: 'wei@example.com', type: 'Email', required: true },
-      { field: 'date_of_birth', label: 'Date of Birth', description: 'DOB', example: '1990-01-01', type: 'Date', required: false },
-    ],
-    employment: [
-      { field: 'job_title', label: 'Job Title', description: 'Job designation', example: 'Software Engineer', type: 'Text', required: true },
-      { field: 'date_of_hire', label: 'Date of Hire', description: 'Joining date', example: '2020-06-01', type: 'Date', required: true }
-    ],
-    // Add the remaining categories: address, emergency, etc.
-  };
 }
