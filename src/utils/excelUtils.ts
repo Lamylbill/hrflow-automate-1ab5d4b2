@@ -1,6 +1,7 @@
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
+import { getEmployeeFieldsByCategory } from '@/utils/employeeFieldUtils'; // Adjust if needed
 
 export function generateExcel(
   filename: string,
@@ -64,22 +65,42 @@ export function exportEmployeesToExcel(employees: Employee[]) {
 }
 
 export function generateEmployeeTemplate() {
-  const headers = [
-    'Full Name', 'Email', 'Date of Birth', 'Gender', 'Job Title', 'Department', 'Employment Status',
-    'Date of Hire', 'Salary', 'Bank Name', 'Bank Account Number', 'CPF Contribution', 'Tax ID Number'
-  ];
+  const fieldGroups = getEmployeeFieldsByCategory(); // returns { category: string, fields: FieldMeta[] }
 
-  const exampleRow = [
-    'Tan Wei Ming', 'wei.ming@example.com.sg', '1990-01-15', 'Male', 'Software Engineer', 'IT', 'Active',
-    '2022-01-15', '5000', 'DBS', '123456789', 'true', 'S9812345A'
-  ];
+  const allFields = fieldGroups.flatMap(group => {
+    return group.fields.map(field => ({
+      label: field.label,
+      name: field.name,
+      description: field.description || '',
+      example: field.example || '',
+      type: field.type || 'Text',
+      required: field.required ? 'Yes' : 'No',
+      category: group.category
+    }));
+  });
 
-  const emptyRow = Array(headers.length).fill('');
+  const fieldLabels = allFields.map(field => field.label);
+  const fieldNames = allFields.map(field => field.name);
+  const descriptions = allFields.map(field => field.description);
+  const examples = allFields.map(field => field.example);
+  const types = allFields.map(field => field.type);
+  const required = allFields.map(field => field.required);
+  const categories = allFields.map(field => field.category);
+
+  const sheetData = [
+    fieldLabels,
+    fieldNames,
+    descriptions,
+    examples,
+    types,
+    required,
+    categories
+  ];
 
   generateExcel('employee_template', [
     {
       name: 'Template',
-      data: [headers, exampleRow, emptyRow]
+      data: sheetData
     }
   ]);
 
