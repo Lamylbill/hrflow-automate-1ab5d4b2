@@ -285,17 +285,20 @@ export function generateEmployeeTemplate() {
   // Get all employee fields organized by category
   const fieldsByCategory = getEmployeeFieldsByCategory();
   
-  // Create a single header row with all fields in proper category order
+  // Create arrays for headers and example values
   const headerRow: string[] = [];
   const exampleRow: string[] = [];
   
   // Process each category in the desired order
-  const categoryOrder = ['personal', 'employment', 'probation', 'contract', 'compensation', 'benefits', 'compliance', 'address', 'emergency', 'exit', 'attendance', 'others'];
+  const categoryOrder = ['personal', 'address', 'emergency', 'employment', 'probation', 'contract', 'compensation', 'benefits', 'compliance', 'attendance', 'exit', 'others'];
   
+  // First build the column headers and example values in order by category
   categoryOrder.forEach(category => {
     if (fieldsByCategory[category]) {
       fieldsByCategory[category].forEach(field => {
-        headerRow.push(field.field);
+        // Add the header (field label)
+        headerRow.push(field.label);
+        // Add the example value
         exampleRow.push(field.example || '');
       });
     }
@@ -306,7 +309,7 @@ export function generateEmployeeTemplate() {
   
   // Create the instructions data for the separate sheet
   const instructionsData = [
-    ["Field", "Description", "Example", "Type", "Required", "Category"],
+    ["Field Label", "Field Name", "Description", "Example", "Type", "Required", "Category"],
   ];
   
   // Add all fields to instructions sheet
@@ -314,6 +317,7 @@ export function generateEmployeeTemplate() {
     if (fieldsByCategory[category]) {
       fieldsByCategory[category].forEach(field => {
         instructionsData.push([
+          field.label,
           field.field,
           field.description,
           field.example,
@@ -339,3 +343,4 @@ export function generateEmployeeTemplate() {
   
   return true;
 }
+
