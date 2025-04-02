@@ -2,16 +2,9 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Check,
-  Users,
-  Clock,
-  Calendar,
-  BarChart,
-  ShieldCheck,
-  Briefcase,
-  ChevronRight,
-  Zap,
   Trophy,
   Rocket,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
@@ -25,7 +18,7 @@ import { Helmet } from 'react-helmet';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
-  const featuresItems = getFeaturesItems();
+  const features = getFeaturesItems();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,69 +42,52 @@ const Index = () => {
     <>
       <Helmet>
         <title>HRFlow | AI-Powered HR Software for SMEs</title>
-        <meta
-          name="description"
-          content="HRFlow is a smart, affordable HR SaaS platform for SMEs. Automate HR tasks, payroll, and compliance with AI-driven insights."
-        />
+        <meta name="description" content="HRFlow is a smart, affordable HR SaaS platform for SMEs. Automate HR tasks, payroll, and compliance with AI-driven insights." />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="HRFlow | AI-Powered HR Software for SMEs" />
-        <meta
-          property="og:description"
-          content="Streamline your HR, payroll, and compliance processes with HRFlow. Designed for small and medium businesses in Singapore and Malaysia."
-        />
+        <meta property="og:description" content="Streamline your HR, payroll, and compliance processes with HRFlow. Designed for small and medium businesses in Singapore and Malaysia." />
         <meta property="og:url" content="https://flowhr.netlify.app" />
-        <meta
-          property="og:image"
-          content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png"
-        />
-
+        <meta property="og:image" content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="HRFlow | AI-Powered HR Software for SMEs" />
-        <meta
-          name="twitter:description"
-          content="Affordable AI-powered HR platform for small and medium businesses in Singapore and Malaysia."
-        />
-        <meta
-          name="twitter:image"
-          content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png"
-        />
+        <meta name="twitter:description" content="Affordable AI-powered HR platform for small and medium businesses in Singapore and Malaysia." />
+        <meta name="twitter:image" content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
         <link rel="canonical" href="https://flowhr.netlify.app/" />
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
       <div className="flex flex-col min-h-screen bg-gradient-blue">
         <LandNavbar showLogo={true} />
-      
-      {/* Hero Section - Completely Redesigned */}
-      <section className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 bg-gradient-to-br from-white via-blue-50 to-indigo-100">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+
+        {/* HERO */}
+        <section className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 bg-gradient-to-br from-white via-blue-50 to-indigo-100">
+          <div className="container mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
             <AnimatedSection className="flex flex-col">
               <div className="inline-flex items-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm mb-8 w-auto">
                 <span className="text-white font-semibold tracking-wide">AI-Powered HR Management</span>
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-blue-950 mb-8 leading-tight">
+              <h1 className="text-5xl md:text-6xl font-bold text-blue-950 mb-8 leading-tight">
                 Simplify your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">HR operations</span> with AI
               </h1>
-              <p className="text-xl md:text-2xl text-blue-800 mb-10 max-w-xl leading-relaxed">
-                HRFlow streamlines HR, payroll, and compliance for SMEs in Singapore and Malaysia. Perfect for businesses with 0-100 employees.
+              <p className="text-xl text-blue-800 mb-10 max-w-xl">
+                HRFlow streamlines HR, payroll, and compliance for SMEs in Singapore and Malaysia. Perfect for businesses with 0–100 employees.
               </p>
               <div className="flex flex-col sm:flex-row gap-6">
                 {isAuthenticated ? (
                   <Link to="/dashboard">
-                    <Button size="xl" className="rounded-full shadow-button hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 hover:to-indigo-700 px-10">
-                      Go to Dashboard <ChevronRight className="h-6 w-6 ml-2" />
+                    <Button size="xl" className="rounded-full shadow-button bg-gradient-to-r from-blue-600 to-indigo-600 px-10">
+                      Go to Dashboard <ChevronRight className="ml-2 h-6 w-6" />
                     </Button>
                   </Link>
                 ) : (
                   <>
                     <Link to="/signup">
-                      <Button size="xl" className="rounded-full shadow-button hover:shadow-xl transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 hover:to-indigo-700 px-10">
-                        Get Started <ChevronRight className="h-6 w-6 ml-2" />
+                      <Button size="xl" className="rounded-full shadow-button bg-gradient-to-r from-blue-600 to-indigo-600 px-10">
+                        Get Started <ChevronRight className="ml-2 h-6 w-6" />
                       </Button>
                     </Link>
                     <Link to="/login">
-                      <Button variant="secondary" size="xl" className="rounded-full border-2 border-blue-200 hover:border-blue-300 hover:bg-white transition-all duration-300 px-10">
+                      <Button variant="secondary" size="xl" className="rounded-full border-2 border-blue-200 px-10">
                         Log In
                       </Button>
                     </Link>
@@ -119,55 +95,24 @@ const Index = () => {
                 )}
               </div>
             </AnimatedSection>
-            
-            <AnimatedSection delay={300} className="relative hidden md:block">
+
+            <AnimatedSection delay={300} className="hidden md:block relative">
               <div className="relative p-6 glass-card rounded-3xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 to-indigo-100/20"></div>
-                <img 
-                  src="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" 
-                  alt="HRFlow Dashboard" 
-                  className="relative rounded-2xl shadow-xl border border-white w-full hover-lift"
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 to-indigo-100/20" />
+                <img
+                  src="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png"
+                  alt="HRFlow Dashboard Preview"
+                  className="relative rounded-2xl shadow-xl border w-full"
                 />
-                <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full opacity-20 blur-2xl"></div>
-                <div className="absolute -top-6 -left-6 w-32 h-32 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full opacity-20 blur-3xl"></div>
               </div>
             </AnimatedSection>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Stats Section - New */}
-      <section className="py-16 px-6 bg-white relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl">
-          <AnimatedSection>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm border border-blue-100">
-                <h3 className="text-5xl font-bold text-blue-600 mb-3">95%</h3>
-                <p className="text-blue-800">Time saved on HR administrative tasks</p>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm border border-blue-100">
-                <h3 className="text-5xl font-bold text-blue-600 mb-3">100%</h3>
-                <p className="text-blue-800">Compliance with local regulations</p>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm border border-blue-100">
-                <h3 className="text-5xl font-bold text-blue-600 mb-3">500+</h3>
-                <p className="text-blue-800">SMEs using HRFlow across APAC</p>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl shadow-sm border border-blue-100">
-                <h3 className="text-5xl font-bold text-blue-600 mb-3">24/7</h3>
-                <p className="text-blue-800">AI-powered support and assistance</p>
-              </div>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
-
-      {/* Features Section - Completely Redesigned */}
-      <section id="features" className="py-28 px-6 bg-gradient-to-br from-white to-blue-50 relative">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white to-transparent"></div>
-        <div className="container mx-auto max-w-7xl relative z-10">
-          <AnimatedSection>
-            <div className="text-center mb-20">
+        {/* FEATURES */}
+        <section id="features" className="py-28 px-6 bg-gradient-to-br from-white to-blue-50">
+          <div className="container mx-auto max-w-7xl">
+            <AnimatedSection className="text-center mb-20">
               <div className="inline-flex items-center rounded-full bg-blue-100 text-blue-800 px-5 py-2 text-sm font-medium mb-5">
                 <Trophy className="h-4 w-4 mr-2" />
                 <span>Premium Features</span>
@@ -178,24 +123,25 @@ const Index = () => {
               <p className="text-xl text-blue-800 max-w-3xl mx-auto">
                 Our platform simplifies every aspect of your HR operations with powerful, easy-to-use tools.
               </p>
-            </div>
-          </AnimatedSection>
+            </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <AnimatedSection delay={100 * index} key={index}>
-                <PremiumCard variant="interactive" className="h-full border-0 overflow-hidden" id={feature.id}>
-                  <CardContent className="pt-8 pb-8">
-                    <div className="mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 inline-block shadow-lg">{feature.icon}</div>
-                    <h3 className="text-2xl font-bold mb-4 text-blue-900">{feature.title}</h3>
-                    <p className="text-blue-700 leading-relaxed text-lg">{feature.description}</p>
-                  </CardContent>
-                </PremiumCard>
-              </AnimatedSection>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <AnimatedSection key={index} delay={100 * index}>
+                  <PremiumCard variant="interactive" className="h-full border-0 overflow-hidden" id={feature.id}>
+                    <CardContent className="pt-8 pb-8">
+                      <div className="mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 inline-block shadow-lg">
+                        {feature.icon}
+                      </div>
+                      <h3 className="text-2xl font-bold mb-4 text-blue-900">{feature.title}</h3>
+                      <p className="text-blue-700 leading-relaxed text-lg">{feature.description}</p>
+                    </CardContent>
+                  </PremiumCard>
+                </AnimatedSection>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Why Choose Section - Completely Redesigned */}
       <section id="pricing" className="py-28 px-6 bg-white relative">
