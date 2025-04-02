@@ -1,3 +1,4 @@
+
 export interface FieldMeta {
   name: string;
   label: string;
@@ -5,6 +6,7 @@ export interface FieldMeta {
   required: boolean;
   example?: string;
   description?: string;
+  category?: string; // Added category property to fix TypeScript errors
 }
 
 export interface FieldCategory {
@@ -188,7 +190,7 @@ export const fullEmployeeFieldList: FieldMeta[] = [
 
     // System Metadata
   { name: 'created_at', label: 'Created At', type: 'DateTime', required: false, category: 'System' },
-  { name: 'updated_at', label: 'Updated At', type: 'DateTime', required: false, category: 'Syst  em' },
+  { name: 'updated_at', label: 'Updated At', type: 'DateTime', required: false, category: 'System' },
 
 ];
 
