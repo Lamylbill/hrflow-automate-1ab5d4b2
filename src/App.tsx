@@ -18,16 +18,15 @@ import EmployeesPage from './pages/EmployeesPage';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
 
-const App = () => {
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: 3,
-        retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
-        staleTime: 5 * 60 * 1000,
-      },
+const [queryClient] = useState(() => new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 3,
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000,
     },
-  }));
+  },
+}));
 
   return (
     <QueryClientProvider client={queryClient}>
