@@ -1,6 +1,5 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -34,6 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   // Initialize authentication state
@@ -85,10 +85,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSession(newSession);
             setUser(newSession.user);
             
+            // Only navigate on actual sign-in events, not session refreshes or focus changes
             if (event === 'SIGNED_IN') {
-      if (location.pathname !== '/') {
-        navigate('/dashboard');
-      }
+              // Only redirect if user is on the root path or login/signup pages
+              const isAuthPage = ['/login', '/signup', '/'].includes(location.pathname);
+              if (isAuthPage) {
+                navigate('/dashboard');
+              }
+              
               toast({
                 title: "Login successful",
                 description: "Welcome to HRFlow!",
@@ -123,7 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, location.pathname]);
 
   const login = async (email: string, password: string) => {
     try {
