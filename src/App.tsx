@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -15,19 +15,6 @@ import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 import EmployeesPage from './pages/EmployeesPage';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import { HelmetProvider } from 'react-helmet-async';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
-  </React.StrictMode>
-);
-
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
@@ -99,19 +86,13 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 const SettingsWrapper = () => {
   const location = useLocation();
   const from = location.state?.from || '/dashboard';
-
   return <Settings returnTo={from} />;
 };
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={
-        <>
-          <Navbar />
-          <Index />
-        </>
-      } />
+      <Route path="/" element={<><Navbar /><Index /></>} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/dashboard" element={
