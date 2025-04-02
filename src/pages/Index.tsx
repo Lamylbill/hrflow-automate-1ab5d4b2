@@ -1,7 +1,18 @@
 import React, { useEffect } from 'react';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { Check, Users, Clock, Calendar, BarChart, ShieldCheck, Briefcase, ChevronRight, Zap, Trophy, Rocket } from 'lucide-react';
+import {
+  Check,
+  Users,
+  Clock,
+  Calendar,
+  BarChart,
+  ShieldCheck,
+  Briefcase,
+  ChevronRight,
+  Zap,
+  Trophy,
+  Rocket,
+} from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
 import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
@@ -10,6 +21,7 @@ import { LandNavbar } from '@/components/layout/LandNavbar';
 import { getFeaturesItems } from '@/components/layout/NavItems';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { Helmet } from 'react-helmet';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
@@ -19,62 +31,56 @@ const Index = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const features = [
-    {
-      icon: <Users className="h-12 w-12 text-white" />,
-      title: "Employee Management",
-      description: "Centralized database for all employee records with self-service portal and digital profiles.",
-      id: "features-employee"
-    },
-    {
-      icon: <Briefcase className="h-12 w-12 text-white" />,
-      title: "Recruitment & Onboarding",
-      description: "AI-powered job matching with automated document collection for seamless onboarding.",
-      id: "features-recruitment"
-    },
-    {
-      icon: <Clock className="h-12 w-12 text-white" />,
-      title: "Leave & Attendance",
-      description: "Streamlined leave management with approval workflows and time tracking capabilities.",
-      id: "features-leave"
-    },
-    {
-      icon: <Zap className="h-12 w-12 text-white" />,
-      title: "Performance Management",
-      description: "Set and track performance goals with AI-driven productivity insights.",
-      id: "features-performance"
-    },
-    {
-      icon: <Calendar className="h-12 w-12 text-white" />,
-      title: "Payroll & Compensation",
-      description: "Automated calculations with Singapore/Malaysia compliance for CPF, MOM, and IRAS.",
-      id: "features-payroll"
-    },
-    {
-      icon: <ShieldCheck className="h-12 w-12 text-white" />,
-      title: "Compliance & Security",
-      description: "Meet regulatory requirements with secure document storage and automated compliance.",
-      id: "features-compliance"
-    },
-  ];
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'HRFlow',
+    url: 'https://flowhr.netlify.app',
+    logo: 'https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png',
+    description:
+      'HRFlow is an affordable, AI-powered HR management SaaS built for SMEs in Singapore and Malaysia. We help businesses streamline HR, payroll, compliance, and workforce processes with automation and smart insights.',
+    sameAs: [
+      'https://www.linkedin.com/company/hrflow-saas/',
+      'https://twitter.com/hrflowsaas'
+    ]
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-blue">
+    <>
       <Helmet>
-        <title>HRFlow | AI-Powered HR Software for SMEs in Singapore & Malaysia</title>
-        <meta name="description" content="HRFlow is an AI-powered HR management platform designed for SMEs in Singapore and Malaysia. Simplify payroll, compliance, and HR tasks with a cost-effective, no-code solution." />
-        <meta property="og:title" content="HRFlow | AI-Powered HR Software for SMEs" />
-        <meta property="og:description" content="Streamline your HR operations with HRFlow – an affordable, scalable, and AI-driven HR software for small businesses." />
+        <title>HRFlow | AI-Powered HR Software for SMEs</title>
+        <meta
+          name="description"
+          content="HRFlow is a smart, affordable HR SaaS platform for SMEs. Automate HR tasks, payroll, and compliance with AI-driven insights."
+        />
         <meta property="og:type" content="website" />
+        <meta property="og:title" content="HRFlow | AI-Powered HR Software for SMEs" />
+        <meta
+          property="og:description"
+          content="Streamline your HR, payroll, and compliance processes with HRFlow. Designed for small and medium businesses in Singapore and Malaysia."
+        />
         <meta property="og:url" content="https://flowhr.netlify.app" />
-        <meta property="og:image" content="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
+        <meta
+          property="og:image"
+          content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png"
+        />
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="HRFlow | AI-Powered HR Software for SMEs" />
-        <meta name="twitter:description" content="HRFlow is a web-based HR SaaS for SMEs. Automate payroll, streamline compliance, and manage employees with AI." />
-        <meta name="twitter:image" content="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
+        <meta
+          name="twitter:description"
+          content="Affordable AI-powered HR platform for small and medium businesses in Singapore and Malaysia."
+        />
+        <meta
+          name="twitter:image"
+          content="https://flowhr.netlify.app/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png"
+        />
+        <link rel="canonical" href="https://flowhr.netlify.app/" />
+        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      <LandNavbar showLogo={true} />
+      <div className="flex flex-col min-h-screen bg-gradient-blue">
+        <LandNavbar showLogo={true} />
       
       {/* Hero Section - Completely Redesigned */}
       <section className="pt-36 pb-28 md:pt-44 md:pb-36 px-6 bg-gradient-to-br from-white via-blue-50 to-indigo-100">
