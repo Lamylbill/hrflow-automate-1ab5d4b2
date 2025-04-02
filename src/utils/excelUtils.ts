@@ -1,6 +1,7 @@
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { fullEmployeeFieldList } from './employeeFieldUtils';
+import { Employee } from '@/types/employee';
 
 export function generateExcel(
   filename: string,
@@ -22,6 +23,47 @@ export function generateExcel(
   });
 
   saveAs(data, `${filename}.xlsx`);
+}
+
+export function exportEmployeesToExcel(employees: Employee[]) {
+  if (!employees || employees.length === 0) {
+    return false;
+  }
+
+  const allFields = new Set<string>();
+  employees.forEach(employee => {
+    Object.keys(employee).forEach(key => {
+      if (key !== 'id' && key !== 'user_id') {
+        allFields.add(key);
+      }
+    });
+  });
+
+  const headers = Array.from(allFields).map(field =>
+    field
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  );
+
+  const data = employees.map(employee => {
+    return Array.from(allFields).map(field => {
+      const value = employee[field as keyof Employee];
+      if (value === null || value === undefined) {
+        return '';
+      } else if (Array.isArray(value)) {
+        return value.join(', ');
+      } else if (typeof value === 'boolean') {
+        return value ? 'Yes' : 'No';
+      } else {
+        return value;
+      }
+    });
+  });
+
+  const exportData = [headers, ...data];
+  generateExcel('employees_export', [{ name: 'Employees', data: exportData }]);
+  return true;
 }
 
 export function generateEmployeeTemplate() {
@@ -50,3 +92,9 @@ export function generateEmployeeTemplate() {
 
   return true;
 }
+
+export default {
+  generateExcel,
+  generateEmployeeTemplate,
+  exportEmployeesToExcel,
+};
