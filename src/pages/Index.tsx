@@ -1,11 +1,25 @@
+
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { LandNavbar } from '@/components/layout/LandNavbar';
+import {
+  Check,
+  Trophy,
+  Rocket,
+  ChevronRight,
+} from 'lucide-react';
+import { Button } from '@/components/ui-custom/Button';
+import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
+import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { useAuth } from '@/context/AuthContext';
+import { LandNavbar } from '@/components/layout/LandNavbar';
+import { getFeaturesItems } from '@/components/layout/NavItems';
+import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
+  const features = getFeaturesItems();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -115,7 +129,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
                 <AnimatedSection key={index} delay={100 * index}>
-                  <PremiumCard variant="interactive" className="h-full border-0 overflow-hidden" id={feature.id}>
+                  <PremiumCard variant="interactive" className="h-full border-0 overflow-hidden" id={feature.href}>
                     <CardContent className="pt-8 pb-8">
                       <div className="mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-4 inline-block shadow-lg">
                         {feature.icon}
@@ -438,6 +452,7 @@ const Index = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 
