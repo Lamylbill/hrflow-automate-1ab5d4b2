@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -86,7 +85,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     }
   };
   
-  const prepareEmployeesData = async (jsonData: any[][], headers: string[]) => {
+  const prepareEmployeesData = (jsonData: any[][], headers: string[]) => {
     const filteredData = jsonData.filter(row => 
       row.length > 0 && row.some(cell => cell !== undefined && cell !== '')
     );
@@ -103,25 +102,39 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       
       headers.forEach((header, index) => {
         if (header && row[index] !== undefined) {
-          if (header === 'benefits_enrolled' && row[index]) {
-            employee[header] = row[index].toString().split(',').map((s: string) => s.trim());
+          const rawValue = row[index]?.toString() || '';
+          
+          if (header === 'benefits_enrolled' && rawValue) {
+            employee[header] = rawValue.split(',').map((s: string) => s.trim());
           } else if (header === 'cpf_contribution' || header === 'contract_signed') {
-            const value = row[index].toString().toLowerCase();
-            employee[header] = value === 'true' || value === 'yes';
-          } else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score'].includes(header) && row[index]) {
-            employee[header] = Number(row[index]);
+            const value = rawValue.toLowerCase();
+            if (value === 'yes' || value === 'true' || value === '1') {
+              employee[header] = true;
+            } else if (value === 'no' || value === 'false' || value === '0') {
+              employee[header] = false;
+            } else {
+              employee[header] = rawValue;
+            }
+          } else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score'].includes(header) && rawValue) {
+            const numValue = parseFloat(rawValue);
+            employee[header] = isNaN(numValue) ? rawValue : numValue;
           } else {
-            employee[header] = row[index];
+            employee[header] = rawValue;
           }
         }
       });
       
       if (!employee.full_name || !employee.email) {
-        throw new Error("All employees must have a full name and email");
+        console.warn("Skipping row due to missing required fields:", employee);
+        return null;
       }
       
       return employee;
-    });
+    }).filter(Boolean);
+    
+    if (employees.length === 0) {
+      throw new Error("No valid employees found with required fields (full_name and email)");
+    }
     
     return employees;
   };
@@ -139,22 +152,45 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           const data = new Uint8Array(e.target?.result as ArrayBuffer);
           const workbook = XLSX.read(data, { type: 'array' });
           
-          const worksheetName = workbook.SheetNames[1];
-          const worksheet = workbook.Sheets[worksheetName];
+          let jsonData: any[][] = [];
+          let headers: string[] = [];
           
-          const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-            header: 1,
-            range: 2
-          }) as any[][];
+          const sheetNames = workbook.SheetNames;
           
-          const headers = workbook.Sheets[worksheetName] ? 
-            XLSX.utils.sheet_to_json(workbook.Sheets[worksheetName], { 
+          const templateSheetName = sheetNames.find(name => 
+            name.toLowerCase() === "template" || name.toLowerCase() === "data"
+          ) || sheetNames[0];
+          
+          const worksheet = workbook.Sheets[templateSheetName];
+          
+          if (worksheet) {
+            headers = XLSX.utils.sheet_to_json(worksheet, { 
               header: 1, 
-              range: 0, 
+              range: 0,
               blankrows: false 
-            })[0] as string[] : [];
+            })[0] as string[];
+            
+            const dataStartRow = templateSheetName.toLowerCase() === "template" ? 3 : 1;
+            
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+              header: 1,
+              range: dataStartRow,
+              blankrows: false
+            }) as any[][];
+          }
           
-          const employees = await prepareEmployeesData(jsonData, headers);
+          if (!headers.length || !jsonData.length) {
+            throw new Error("Could not extract headers or data from the Excel file");
+          }
+          
+          console.log("Extracted data:", { 
+            sheetName: templateSheetName,
+            headers: headers, 
+            rowCount: jsonData.length,
+            sampleRow: jsonData[0]
+          });
+          
+          const employees = prepareEmployeesData(jsonData, headers);
           
           const { duplicates, newEmployees } = await checkForDuplicates(employees);
           
@@ -163,6 +199,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             setNewEmployeesCount(newEmployees.length);
             setPendingEmployees(newEmployees);
             setShowDuplicateAlert(true);
+            setIsImporting(false);
             return;
           }
           
@@ -175,7 +212,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             description: error.message || "An error occurred while importing employees.",
             variant: "destructive",
           });
-        } finally {
           setIsImporting(false);
         }
       };
@@ -200,6 +236,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           description: "No valid employees were found to import.",
           variant: "destructive",
         });
+        setIsImporting(false);
         return;
       }
       
@@ -215,12 +252,12 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       
       if (onImportSuccess) onImportSuccess();
       
-      // Reset state
       setFile(null);
       setPendingEmployees([]);
       setDuplicateCount(0);
       setNewEmployeesCount(0);
       
+      setIsImporting(false);
     } catch (error: any) {
       console.error("Error importing employees to database:", error);
       toast({
@@ -228,6 +265,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         description: error.message || "An error occurred while importing employees to the database.",
         variant: "destructive",
       });
+      setIsImporting(false);
     }
   };
   
