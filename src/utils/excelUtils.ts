@@ -1,7 +1,7 @@
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
-import { getEmployeeFieldsByCategory } from './employeeFieldUtils';
+import { fullEmployeeFieldList } from './employeeFieldUtils';
 
 export function generateExcel(
   filename: string,
@@ -65,51 +65,21 @@ export function exportEmployeesToExcel(employees: Employee[]) {
 }
 
 export function generateEmployeeTemplate() {
-  const fieldGroups = getEmployeeFieldsByCategory();
-  const allFields = fieldGroups.flatMap(group => {
-    return group.fields.map(field => ({
-      label: field.label,
-      name: field.name,
-      description: field.description || '',
-      example: field.example || '',
-      type: field.type || 'Text',
-      required: field.required ? 'Yes' : 'No',
-      category: group.category
-    }));
-  });
+  const allFields = fullEmployeeFieldList;
 
-  // Ensure all fields from Employee type are included
-  const fieldNamesSet = new Set(allFields.map(f => f.name));
-  const employeeFieldNames = Object.keys({} as Employee).filter(
-    key => key !== 'id' && key !== 'user_id' && key !== 'created_at' && key !== 'updated_at'
-  );
-
-  employeeFieldNames.forEach(name => {
-    if (!fieldNamesSet.has(name)) {
-      allFields.push({
-        name,
-        label: name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        type: 'Text',
-        required: false,
-        category: 'Other',
-        example: ''
-      });
-    }
-  });
-
-  const requiredRow: string[] = [];
   const labelRow: string[] = [];
   const categoryRow: string[] = [];
+  const requiredRow: string[] = [];
   const exampleRow: string[] = [];
 
   allFields.forEach(field => {
-    requiredRow.push(field.required);
     labelRow.push(field.label);
-    categoryRow.push(field.category);
-    exampleRow.push(field.example);
+    categoryRow.push(field.category || 'Other');
+    requiredRow.push(field.required ? 'Yes' : 'No');
+    exampleRow.push(field.example || '');
   });
 
-  const sheetData = [requiredRow, labelRow, categoryRow, exampleRow];
+  const sheetData = [labelRow, categoryRow, requiredRow, exampleRow];
 
   generateExcel('employee_template', [
     {
