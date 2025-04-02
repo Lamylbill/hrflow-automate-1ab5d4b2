@@ -1,24 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Check,
-  Trophy,
-  Rocket,
-  ChevronRight,
-} from 'lucide-react';
-import { Button } from '@/components/ui-custom/Button';
-import { PremiumCard, CardContent } from '@/components/ui-custom/Card';
-import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
-import { useAuth } from '@/context/AuthContext';
-import { LandNavbar } from '@/components/layout/LandNavbar';
-import { getFeaturesItems } from '@/components/layout/NavItems';
-import { Separator } from '@/components/ui/separator';
-import { Progress } from '@/components/ui/progress';
 import { Helmet } from 'react-helmet';
+import { LandNavbar } from '@/components/layout/LandNavbar';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const { isAuthenticated } = useAuth();
-  const features = getFeaturesItems();
 
   useEffect(() => {
     window.scrollTo(0, 0);
