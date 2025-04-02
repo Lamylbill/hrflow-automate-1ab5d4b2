@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
@@ -10,7 +11,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 
-const App = () => {
+const AppComponent = () => {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -38,4 +39,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default AppComponent;

@@ -79,16 +79,22 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       );
       
       return { duplicates, newEmployees };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking for duplicates:", error);
       throw error;
     }
   };
   
   const prepareEmployeesData = (jsonData: any[][], headers: string[]) => {
+    console.log("Raw jsonData:", jsonData);
+    console.log("Headers:", headers);
+    
     const filteredData = jsonData.filter(row => 
-      row.length > 0 && row.some(cell => cell !== undefined && cell !== '')
+      row && Array.isArray(row) && row.length > 0 && row.some(cell => cell !== undefined && cell !== null && cell !== '')
     );
+    
+    console.log("Filtered Data Length:", filteredData.length);
+    console.log("First row after filtering:", filteredData[0]);
     
     if (filteredData.length === 0) {
       throw new Error("No valid data found in the import file");
@@ -101,37 +107,46 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       const employee: any = { user_id: safeUserId };
       
       headers.forEach((header, index) => {
-        if (header && row[index] !== undefined) {
+        if (!header) return;
+        
+        if (index < row.length && row[index] !== undefined) {
           const rawValue = row[index]?.toString() || '';
           
           if (header === 'benefits_enrolled' && rawValue) {
             employee[header] = rawValue.split(',').map((s: string) => s.trim());
-          } else if (header === 'cpf_contribution' || header === 'contract_signed') {
-            const value = rawValue.toLowerCase();
-            if (value === 'yes' || value === 'true' || value === '1') {
+          } 
+          else if (['cpf_contribution', 'contract_signed', 'new_graduate', 'rehire', 'must_clock', 'all_work_day', 'freeze_payment'].includes(header)) {
+            const value = rawValue.toLowerCase().trim();
+            if (['yes', 'true', '1', 'y'].includes(value)) {
               employee[header] = true;
-            } else if (value === 'no' || value === 'false' || value === '0') {
+            } else if (['no', 'false', '0', 'n'].includes(value)) {
               employee[header] = false;
+            } else if (value === '') {
+              employee[header] = null;
             } else {
               employee[header] = rawValue;
             }
-          } else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score'].includes(header) && rawValue) {
+          } 
+          else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score', 
+                     'salary_fixed', 'allocation_amount', 'salary_arrears', 'mvc'].includes(header) && rawValue) {
             const numValue = parseFloat(rawValue);
             employee[header] = isNaN(numValue) ? rawValue : numValue;
-          } else {
+          } 
+          else {
             employee[header] = rawValue;
           }
         }
       });
       
       if (!employee.full_name || !employee.email) {
-        console.warn("Skipping row due to missing required fields:", employee);
+        console.warn("Skipping row due to missing required fields (full_name or email):", employee);
         return null;
       }
       
       return employee;
     }).filter(Boolean);
     
+    console.log("Valid employee records:", employees.length);
     if (employees.length === 0) {
       throw new Error("No valid employees found with required fields (full_name and email)");
     }
@@ -152,43 +167,54 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           const data = new Uint8Array(e.target?.result as ArrayBuffer);
           const workbook = XLSX.read(data, { type: 'array' });
           
+          console.log("Available sheets:", workbook.SheetNames);
+          
           let jsonData: any[][] = [];
           let headers: string[] = [];
           
           const sheetNames = workbook.SheetNames;
           
-          const templateSheetName = sheetNames.find(name => 
-            name.toLowerCase() === "template" || name.toLowerCase() === "data"
-          ) || sheetNames[0];
+          let templateSheetName = sheetNames.find(name => 
+            name.toLowerCase().includes("template") || name.toLowerCase().includes("data")
+          );
           
-          const worksheet = workbook.Sheets[templateSheetName];
-          
-          if (worksheet) {
-            headers = XLSX.utils.sheet_to_json(worksheet, { 
-              header: 1, 
-              range: 0,
-              blankrows: false 
-            })[0] as string[];
-            
-            const dataStartRow = templateSheetName.toLowerCase() === "template" ? 3 : 1;
-            
-            jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-              header: 1,
-              range: dataStartRow,
-              blankrows: false
-            }) as any[][];
+          if (!templateSheetName && sheetNames.length > 0) {
+            templateSheetName = sheetNames[0];
+            console.log("Using first sheet:", templateSheetName);
           }
           
-          if (!headers.length || !jsonData.length) {
-            throw new Error("Could not extract headers or data from the Excel file");
+          if (templateSheetName) {
+            const worksheet = workbook.Sheets[templateSheetName];
+            
+            if (worksheet) {
+              const wsJson = XLSX.utils.sheet_to_json(worksheet, { 
+                header: 1, 
+                blankrows: false,
+                defval: '' 
+              }) as any[][];
+              
+              console.log("Worksheet rows:", wsJson.length);
+              
+              if (wsJson.length > 0) {
+                headers = wsJson[0].map(h => h?.toString().trim() || '');
+                
+                const dataStartRow = templateSheetName.toLowerCase().includes("template") ? 
+                  (wsJson.length > 3 ? 3 : 1) : 1;
+                
+                jsonData = wsJson.slice(dataStartRow);
+                
+                console.log(`Using data starting from row ${dataStartRow+1}, found ${jsonData.length} data rows`);
+              }
+            }
           }
           
-          console.log("Extracted data:", { 
-            sheetName: templateSheetName,
-            headers: headers, 
-            rowCount: jsonData.length,
-            sampleRow: jsonData[0]
-          });
+          if (!headers.length) {
+            throw new Error("Could not extract headers from the Excel file");
+          }
+          
+          if (!jsonData.length) {
+            throw new Error("No data rows found in the Excel file");
+          }
           
           const employees = prepareEmployeesData(jsonData, headers);
           
@@ -239,6 +265,8 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         setIsImporting(false);
         return;
       }
+      
+      console.log(`Importing ${employees.length} employees to database`);
       
       for (const employee of employees) {
         const { error } = await supabase.from('employees').insert(employee);
