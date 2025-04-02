@@ -1,5 +1,5 @@
-
 import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { Check, Users, Clock, Calendar, BarChart, ShieldCheck, Briefcase, ChevronRight, Zap, Trophy, Rocket } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -60,6 +60,20 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-blue">
+      <Helmet>
+        <title>HRFlow | AI-Powered HR Software for SMEs in Singapore & Malaysia</title>
+        <meta name="description" content="HRFlow is an AI-powered HR management platform designed for SMEs in Singapore and Malaysia. Simplify payroll, compliance, and HR tasks with a cost-effective, no-code solution." />
+        <meta property="og:title" content="HRFlow | AI-Powered HR Software for SMEs" />
+        <meta property="og:description" content="Streamline your HR operations with HRFlow – an affordable, scalable, and AI-driven HR software for small businesses." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://flowhr.netlify.app" />
+        <meta property="og:image" content="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="HRFlow | AI-Powered HR Software for SMEs" />
+        <meta name="twitter:description" content="HRFlow is a web-based HR SaaS for SMEs. Automate payroll, streamline compliance, and manage employees with AI." />
+        <meta name="twitter:image" content="/lovable-uploads/347f020d-90bf-4f98-9f93-42bae2aa6a8f.png" />
+      </Helmet>
+
       <LandNavbar showLogo={true} />
       
       {/* Hero Section - Completely Redesigned */}
