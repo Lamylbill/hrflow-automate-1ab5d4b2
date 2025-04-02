@@ -11,7 +11,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "./context/AuthContext";
 import AppRoutes from "./routes/AppRoutes";
 
-const AppComponent = () => {
+const App = () => {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -39,4 +39,4 @@ const AppComponent = () => {
   );
 };
 
-export default AppComponent;
+export default App;
