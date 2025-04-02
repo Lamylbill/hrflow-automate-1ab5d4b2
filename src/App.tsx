@@ -15,6 +15,19 @@ import { useEffect, Suspense, useState } from "react";
 import { LoadingSpinner } from "./components/ui-custom/LoadingSpinner";
 import Settings from "./pages/Settings";
 import EmployeesPage from './pages/EmployeesPage';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { HelmetProvider } from 'react-helmet-async';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  </React.StrictMode>
+);
+
 
 const App = () => {
   const [queryClient] = useState(() => new QueryClient({
