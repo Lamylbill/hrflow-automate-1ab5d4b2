@@ -12,18 +12,171 @@ export interface FieldMeta {
 
 // Base fields from Employee
 export const employeeBaseFields: FieldMeta[] = [
-  { name: 'full_name', label: 'Full Name', type: 'text', category: 'Personal Info' },
-  { name: 'email', label: 'Email', type: 'email', category: 'Personal Info' },
-  { name: 'contact_number', label: 'Phone', type: 'text', category: 'Personal Info' },
-  { name: 'gender', label: 'Gender', type: 'dropdown', category: 'Personal Info' },
-  { name: 'date_of_birth', label: 'Date of Birth', type: 'date', category: 'Personal Info' },
-  { name: 'department', label: 'Department', type: 'text', category: 'Employment Info' },
-  { name: 'job_title', label: 'Job Title', type: 'text', category: 'Employment Info' },
-  { name: 'employment_type', label: 'Employment Type', type: 'dropdown', category: 'Employment Info' },
-  { name: 'gross_salary', label: 'Gross Salary', type: 'number', category: 'Compensation' },
-  { name: 'cpf_contribution', label: 'CPF Contribution', type: 'boolean', category: 'Compliance' },
-  { name: 'tax_file_no', label: 'Tax File No', type: 'text', category: 'Compliance' },
-  // Add more fields as needed
+    // Personal Info - Basic
+ 
+  { name: 'full_name', label: 'Full Name', type: 'text', category: 'personal-info', isAdvanced: false, required: true },
+ 
+  { name: 'gender', label: 'Gender', type: 'dropdown', category: 'personal-info', isAdvanced: false, options: ['Male', 'Female', 'Other'] },
+ 
+  { name: 'date_of_birth', label: 'Date of Birth', type: 'date', category: 'personal-info', isAdvanced: false },
+ 
+  { name: 'nationality', label: 'Nationality', type: 'dropdown', category: 'personal-info', isAdvanced: false, options: ['Singapore', 'Malaysia', 'Indonesia', 'Other'] },
+ 
+  { name: 'contact_number', label: 'Contact Number', type: 'text', category: 'personal-info', isAdvanced: false },
+ 
+  { name: 'email', label: 'Email Address', type: 'email', category: 'personal-info', isAdvanced: false, required: true },
+ 
+
+ 
+  // Personal Info - Advanced
+ 
+  { name: 'marital_status', label: 'Marital Status', type: 'dropdown', category: 'personal-info', isAdvanced: true, options: ['Single', 'Married', 'Divorced', 'Widowed'] },
+ 
+  { name: 'race', label: 'Race', type: 'dropdown', category: 'personal-info', isAdvanced: true, options: ['Chinese', 'Malay', 'Indian', 'Others'] },
+ 
+  { name: 'religion', label: 'Religion', type: 'dropdown', category: 'personal-info', isAdvanced: true, options: ['Buddhism', 'Christianity', 'Hinduism', 'Islam', 'Other'] },
+ 
+  { name: 'nric', label: 'NRIC/FIN', type: 'text', category: 'personal-info', isAdvanced: true },
+ 
+  { name: 'profile_photo', label: 'Profile Photo', type: 'upload', category: 'personal-info', isAdvanced: true },
+ 
+  { name: 'personal_info_open_1', label: 'Additional Info', type: 'text', category: 'personal-info', isAdvanced: true },
+ 
+
+ 
+  // Employment Info - Basic
+ 
+  { name: 'job_title', label: 'Job Title', type: 'text', category: 'employment-info', isAdvanced: false },
+ 
+  { name: 'department', label: 'Department', type: 'dropdown', category: 'employment-info', isAdvanced: false },
+ 
+  { name: 'employment_type', label: 'Employment Type', type: 'dropdown', category: 'employment-info', isAdvanced: false, options: ['Full-time', 'Part-time', 'Contract', 'Intern'] },
+ 
+  { name: 'date_of_hire', label: 'Date of Hire', type: 'date', category: 'employment-info', isAdvanced: false },
+ 
+  { name: 'supervisor', label: 'Supervisor', type: 'text', category: 'employment-info', isAdvanced: false },
+ 
+  { name: 'employment_status', label: 'Employment Status', type: 'dropdown', category: 'employment-info', isAdvanced: false, options: ['Active', 'On Leave', 'Resigned', 'Terminated'] },
+ 
+
+ 
+  // Employment Info - Advanced
+ 
+  { name: 'confirmation_date', label: 'Confirmation Date', type: 'date', category: 'employment-info', isAdvanced: true },
+ 
+  { name: 'probation_end', label: 'Probation End Date', type: 'date', category: 'employment-info', isAdvanced: true },
+ 
+  { name: 'job_grade', label: 'Job Grade / Level', type: 'text', category: 'employment-info', isAdvanced: true },
+ 
+  { name: 'employee_code', label: 'Employee Code', type: 'text', category: 'employment-info', isAdvanced: true },
+ 
+  { name: 'employment_info_open_2', label: 'Additional Info 1', type: 'text', category: 'employment-info', isAdvanced: true },
+ 
+  { name: 'employment_info_open_3', label: 'Additional Info 2', type: 'text', category: 'employment-info', isAdvanced: true },
+ 
+
+ 
+  // Contract & Lifecycle - Basic
+ 
+  { name: 'contract_type', label: 'Contract Type', type: 'dropdown', category: 'contract-lifecycle', isAdvanced: false, options: ['Permanent', 'Contract', 'Freelance'] },
+ 
+  { name: 'contract_start', label: 'Contract Start Date', type: 'date', category: 'contract-lifecycle', isAdvanced: false },
+ 
+  { name: 'work_hours', label: 'Work Hours / Week', type: 'number', category: 'contract-lifecycle', isAdvanced: false },
+ 
+  { name: 'work_pass_type', label: 'Work Pass Type', type: 'dropdown', category: 'contract-lifecycle', isAdvanced: false, options: ['EP', 'SP', 'WP', 'DP', 'LTVP', 'None'] },
+ 
+  { name: 'work_pass_number', label: 'Work Pass Number', type: 'text', category: 'contract-lifecycle', isAdvanced: false },
+ 
+  { name: 'work_pass_expiry', label: 'Work Pass Expiry', type: 'date', category: 'contract-lifecycle', isAdvanced: false },
+ 
+
+ 
+  // Contract & Lifecycle - Advanced
+ 
+  { name: 'contract_end', label: 'Contract End Date', type: 'date', category: 'contract-lifecycle', isAdvanced: true },
+ 
+  { name: 'notice_period', label: 'Notice Period (Days)', type: 'number', category: 'contract-lifecycle', isAdvanced: true },
+ 
+  { name: 'resignation_date', label: 'Resignation Date', type: 'date', category: 'contract-lifecycle', isAdvanced: true },
+ 
+  { name: 'last_working_day', label: 'Last Working Day', type: 'date', category: 'contract-lifecycle', isAdvanced: true },
+ 
+  { name: 'exit_reason', label: 'Exit Reason', type: 'text', category: 'contract-lifecycle', isAdvanced: true },
+ 
+  { name: 'rehire_eligibility', label: 'Rehire Eligibility', type: 'dropdown', category: 'contract-lifecycle', isAdvanced: true, options: ['Yes', 'No'] },
+ 
+
+ 
+  // Compensation & Benefits - Basic
+ 
+  { name: 'gross_salary', label: 'Monthly Gross Salary', type: 'number', category: 'compensation-benefits', isAdvanced: false },
+ 
+  { name: 'basic_salary', label: 'Basic Salary', type: 'number', category: 'compensation-benefits', isAdvanced: false },
+ 
+  { name: 'cpf_contribution', label: 'CPF Contribution', type: 'boolean', category: 'compensation-benefits', isAdvanced: false },
+ 
+  { name: 'allowances', label: 'Allowances', type: 'number', category: 'compensation-benefits', isAdvanced: false },
+ 
+  { name: 'bonus_eligible', label: 'Bonus Eligibility', type: 'dropdown', category: 'compensation-benefits', isAdvanced: false, options: ['Yes', 'No'] },
+ 
+  { name: 'payroll_cycle', label: 'Payroll Cycle', type: 'dropdown', category: 'compensation-benefits', isAdvanced: false, options: ['Monthly', 'Biweekly'] },
+ 
+
+ 
+  // Compensation & Benefits - Advanced
+ 
+  { name: 'bank_account', label: 'Bank Account Number', type: 'text', category: 'compensation-benefits', isAdvanced: true },
+ 
+  { name: 'bank_name', label: 'Bank Name', type: 'dropdown', category: 'compensation-benefits', isAdvanced: true, options: ['DBS', 'OCBC', 'UOB', 'Other'] },
+ 
+  { name: 'pay_mode', label: 'Pay Mode', type: 'dropdown', category: 'compensation-benefits', isAdvanced: true, options: ['GIRO', 'Cheque', 'Cash'] },
+ 
+  { name: 'ot_eligible', label: 'Overtime Eligibility', type: 'dropdown', category: 'compensation-benefits', isAdvanced: true, options: ['Yes', 'No'] },
+ 
+  { name: 'annual_bonus_eligible', label: 'Annual Bonus Eligibility', type: 'dropdown', category: 'compensation-benefits', isAdvanced: true, options: ['Yes', 'No'] },
+ 
+  { name: 'benefits_tier', label: 'Benefits Tier', type: 'dropdown', category: 'compensation-benefits', isAdvanced: true, options: ['Tier 1', 'Tier 2', 'Tier 3'] },
+ 
+
+ 
+  // Compliance - Basic
+ 
+  { name: 'cpf_status', label: 'CPF Status', type: 'dropdown', category: 'compliance', isAdvanced: false, options: ['Contributing', 'Exempted'] },
+ 
+  { name: 'tax_file_no', label: 'Income Tax File No.', type: 'text', category: 'compliance', isAdvanced: false },
+ 
+  { name: 'mom_status', label: 'MOM Work Pass Status', type: 'dropdown', category: 'compliance', isAdvanced: false, options: ['Compliant', 'Non-compliant'] },
+ 
+  { name: 'ns_status', label: 'NS Status', type: 'dropdown', category: 'compliance', isAdvanced: false, options: ['Not Applicable', 'Completed', 'Reservist', 'Exempted'] },
+ 
+  { name: 'skillsfuture_eligible', label: 'SkillsFuture Eligible', type: 'dropdown', category: 'compliance', isAdvanced: false, options: ['Yes', 'No'] },
+ 
+  { name: 'has_dependants', label: 'Dependant Pass', type: 'dropdown', category: 'compliance', isAdvanced: false, options: ['Yes', 'No'] },
+ 
+
+ 
+  // Compliance - Advanced
+ 
+  { name: 'tax_residency', label: 'Tax Residency', type: 'dropdown', category: 'compliance', isAdvanced: true, options: ['Resident', 'Non-Resident'] },
+ 
+  { name: 'ir8a_required', label: 'IR8A Required', type: 'dropdown', category: 'compliance', isAdvanced: true, options: ['Yes', 'No'] },
+ 
+  { name: 'cpf_submission_number', label: 'CPF Submission Number', type: 'text', category: 'compliance', isAdvanced: true },
+ 
+  { name: 'cpf_account', label: 'Employer CPF Account', type: 'text', category: 'compliance', isAdvanced: true },
+ 
+  { name: 'leave_category', label: 'Leave Compliance Category', type: 'dropdown', category: 'compliance', isAdvanced: true, options: ['Category 1', 'Category 2', 'Category 3'] },
+ 
+  { name: 'disciplinary_flags', label: 'Disciplinary Flags', type: 'boolean', category: 'compliance', isAdvanced: true },
+ 
+
+ 
+  // Other (for legacy or non-categorized fields)
+ 
+  { name: 'notes', label: 'Notes', type: 'text', category: 'other', isAdvanced: false },
+ 
+];
 ];
 
 // Nested entities
