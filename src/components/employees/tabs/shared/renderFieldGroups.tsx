@@ -6,8 +6,8 @@ export const renderFieldGroups = (
 ) => {
   console.log('🔍 Raw fields passed to renderFieldGroups:', fields);
 
-  const basicFields = fields.filter(f => f.level === !f.isAdvanced);
-  const advancedFields = fields.filter(f => f.level === f.isAdvanced);
+  const basicFields = fields.filter(f => !f.isAdvanced);
+  const advancedFields = fields.filter(f => f.isAdvanced);
 
   console.log('📌 Basic Fields:', basicFields);
   console.log('📌 Advanced Fields:', advancedFields);
