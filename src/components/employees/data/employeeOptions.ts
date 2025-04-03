@@ -52,6 +52,12 @@ export const probationStatusOptions = [
   { value: 'Terminated', label: 'Terminated' }
 ];
 
+export const probationPeriodTypeOptions = [
+  { value: 'Days', label: 'Days' },
+  { value: 'Weeks', label: 'Weeks' },
+  { value: 'Months', label: 'Months' }
+];
+
 export const jobDepartmentOptions = [
   { value: 'Accounting', label: 'Accounting' },
   { value: 'Administration', label: 'Administration' },
@@ -127,6 +133,14 @@ export const nsGroupOptions = [
   { value: 'NSF', label: 'NSF' },
   { value: 'NSman', label: 'NSman' },
   { value: 'NA', label: 'Not Applicable' }
+];
+
+export const nsStatusOptions = [
+  { value: 'Not Applicable', label: 'Not Applicable' },
+  { value: 'Completed', label: 'Completed' },
+  { value: 'Reservist', label: 'Reservist' },
+  { value: 'Exempted', label: 'Exempted' },
+  { value: 'Pending', label: 'Pending' }
 ];
 
 export const skillOptions = [
