@@ -1,47 +1,33 @@
-
+// src/components/employees/tabs/EmergencyContactTab.tsx
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { EmployeeFormData } from '@/types/employee';
+import { FieldsToggle } from './shared/FieldsToggle';
+import { getEmployeeFieldsByCategory } from '@/utils/employeeFieldUtils';
+import { renderFieldGroups } from './shared/renderFieldGroups';
 
 interface EmergencyContactTabProps {
   isViewOnly?: boolean;
+  showAdvancedFields: boolean;
+  onToggleAdvanced: (value: boolean) => void;
 }
 
-export const EmergencyContactTab: React.FC<EmergencyContactTabProps> = ({ isViewOnly = false }) => {
-  const { register, formState: { errors } } = useFormContext<EmployeeFormData>();
+export const EmergencyContactTab: React.FC<EmergencyContactTabProps> = ({ 
+  isViewOnly = false,
+  showAdvancedFields,
+  onToggleAdvanced
+}) => {
+  const methods = useFormContext<EmployeeFormData>();
+  const emergencyContactFields = getEmployeeFieldsByCategory('emergency');
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label className="font-bold" htmlFor="emergency_contact_name">Contact Name</Label>
-          <Input 
-            id="emergency_contact_name" 
-            {...register('employee.emergency_contact_name' as any)}
-            disabled={isViewOnly}
-          />
-        </div>
-        
-        <div>
-          <Label className="font-bold" htmlFor="emergency_relationship">Relationship</Label>
-          <Input 
-            id="emergency_relationship" 
-            {...register('employee.emergency_relationship' as any)}
-            disabled={isViewOnly}
-          />
-        </div>
-        
-        <div>
-          <Label className="font-bold" htmlFor="emergency_contact_phone">Mobile No</Label>
-          <Input 
-            id="emergency_contact_phone" 
-            {...register('employee.emergency_contact_phone' as any)}
-            disabled={isViewOnly}
-          />
-        </div>
-      </div>
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
+      <FieldsToggle 
+        showAdvanced={showAdvancedFields} 
+        onToggle={onToggleAdvanced} 
+      />
+
+      {renderFieldGroups(methods, emergencyContactFields, isViewOnly, showAdvancedFields)}
     </div>
   );
 };
