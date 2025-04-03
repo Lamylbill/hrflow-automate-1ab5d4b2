@@ -207,6 +207,17 @@ export const nestedFieldMap: Record<keyof Omit<EmployeeFormData, 'employee'>, Fi
   ],
 };
 
+export const standardizeEmployee = (employee: Partial<Employee>): Employee => {
+  return {
+    id: '',
+    user_id: '',
+    email: '',
+    full_name: '',
+    ...employee,
+  };
+};
+
+
 // Export all fields including flattened nested
 export const getFlatEmployeeFormFields = (): FieldMeta[] => {
   const base = employeeBaseFields;
