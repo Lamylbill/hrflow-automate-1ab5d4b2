@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { employeeFieldsByCategory } from '@/utils/employeeFieldUtils';
 import { Switch } from '@/components/ui/switch';
-import { DatePicker } from '@/components/ui-custom/DatePicker';
 
 interface PersonalInfoTabProps {
   isViewOnly?: boolean;
