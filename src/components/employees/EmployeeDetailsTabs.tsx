@@ -182,11 +182,11 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500">Salary</p>
-                  <p className="font-medium">{formatSalary(employee.gross_salary) || 'N/A'}</p>
+                  <p className="font-medium">{formatCurrency (employee.gross_salary) || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Basic Salary</p>
-                  <p className="font-medium">{formatSalary(employee.basic_salary) || 'N/A'}</p>
+                  <p className="font-medium">{formatCurrency (employee.basic_salary) || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">CPF Contribution</p>
@@ -194,7 +194,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Allowances</p>
-                  <p className="font-medium">{formatSalary(employee.allowances) || 'N/A'}</p>
+                  <p className="font-medium">{formatCurrency (employee.allowances) || 'N/A'}</p>
                 </div>
               </div>
             </div>
