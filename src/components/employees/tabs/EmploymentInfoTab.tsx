@@ -1,3 +1,4 @@
+// src/components/employees/tabs/EmploymentInfoTab.tsx
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EmployeeFormData } from '@/types/employee';
@@ -11,7 +12,7 @@ interface EmploymentInfoTabProps {
   onToggleAdvanced: (value: boolean) => void;
 }
 
-export const EmploymentInfoTab: React.FC<EmploymentInfoTabProps> = ({
+export const EmploymentInfoTab: React.FC<EmploymentInfoTabProps> = ({ 
   isViewOnly = false,
   showAdvancedFields,
   onToggleAdvanced
@@ -26,12 +27,7 @@ export const EmploymentInfoTab: React.FC<EmploymentInfoTabProps> = ({
         onToggle={onToggleAdvanced} 
       />
 
-      {renderFieldGroups({
-        fields: employmentFields,
-        methods,
-        isViewOnly,
-        showAdvancedFields,
-      })}
+      {renderFieldGroups(methods, employmentFields, isViewOnly, showAdvancedFields)}
     </div>
   );
 };
