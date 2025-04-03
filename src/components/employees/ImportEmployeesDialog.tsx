@@ -119,10 +119,9 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       for (const employee of employees) {
         // Extract related entities that should be stored separately
         const {
-          allowances, familyMembers, education, workExperience, appraisalRatings, documents,
-          created_at, updated_at, id,
-          ...baseEmployee
-        } = employee;
+  created_at, updated_at, id,
+  ...baseEmployee
+} = employee;
 
         // Process the base employee data, handling boolean fields safely
         const typedEmployee: Partial<Employee> = cleanObject({
