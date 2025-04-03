@@ -69,7 +69,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <Label className="font-bold" htmlFor="qualification">Education Qualification</Label>
             <Input
               id="qualification"
-              {...register('employee.qualification')}
+              {...register('employee.qualifications')}
               disabled={isViewOnly}
             />
           </div>
