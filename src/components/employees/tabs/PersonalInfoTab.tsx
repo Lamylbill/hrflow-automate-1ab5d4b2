@@ -1,55 +1,33 @@
 // src/components/employees/tabs/PersonalInfoTab.tsx
-
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { employeeFieldsByCategory } from '@/utils/employeeFieldUtils';
-import { Switch } from '@/components/ui/switch';
+import { EmployeeFormData } from '@/types/employee';
+import { FieldsToggle } from './shared/FieldsToggle';
+import { getEmployeeFieldsByCategory } from '@/utils/employeeFieldUtils';
+import { renderFieldGroups } from './shared/renderFieldGroups';
 
 interface PersonalInfoTabProps {
   isViewOnly?: boolean;
   showAdvancedFields: boolean;
-  onToggleAdvanced: (show: boolean) => void;
+  onToggleAdvanced: (value: boolean) => void;
 }
 
-export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
-  isViewOnly,
+export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ 
+  isViewOnly = false,
   showAdvancedFields,
-  onToggleAdvanced,
+  onToggleAdvanced
 }) => {
-  const { control } = useFormContext();
-  const fields = employeeFieldsByCategory['personalInfo'];
+  const methods = useFormContext<EmployeeFormData>();
+  const personalFields = getEmployeeFieldsByCategory('personal');
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-end">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Show Advanced</span>
-          <Switch checked={showAdvancedFields} onCheckedChange={onToggleAdvanced} />
-        </div>
-      </div>
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
+      <FieldsToggle 
+        showAdvanced={showAdvancedFields} 
+        onToggle={onToggleAdvanced} 
+      />
 
-      {[...fields.basic, ...(showAdvancedFields ? fields.advanced : [])].map((field) => (
-        <FormField
-          key={field.name}
-          control={control}
-          name={`employee.${field.name}`}
-          render={({ field: fieldProps }) => (
-            <FormItem>
-              <FormLabel>{field.label}</FormLabel>
-              <FormControl>
-                {field.type === 'date' ? (
-                  <DatePicker disabled={isViewOnly} {...fieldProps} />
-                ) : (
-                  <Input disabled={isViewOnly} type={field.type} placeholder={field.placeholder || ''} {...fieldProps} />
-                )}
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      ))}
+      {renderFieldGroups(methods, personalFields, isViewOnly, showAdvancedFields)}
     </div>
   );
 };
