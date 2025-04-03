@@ -44,7 +44,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                 <div>
                   <p className="text-sm text-gray-500">Name</p>
                   <p className="font-medium">
-                    {employee.full_name || [employee.first_name, employee.middle_name, employee.last_name].filter(Boolean).join(' ') || 'N/A'}
+                    {employee.full_name || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -70,11 +70,11 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Phone</p>
-                  <p className="font-medium">{formatPhoneNumber(employee.phone_number) || 'N/A'}</p>
+                  <p className="font-medium">{formatPhoneNumber(employee.contact_number) || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Identity Number</p>
-                  <p className="font-medium">{employee.identity_no || 'N/A'}</p>
+                  <p className="font-medium">{employee.nric || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Marital Status</p>
@@ -113,7 +113,7 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500">Manager</p>
-                  <p className="font-medium">{employee.reporting_manager || 'N/A'}</p>
+                  <p className="font-medium">{employee.supervisor || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Employment Status</p>
@@ -139,15 +139,15 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Contract Start Date</p>
-                  <p className="font-medium">{formatDate(employee.contract_date_start)}</p>
+                  <p className="font-medium">{formatDate(employee.contract_start)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Contract End Date</p>
-                  <p className="font-medium">{formatDate(employee.contract_date_end)}</p>
+                  <p className="font-medium">{formatDate(employee.contract_end)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Probation Period</p>
-                  <p className="font-medium">{employee.probation_period ? `${employee.probation_period} days` : 'N/A'}</p>
+                  <p className="font-medium">{employee.probation_end ? `Until ${formatDate(employee.probation_end)}` : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -155,16 +155,16 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
               <h3 className="font-medium text-lg mb-4">Lifecycle Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Initial Join Date</p>
-                  <p className="font-medium">{formatDate(employee.initial_join_date)}</p>
-                </div>
-                <div>
                   <p className="text-sm text-gray-500">Confirmation Date</p>
-                  <p className="font-medium">{formatDate(employee.confirmed_date)}</p>
+                  <p className="font-medium">{formatDate(employee.confirmation_date)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Exit Date</p>
-                  <p className="font-medium">{formatDate(employee.date_of_exit)}</p>
+                  <p className="text-sm text-gray-500">Resignation Date</p>
+                  <p className="font-medium">{formatDate(employee.resignation_date)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Last Working Day</p>
+                  <p className="font-medium">{formatDate(employee.last_working_day)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Exit Reason</p>
@@ -182,19 +182,19 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
               <div className="space-y-4">
                 <div>
                   <p className="text-sm text-gray-500">Salary</p>
-                  <p className="font-medium">{formatSalary(employee.salary) || 'N/A'}</p>
+                  <p className="font-medium">{formatSalary(employee.gross_salary) || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pay Type</p>
-                  <p className="font-medium">{employee.pay_type || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Basic Salary</p>
+                  <p className="font-medium">{formatSalary(employee.basic_salary) || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pay Mode</p>
-                  <p className="font-medium">{employee.pay_mode || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">CPF Contribution</p>
+                  <p className="font-medium">{employee.cpf_contribution || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Salary Currency</p>
-                  <p className="font-medium">{employee.salary_currency || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Allowances</p>
+                  <p className="font-medium">{formatSalary(employee.allowances) || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -207,15 +207,11 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Bank Account Number</p>
-                  <p className="font-medium">{employee.bank_account_number || 'N/A'}</p>
+                  <p className="font-medium">{employee.bank_account || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Bank Branch</p>
-                  <p className="font-medium">{employee.bank_branch || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Beneficiary Name</p>
-                  <p className="font-medium">{employee.beneficiary_name || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Pay Mode</p>
+                  <p className="font-medium">{employee.pay_mode || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -228,37 +224,37 @@ export const EmployeeDetailsTabs: React.FC<EmployeeDetailsTabsProps> = ({
               <h3 className="font-medium text-lg mb-4">Compliance Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">MOM Occupation Group</p>
-                  <p className="font-medium">{employee.mom_occupation_group || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">CPF Status</p>
+                  <p className="font-medium">{employee.cpf_status || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Residency Status</p>
-                  <p className="font-medium">{employee.residency_status || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Tax File No</p>
+                  <p className="font-medium">{employee.tax_file_no || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Union Membership</p>
-                  <p className="font-medium">{employee.union_membership || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">MOM Status</p>
+                  <p className="font-medium">{employee.mom_status || 'N/A'}</p>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="font-medium text-lg mb-4">Statutory Information</h3>
+              <h3 className="font-medium text-lg mb-4">Work Pass Information</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">CPF Eligible</p>
-                  <p className="font-medium">{employee.cpf_contribution ? 'Yes' : 'No'}</p>
+                  <p className="text-sm text-gray-500">Work Pass Type</p>
+                  <p className="font-medium">{employee.work_pass_type || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">CPF Account Number</p>
-                  <p className="font-medium">{employee.cpf_account_number || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">CPF Account</p>
+                  <p className="font-medium">{employee.cpf_account || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Tax Identification Number</p>
-                  <p className="font-medium">{employee.tax_identification_number || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Work Pass Number</p>
+                  <p className="font-medium">{employee.work_pass_number || 'N/A'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Work Permit Number</p>
-                  <p className="font-medium">{employee.work_permit_number || 'N/A'}</p>
+                  <p className="text-sm text-gray-500">Work Pass Expiry</p>
+                  <p className="font-medium">{formatDate(employee.work_pass_expiry)}</p>
                 </div>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, Plus, X as CancelIcon } from 'lucide-react';
+import { standardizeEmployee } from '@/utils/employeeFieldUtils';
 
 import { Button } from '@/components/ui-custom/Button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -48,8 +49,14 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
+  // Pre-process initial data to ensure compatibility with new schema
+  const processedInitialData = initialData ? {
+    ...initialData,
+    employee: initialData.employee ? standardizeEmployee(initialData.employee) : initialData.employee
+  } : undefined;
+
   const methods = useForm<EmployeeFormData>({
-    defaultValues: initialData || {
+    defaultValues: processedInitialData || {
       employee: {
         id: '',
         user_id: '',
@@ -104,36 +111,10 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       return;
     }
 
-    const { nationality_other, ...rest } = data.employee;
-    if (rest.nationality === 'Other' && nationality_other?.trim()) {
-      rest.nationality = nationality_other.trim();
-    }
+    // Handle legacy fields and standardize employee data
+    const employeeData = standardizeEmployee(data.employee);
 
-    const cleanupData = (obj: any) => {
-      const cleanedObj = { ...obj };
-      Object.keys(cleanedObj).forEach(key => {
-        if (typeof cleanedObj[key] === 'string' && cleanedObj[key] === '' &&
-          (key.endsWith('_id') || key === 'id' || key === 'related_id')) {
-          cleanedObj[key] = null;
-        } else if (cleanedObj[key] && typeof cleanedObj[key] === 'object' && !Array.isArray(cleanedObj[key])) {
-          cleanedObj[key] = cleanupData(cleanedObj[key]);
-        }
-      });
-      return cleanedObj;
-    };
-
-    const cleanedRest = cleanupData(rest);
-
-    const employeeDataForDb: Employee = {
-      ...cleanedRest,
-      user_id: userId,
-      email: cleanedRest.email || '',
-      full_name:
-        cleanedRest.full_name ||
-        `${cleanedRest.first_name || ''} ${cleanedRest.last_name || ''}`.trim(),
-    };
-
-    if (!employeeDataForDb.email || !employeeDataForDb.full_name) {
+    if (!employeeData.email || !employeeData.full_name) {
       toast({
         title: 'Validation Error',
         description: 'Email and Full Name are required.',
@@ -145,16 +126,25 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     try {
       setIsSubmitting(true);
 
-      if (mode === 'edit' && employeeDataForDb.id) {
+      // Convert boolean string values to proper booleans for database
+      const employeeForDb: any = { ...employeeData };
+      
+      if (typeof employeeForDb.disciplinary_flags === 'string') {
+        employeeForDb.disciplinary_flags = employeeForDb.disciplinary_flags === 'Yes' || 
+                                           employeeForDb.disciplinary_flags === 'true' || 
+                                           employeeForDb.disciplinary_flags === true;
+      }
+
+      if (mode === 'edit' && employeeForDb.id) {
         const { error } = await supabase
           .from('employees')
-          .update(employeeDataForDb)
-          .eq('id', employeeDataForDb.id)
+          .update(employeeForDb)
+          .eq('id', employeeForDb.id)
           .eq('user_id', userId);
 
         if (error) throw error;
       } else if (mode === 'create') {
-        const { id, ...createData } = employeeDataForDb;
+        const { id, ...createData } = employeeForDb;
         const { data: newEmployee, error } = await supabase
           .from('employees')
           .insert({
@@ -172,7 +162,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
 
       toast({
         title: mode === 'create' ? 'Employee Created' : 'Employee Updated',
-        description: `${employeeDataForDb.full_name} has been saved.`,
+        description: `${employeeData.full_name} has been saved.`,
       });
 
       onSuccess(data);

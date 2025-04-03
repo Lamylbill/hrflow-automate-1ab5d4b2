@@ -32,7 +32,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
     >
       <div className="flex items-center mb-3">
         <Avatar className="h-12 w-12 border">
-          <AvatarImage src={employee.profile_picture || undefined} alt={employee.full_name} />
+          <AvatarImage src={employee.profile_photo || employee.profile_picture} alt={employee.full_name} />
           <AvatarFallback className="bg-hrflow-blue text-white">
             {getInitials(employee.full_name)}
           </AvatarFallback>

@@ -84,6 +84,34 @@ export interface Employee {
   cpf_account?: string | null;
   leave_category?: string | null;
   disciplinary_flags?: boolean | null;
+  
+  // Legacy fields - for backward compatibility during migration
+  profile_picture?: string | null; // Map to profile_photo
+  phone_number?: string | null; // Map to contact_number
+  first_name?: string | null; // For backward compatibility
+  middle_name?: string | null; // For backward compatibility
+  last_name?: string | null; // For backward compatibility
+  identity_no?: string | null; // Map to nric
+  reporting_manager?: string | null; // Map to supervisor
+  contract_date_start?: string | null; // Map to contract_start
+  contract_date_end?: string | null; // Map to contract_end
+  probation_period?: number | null; // No direct mapping, but keep for compatibility
+  initial_join_date?: string | null; // No direct mapping
+  confirmed_date?: string | null; // Map to confirmation_date
+  date_of_exit?: string | null; // No direct mapping
+  salary?: number | null; // Map to gross_salary
+  pay_type?: string | null; // No direct mapping
+  salary_currency?: string | null; // No direct mapping
+  bank_account_number?: string | null; // Map to bank_account
+  bank_branch?: string | null; // No direct mapping
+  beneficiary_name?: string | null; // No direct mapping
+  mom_occupation_group?: string | null; // No direct mapping
+  residency_status?: string | null; // No direct mapping
+  union_membership?: string | null; // No direct mapping
+  cpf_account_number?: string | null; // Map to cpf_account
+  tax_identification_number?: string | null; // Map to tax_file_no
+  work_permit_number?: string | null; // Map to work_pass_number
+  notes?: string | null; // No direct mapping
 }
 
 // Related entity types for the tables that store multiple items per employee

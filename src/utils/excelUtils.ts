@@ -1,3 +1,4 @@
+
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { Employee } from '@/types/employee';
@@ -6,7 +7,8 @@ import {
   getAllCategories,
   getFieldsByCategory,
   getFieldMetaByName,
-  convertFieldValue
+  convertFieldValue,
+  standardizeEmployee
 } from './employeeFieldUtils';
 
 // Function to export employees data to Excel
@@ -173,7 +175,7 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
     }
   });
   
-  return employee;
+  return standardizeEmployee(employee);
 };
 
 // Main function to process employee import from Excel
