@@ -1,3 +1,6 @@
+const cleanObject = (obj: Record<string, any>) =>
+  Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined && v !== ''));
+
 const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
   try {
     if (employees.length === 0) {
@@ -22,7 +25,7 @@ const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
         ...baseEmployee
       } = employee;
 
-      const typedEmployee: Partial<Employee> = {
+      const typedEmployee: Partial<Employee> = cleanObject({
         ...baseEmployee,
         user_id: safeUserId,
         cpf_contribution: stringToBoolean(baseEmployee.cpf_contribution),
@@ -35,13 +38,16 @@ const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
         rehire: stringToBoolean(baseEmployee.rehire),
         contract_signed: stringToBoolean(baseEmployee.contract_signed),
         thirteenth_month_entitlement: stringToBoolean(baseEmployee.thirteenth_month_entitlement),
-      };
+      });
 
       const { error } = await supabase
         .from('employees')
         .insert(typedEmployee);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Insert failed for:", typedEmployee.email || typedEmployee.full_name, error.message);
+        throw error;
+      }
     }
 
     toast({
