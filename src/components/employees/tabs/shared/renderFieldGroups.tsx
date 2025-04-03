@@ -1,17 +1,16 @@
-// src/components/employees/tabs/shared/renderFieldGroups.tsx
-import React from 'react';
-import { Control, FieldValues, UseFormReturn } from 'react-hook-form';
-import { renderFieldInput } from '@/components/employees/tabs/shared/renderFieldInput';
-import { EmployeeFieldDefinition } from '@/types/employee';
-
 export const renderFieldGroups = (
   methods: UseFormReturn<FieldValues>,
   fields: EmployeeFieldDefinition[],
   isViewOnly: boolean,
   showAdvancedFields: boolean
 ) => {
+  console.log('🔍 Raw fields passed to renderFieldGroups:', fields);
+
   const basicFields = fields.filter(f => f.level === 'basic');
   const advancedFields = fields.filter(f => f.level === 'advanced');
+
+  console.log('📌 Basic Fields:', basicFields);
+  console.log('📌 Advanced Fields:', advancedFields);
 
   return (
     <>
