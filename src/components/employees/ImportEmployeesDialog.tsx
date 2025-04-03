@@ -72,7 +72,11 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
 
       if (error) throw error;
 
-      const existingEmails = new Set(data.map(emp => emp.email.toLowerCase()));
+      const existingEmails = new Set(
+  data
+    .map(emp => typeof emp.email === 'string' ? emp.email.toLowerCase() : null)
+    .filter((email): email is string => !!email)
+);
 
       const duplicates = employees.filter(emp => 
         emp.email && existingEmails.has(emp.email.toLowerCase())
