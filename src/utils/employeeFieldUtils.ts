@@ -291,4 +291,13 @@ export const standardizeEmployee = (employeeData: any): Employee => {
   return mapLegacyFieldNames(employeeData);
 };
 
-export const getEmployeeFieldsByCategory = getFieldsByCategory;
+// At the end of employeeFieldUtils.ts
+export const getEmployeeFieldsByCategory = (category: string): EmployeeFieldDefinition[] => {
+  return fullEmployeeFieldList
+    .filter(f => f.category === category)
+    .map(f => ({
+      ...f,
+      level: f.isAdvanced ? 'advanced' : 'basic',
+    }));
+};
+
