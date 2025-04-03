@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Employee } from '@/types/employee';
-import { formatPhoneNumber, formatSalary, formatDate } from '@/utils/formatters';
+import { formatPhoneNumber, formatCurrency, formatDate } from '@/utils/formatters';
 import { Button } from '@/components/ui-custom/Button';
 import { Edit, Save, Upload } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
