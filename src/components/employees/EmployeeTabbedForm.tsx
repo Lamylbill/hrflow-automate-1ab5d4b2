@@ -1,4 +1,4 @@
-
+// src/components/employees/EmployeeTabbedForm.tsx
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,7 +49,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
 
-  // Pre-process initial data to ensure compatibility with new schema
   const processedInitialData = initialData ? {
     ...initialData,
     employee: initialData.employee ? standardizeEmployee(initialData.employee) : initialData.employee
@@ -111,7 +110,6 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
       return;
     }
 
-    // Handle legacy fields and standardize employee data
     const employeeData = standardizeEmployee(data.employee);
 
     if (!employeeData.email || !employeeData.full_name) {
@@ -126,9 +124,8 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
     try {
       setIsSubmitting(true);
 
-      // Convert boolean string values to proper booleans for database
       const employeeForDb: any = { ...employeeData };
-      
+
       if (typeof employeeForDb.disciplinary_flags === 'string') {
         employeeForDb.disciplinary_flags = employeeForDb.disciplinary_flags === 'Yes' || 
                                            employeeForDb.disciplinary_flags === 'true' || 
@@ -147,10 +144,7 @@ export const EmployeeTabbedForm: React.FC<EmployeeTabbedFormProps> = ({
         const { id, ...createData } = employeeForDb;
         const { data: newEmployee, error } = await supabase
           .from('employees')
-          .insert({
-            ...createData,
-            user_id: userId,
-          })
+          .insert({ ...createData, user_id: userId })
           .select()
           .single();
 
