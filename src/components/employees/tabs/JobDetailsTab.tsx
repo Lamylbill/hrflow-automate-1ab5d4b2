@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
@@ -118,7 +119,7 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
         <div>
           <Label className="font-medium" htmlFor="probation_period_type">Probation Period Type</Label>
           <Controller
-            name="employee.probation_period_type" as any
+            name="employee.probation_period_type"
             control={control}
             render={({ field }) => (
               <Select

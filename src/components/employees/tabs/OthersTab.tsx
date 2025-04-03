@@ -42,7 +42,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <Label className="font-bold" htmlFor="emergency_contact_name">Emergency Contact Name</Label>
             <Input
               id="emergency_contact_name"
-              {...register('employee.emergency_contact_name' as any)}
+              {...register('employee.emergency_contact_name')}
               disabled={isViewOnly}
             />
           </div>
@@ -51,7 +51,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <Label className="font-bold" htmlFor="emergency_relationship">Relationship</Label>
             <Input
               id="emergency_relationship"
-              {...register('employee.emergency_relationship' as any)}
+              {...register('employee.emergency_relationship')}
               disabled={isViewOnly}
             />
           </div>
@@ -60,7 +60,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <Label className="font-bold" htmlFor="emergency_contact_phone">Mobile Number</Label>
             <Input
               id="emergency_contact_phone"
-              {...register('employee.emergency_contact_phone' as any)}
+              {...register('employee.emergency_contact_phone')}
               disabled={isViewOnly}
             />
           </div>
@@ -69,7 +69,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <Label className="font-bold" htmlFor="qualification">Education Qualification</Label>
             <Input
               id="qualification"
-              {...register('employee.qualification' as any)}
+              {...register('employee.qualification')}
               disabled={isViewOnly}
             />
           </div>
@@ -87,7 +87,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           <div>
             <Label className="font-bold" htmlFor="skill_set">Skills</Label>
             <Controller
-              name="employee.skill_set" as any
+              name="employee.skill_set"
               control={control}
               render={({ field }) => (
                 <MultiSelect
@@ -104,7 +104,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           <div>
             <Label className="font-bold" htmlFor="ns_group">NS Group</Label>
             <Controller
-              name="employee.ns_group" as any
+              name="employee.ns_group"
               control={control}
               render={({ field }) => (
                 <Select
@@ -130,7 +130,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
           <div>
             <Label className="font-bold" htmlFor="vaccination_status">Vaccination Status</Label>
             <Controller
-              name="employee.vaccination_status" as any
+              name="employee.vaccination_status"
               control={control}
               render={({ field }) => (
                 <Select
@@ -180,7 +180,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
               <Label className="font-bold" htmlFor="group_hospital_surgical_plan">Group Hospital Plan</Label>
               <Input
                 id="group_hospital_surgical_plan"
-                {...register('employee.group_hospital_surgical_plan' as any)}
+                {...register('employee.group_hospital_surgical_plan')}
                 disabled={isViewOnly}
               />
             </div>
@@ -191,7 +191,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
               <Label className="font-bold" htmlFor="group_personal_accident_plan">Accident Plan</Label>
               <Input
                 id="group_personal_accident_plan"
-                {...register('employee.group_personal_accident_plan' as any)}
+                {...register('employee.group_personal_accident_plan')}
                 disabled={isViewOnly}
               />
             </div>
@@ -200,7 +200,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
               <Label className="font-bold" htmlFor="outpatient_medical_plan">Outpatient Medical</Label>
               <Input
                 id="outpatient_medical_plan"
-                {...register('employee.outpatient_medical_plan' as any)}
+                {...register('employee.outpatient_medical_plan')}
                 disabled={isViewOnly}
               />
             </div>
@@ -208,7 +208,7 @@ export const OthersTab: React.FC<OthersTabProps> = ({
             <div>
               <Label className="font-bold" htmlFor="thirteenth_month_entitlement">13th Month Eligibility</Label>
               <Controller
-                name="employee.thirteenth_month_entitlement" as any
+                name="employee.thirteenth_month_entitlement"
                 control={control}
                 render={({ field }) => (
                   <Select
