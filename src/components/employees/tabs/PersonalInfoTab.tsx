@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useFormContext, Controller, useWatch } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
@@ -72,7 +71,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
             <Label className="font-bold" htmlFor="qualification">Qualification</Label>
             <Input
               id="qualification"
-              {...register('employee.qualification')}
+              {...register('employee.qualification' as any)}
               disabled={isViewOnly}
             />
           </div>
@@ -151,7 +150,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
                     <Input
                       id="nationality_other"
                       placeholder="Enter nationality"
-                      {...register('employee.nationality_other')}
+                      {...register('employee.nationality_other' as any)}
                       disabled={isViewOnly}
                     />
                   </div>
@@ -213,7 +212,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
             <Label className="font-bold" htmlFor="mobile_no">Mobile Number</Label>
             <Input
               id="mobile_no"
-              {...register('employee.mobile_no')}
+              {...register('employee.mobile_no' as any)}
               disabled={isViewOnly}
             />
           </div>
@@ -283,7 +282,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Label className="font-bold" htmlFor="birth_place">Birth Place</Label>
               <Input
                 id="birth_place"
-                {...register('employee.birth_place')}
+                {...register('employee.birth_place' as any)}
                 disabled={isViewOnly}
               />
             </div>
@@ -293,7 +292,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Input
                 id="marriage_date"
                 type="date"
-                {...register('employee.marriage_date')}
+                {...register('employee.marriage_date' as any)}
                 disabled={isViewOnly}
               />
             </div>
@@ -303,7 +302,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Input
                 id="no_of_children"
                 type="number"
-                {...register('employee.no_of_children', { valueAsNumber: true })}
+                {...register('employee.no_of_children' as any, { valueAsNumber: true })}
                 disabled={isViewOnly}
               />
             </div>
@@ -314,7 +313,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Label className="font-bold" htmlFor="ethnic_origin">Ethnic Origin</Label>
               <Input
                 id="ethnic_origin"
-                {...register('employee.ethnic_origin')}
+                {...register('employee.ethnic_origin' as any)}
                 disabled={isViewOnly}
               />
             </div>
@@ -351,7 +350,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
               <Label className="font-bold" htmlFor="vaccination_status">Vaccination Status</Label>
               <Input
                 id="vaccination_status"
-                {...register('employee.vaccination_status')}
+                {...register('employee.vaccination_status' as any)}
                 disabled={isViewOnly}
               />
             </div>

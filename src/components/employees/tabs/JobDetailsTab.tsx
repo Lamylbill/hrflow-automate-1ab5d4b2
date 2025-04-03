@@ -1,552 +1,237 @@
-
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { EmployeeFormData } from '@/types/employee';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { FieldsToggle } from './shared/FieldsToggle';
-import { employmentTypeOptions, employmentStatusOptions, jobDepartmentOptions, probationStatusOptions } from '../data/employeeOptions';
 
 interface JobDetailsTabProps {
   isViewOnly?: boolean;
-  showAdvancedFields: boolean;
-  onToggleAdvanced: (value: boolean) => void;
 }
 
 export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ 
-  isViewOnly = false,
-  showAdvancedFields,
-  onToggleAdvanced
+  isViewOnly = false 
 }) => {
-  const { control, register } = useFormContext<EmployeeFormData>();
-
+  const { control, register, watch } = useFormContext<EmployeeFormData>();
+  
+  const employmentType = watch("employee.employment_type");
+  const contractType = watch("employee.contract_type");
+  
   return (
-    <div className="space-y-6">
-      <FieldsToggle 
-        showAdvanced={showAdvancedFields} 
-        onToggle={onToggleAdvanced} 
-      />
-
+    <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Core Fields */}
-        <div className="space-y-4">
-          <div>
-            <Label className="font-bold" htmlFor="date_of_hire">Join Date</Label>
-            <Controller
-              control={control}
-              name="employee.date_of_hire"
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                      disabled={isViewOnly}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="department">Department</Label>
-            <Controller
-              name="employee.department"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  disabled={isViewOnly}
-                  onValueChange={field.onChange}
-                  value={field.value || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {jobDepartmentOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="job_title">Designation</Label>
-            <Input
-              id="job_title"
-              {...register('employee.job_title')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="employment_type">Employment Type</Label>
-            <Controller
-              name="employee.employment_type"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  disabled={isViewOnly}
-                  onValueChange={field.onChange}
-                  value={field.value || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select employment type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employmentTypeOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+        <div>
+          <Label className="font-medium" htmlFor="job_title">Job Title</Label>
+          <Input 
+            id="job_title" 
+            {...register("employee.job_title")} 
+            disabled={isViewOnly}
+          />
         </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label className="font-bold" htmlFor="probation_period">Probation Period (days)</Label>
-            <Input
-              id="probation_period"
-              type="number"
-              {...register('employee.probation_period', { valueAsNumber: true })}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="reporting_manager">Manager</Label>
-            <Input
-              id="reporting_manager"
-              {...register('employee.reporting_manager')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="employment_status">Employment Status</Label>
-            <Controller
-              name="employee.employment_status"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  disabled={isViewOnly}
-                  onValueChange={field.onChange}
-                  value={field.value || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employmentStatusOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          
-          <div>
-            <Label className="font-bold" htmlFor="date_of_exit">Exit Date</Label>
-            <Controller
-              control={control}
-              name="employee.date_of_exit"
-              render={({ field }) => (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                      disabled={isViewOnly}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ? new Date(field.value) : undefined}
-                      onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-          </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="department">Department</Label>
+          <Input 
+            id="department" 
+            {...register("employee.department")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="employment_type">Employment Type</Label>
+          <Controller
+            name="employee.employment_type"
+            control={control}
+            render={({ field }) => (
+              <Select
+                disabled={isViewOnly}
+                onValueChange={field.onChange}
+                value={field.value || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Full-time">Full-time</SelectItem>
+                  <SelectItem value="Part-time">Part-time</SelectItem>
+                  <SelectItem value="Contract">Contract</SelectItem>
+                  <SelectItem value="Temporary">Temporary</SelectItem>
+                  <SelectItem value="Intern">Intern</SelectItem>
+                  <SelectItem value="Freelance">Freelance</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="date_of_hire">Date of Hire</Label>
+          <Input 
+            id="date_of_hire" 
+            type="date"
+            {...register("employee.date_of_hire")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="supervisor">Supervisor</Label>
+          <Input 
+            id="supervisor" 
+            {...register("employee.supervisor")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="employment_status">Employment Status</Label>
+          <Input 
+            id="employment_status" 
+            {...register("employee.employment_status")} 
+            disabled={isViewOnly}
+          />
         </div>
       </div>
-
-      {/* Advanced Fields */}
-      {showAdvancedFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="join_date_for_leave">Join Date for Leave</Label>
-              <Controller
-                control={control}
-                name="employee.join_date_for_leave"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="initial_join_date">Initial Join Date</Label>
-              <Controller
-                control={control}
-                name="employee.initial_join_date"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="recruitment_type">Recruitment Type</Label>
-              <Input
-                id="recruitment_type"
-                {...register('employee.recruitment_type')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="probation_period_type">Probation Period Type</Label>
-              <Input
-                id="probation_period_type"
-                {...register('employee.probation_period_type')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="probation_due">Probation Due Date</Label>
-              <Controller
-                control={control}
-                name="employee.probation_due"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="confirmed_date">Confirmed Date</Label>
-              <Controller
-                control={control}
-                name="employee.confirmed_date"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="resignation_tender_date">Resignation Tender Date</Label>
-              <Controller
-                control={control}
-                name="employee.resignation_tender_date"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="exit_reason">Exit Reason</Label>
-              <Input
-                id="exit_reason"
-                {...register('employee.exit_reason')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="exit_interview_date">Exit Interview Date</Label>
-              <Controller
-                control={control}
-                name="employee.exit_interview_date"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="notice_period">Notice Period (days)</Label>
-              <Input
-                id="notice_period"
-                type="number"
-                {...register('employee.notice_period', { valueAsNumber: true })}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="rehire">Rehire Eligibility</Label>
-              <Controller
-                name="employee.rehire"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    disabled={isViewOnly}
-                    onValueChange={(value) => field.onChange(value === 'true')}
-                    value={field.value !== undefined ? String(field.value) : ''}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select eligibility" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">Yes</SelectItem>
-                      <SelectItem value="false">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="previous_employee_code">Previous Employee Code</Label>
-              <Input
-                id="previous_employee_code"
-                {...register('employee.previous_employee_code')}
-                disabled={isViewOnly}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="probation_status">Probation Status</Label>
-              <Controller
-                name="employee.probation_status"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    disabled={isViewOnly}
-                    onValueChange={field.onChange}
-                    value={field.value || ""}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {probationStatusOptions.map(option => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-            
-            <div>
-              <Label className="font-bold" htmlFor="last_working_date">Last Working Date</Label>
-              <Controller
-                control={control}
-                name="employee.last_working_date"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        disabled={isViewOnly}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : undefined)}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
-          </div>
+  
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Label className="font-medium" htmlFor="confirmation_date">Confirmation Date</Label>
+          <Input 
+            id="confirmation_date" 
+            type="date"
+            {...register("employee.confirmation_date")} 
+            disabled={isViewOnly}
+          />
         </div>
-      )}
+  
+        <div>
+          <Label className="font-medium" htmlFor="probation_end">Probation End</Label>
+          <Input 
+            id="probation_end" 
+            type="date"
+            {...register("employee.probation_end")} 
+            disabled={isViewOnly}
+          />
+        </div>
+        
+        <div>
+          <Label className="font-medium" htmlFor="probation_period_type">Probation Period Type</Label>
+          <Controller
+            name="employee.probation_period_type" as any
+            control={control}
+            render={({ field }) => (
+              <Select
+                disabled={isViewOnly}
+                onValueChange={field.onChange}
+                value={field.value || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="days">Days</SelectItem>
+                  <SelectItem value="weeks">Weeks</SelectItem>
+                  <SelectItem value="months">Months</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="job_grade">Job Grade</Label>
+          <Input 
+            id="job_grade" 
+            {...register("employee.job_grade")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="employee_code">Employee Code</Label>
+          <Input 
+            id="employee_code" 
+            {...register("employee.employee_code")} 
+            disabled={isViewOnly}
+          />
+        </div>
+      </div>
+  
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <Label className="font-medium" htmlFor="contract_type">Contract Type</Label>
+          <Controller
+            name="employee.contract_type"
+            control={control}
+            render={({ field }) => (
+              <Select
+                disabled={isViewOnly}
+                onValueChange={field.onChange}
+                value={field.value || ""}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Permanent">Permanent</SelectItem>
+                  <SelectItem value="Fixed-term">Fixed-term</SelectItem>
+                  <SelectItem value="Zero-hour">Zero-hour</SelectItem>
+                  <SelectItem value="Consultant">Consultant</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="contract_start">Contract Start</Label>
+          <Input 
+            id="contract_start" 
+            type="date"
+            {...register("employee.contract_start")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="work_hours">Work Hours</Label>
+          <Input 
+            id="work_hours" 
+            type="number"
+            {...register("employee.work_hours", { valueAsNumber: true })} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="work_pass_type">Work Pass Type</Label>
+          <Input 
+            id="work_pass_type" 
+            {...register("employee.work_pass_type")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="work_pass_number">Work Pass Number</Label>
+          <Input 
+            id="work_pass_number" 
+            {...register("employee.work_pass_number")} 
+            disabled={isViewOnly}
+          />
+        </div>
+  
+        <div>
+          <Label className="font-medium" htmlFor="work_pass_expiry">Work Pass Expiry</Label>
+          <Input 
+            id="work_pass_expiry" 
+            type="date"
+            {...register("employee.work_pass_expiry")} 
+            disabled={isViewOnly}
+          />
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 export interface Employee {
   id: string;
   user_id: string;
@@ -56,7 +55,7 @@ export interface Employee {
   // Compensation & Benefits - Basic
   gross_salary?: number | null;
   basic_salary?: number | null;
-  cpf_contribution?: boolean | null; // Changed from string to boolean
+  cpf_contribution?: boolean | null;
   allowances?: number | null;
   bonus_eligible?: string | null;
   payroll_cycle?: string | null;
@@ -86,32 +85,32 @@ export interface Employee {
   disciplinary_flags?: boolean | null;
   
   // Legacy fields - for backward compatibility during migration
-  profile_picture?: string | null; // Map to profile_photo
-  phone_number?: string | null; // Map to contact_number
-  first_name?: string | null; // For backward compatibility
-  middle_name?: string | null; // For backward compatibility
-  last_name?: string | null; // For backward compatibility
-  identity_no?: string | null; // Map to nric
-  reporting_manager?: string | null; // Map to supervisor
-  contract_date_start?: string | null; // Map to contract_start
-  contract_date_end?: string | null; // Map to contract_end
-  probation_period?: number | null; // No direct mapping, but keep for compatibility
-  initial_join_date?: string | null; // No direct mapping
-  confirmed_date?: string | null; // Map to confirmation_date
-  date_of_exit?: string | null; // No direct mapping
-  salary?: number | null; // Map to gross_salary
-  pay_type?: string | null; // No direct mapping
-  salary_currency?: string | null; // No direct mapping
-  bank_account_number?: string | null; // Map to bank_account
-  bank_branch?: string | null; // No direct mapping
-  beneficiary_name?: string | null; // No direct mapping
-  mom_occupation_group?: string | null; // No direct mapping
-  residency_status?: string | null; // No direct mapping
-  union_membership?: string | null; // No direct mapping
-  cpf_account_number?: string | null; // Map to cpf_account
-  tax_identification_number?: string | null; // Map to tax_file_no
-  work_permit_number?: string | null; // Map to work_pass_number
-  notes?: string | null; // No direct mapping
+  profile_picture?: string | null;
+  phone_number?: string | null;
+  first_name?: string | null;
+  middle_name?: string | null;
+  last_name?: string | null;
+  identity_no?: string | null;
+  reporting_manager?: string | null;
+  contract_date_start?: string | null;
+  contract_date_end?: string | null;
+  probation_period?: number | null;
+  initial_join_date?: string | null;
+  confirmed_date?: string | null;
+  date_of_exit?: string | null;
+  salary?: number | null;
+  pay_type?: string | null;
+  salary_currency?: string | null;
+  bank_account_number?: string | null;
+  bank_branch?: string | null;
+  beneficiary_name?: string | null;
+  mom_occupation_group?: string | null;
+  residency_status?: string | null;
+  union_membership?: string | null;
+  cpf_account_number?: string | null;
+  tax_identification_number?: string | null;
+  work_permit_number?: string | null;
+  notes?: string | null;
   
   // Additional fields for address
   address_type?: string | null;
@@ -238,9 +237,17 @@ export interface Employee {
   contract_nature?: string | null;
   renewal?: string | null;
   contract_signed?: boolean | null;
+  
+  // Emergency Contact Fields
+  emergency_contact_name?: string | null;
+  emergency_contact_phone?: string | null;
+  emergency_relationship?: string | null;
+  
+  // Missing fields that are used in various tabs
+  probation_period_type?: string | null;
+  shorted_period_type?: string | null;
 }
 
-// Related entity types for the tables that store multiple items per employee
 export interface EmployeeAllowance {
   id: string;
   employee_id: string;
@@ -301,7 +308,6 @@ export interface EmployeeAppraisalRating {
   updated_at?: string;
 }
 
-// Type for creating or updating an employee with related entities
 export interface EmployeeFormData {
   employee: Employee;
   allowances?: EmployeeAllowance[];
@@ -312,5 +318,4 @@ export interface EmployeeFormData {
   documents?: File[];
 }
 
-// Updated to include id for editing existing employees
 export type EmployeeFormValues = Omit<Employee, 'created_at' | 'updated_at'>;

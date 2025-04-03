@@ -19,7 +19,7 @@ export const EmergencyContactTab: React.FC<EmergencyContactTabProps> = ({ isView
           <Label className="font-bold" htmlFor="emergency_contact_name">Contact Name</Label>
           <Input 
             id="emergency_contact_name" 
-            {...register('employee.emergency_contact_name')}
+            {...register('employee.emergency_contact_name' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -28,7 +28,7 @@ export const EmergencyContactTab: React.FC<EmergencyContactTabProps> = ({ isView
           <Label className="font-bold" htmlFor="emergency_relationship">Relationship</Label>
           <Input 
             id="emergency_relationship" 
-            {...register('employee.emergency_relationship')}
+            {...register('employee.emergency_relationship' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -37,7 +37,7 @@ export const EmergencyContactTab: React.FC<EmergencyContactTabProps> = ({ isView
           <Label className="font-bold" htmlFor="emergency_contact_phone">Mobile No</Label>
           <Input 
             id="emergency_contact_phone" 
-            {...register('employee.emergency_contact_phone')}
+            {...register('employee.emergency_contact_phone' as any)}
             disabled={isViewOnly}
           />
         </div>

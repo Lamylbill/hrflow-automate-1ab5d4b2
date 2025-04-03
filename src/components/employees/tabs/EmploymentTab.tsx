@@ -44,7 +44,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="join_date_for_leave" 
             type="date"
-            {...register('employee.join_date_for_leave')}
+            {...register('employee.join_date_for_leave' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -63,7 +63,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="recruitment_type">Recruitment Type</Label>
           <Input 
             id="recruitment_type" 
-            {...register('employee.recruitment_type')}
+            {...register('employee.recruitment_type' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -71,7 +71,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
         <div className="flex items-center space-x-2 pt-6">
           <Checkbox
             id="new_graduate"
-            {...register('employee.new_graduate')}
+            {...register('employee.new_graduate' as any)}
             disabled={isViewOnly}
           />
           <Label htmlFor="new_graduate">New Graduate</Label>
@@ -94,7 +94,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
             onValueChange={(value) => {
               // This would typically be handled by a controller component
             }}
-            defaultValue={control._defaultValues.employee?.probation_period_type || ''}
+            defaultValue=""
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -112,7 +112,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="probation_due" 
             type="date"
-            {...register('employee.probation_due')}
+            {...register('employee.probation_due' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -132,7 +132,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="resignation_tender_date" 
             type="date"
-            {...register('employee.resignation_tender_date')}
+            {...register('employee.resignation_tender_date' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -161,7 +161,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="exit_interview_date" 
             type="date"
-            {...register('employee.exit_interview_date')}
+            {...register('employee.exit_interview_date' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -181,7 +181,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="shorted_period" 
             type="number"
-            {...register('employee.shorted_period', { valueAsNumber: true })}
+            {...register('employee.shorted_period' as any, { valueAsNumber: true })}
             disabled={isViewOnly}
           />
         </div>
@@ -193,7 +193,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
             onValueChange={(value) => {
               // This would typically be handled by a controller component
             }}
-            defaultValue={control._defaultValues.employee?.shorted_period_type || ''}
+            defaultValue=""
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -209,7 +209,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
         <div className="flex items-center space-x-2 pt-6">
           <Checkbox
             id="rehire"
-            {...register('employee.rehire')}
+            {...register('employee.rehire' as any)}
             disabled={isViewOnly}
           />
           <Label htmlFor="rehire">Rehire</Label>
@@ -219,7 +219,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="previous_employee_code">Previous Employee Code</Label>
           <Input 
             id="previous_employee_code" 
-            {...register('employee.previous_employee_code')}
+            {...register('employee.previous_employee_code' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -299,7 +299,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="last_working_date" 
             type="date"
-            {...register('employee.last_working_date')}
+            {...register('employee.last_working_date' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -308,7 +308,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="extension_no">Extension No</Label>
           <Input 
             id="extension_no" 
-            {...register('employee.extension_no')}
+            {...register('employee.extension_no' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -317,7 +317,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="mobile_no">Mobile No</Label>
           <Input 
             id="mobile_no" 
-            {...register('employee.mobile_no')}
+            {...register('employee.mobile_no' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -326,7 +326,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="telephone_no">Telephone No</Label>
           <Input 
             id="telephone_no" 
-            {...register('employee.telephone_no')}
+            {...register('employee.telephone_no' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -336,7 +336,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Input 
             id="personal_email" 
             type="email"
-            {...register('employee.personal_email')}
+            {...register('employee.personal_email' as any)}
             disabled={isViewOnly}
           />
         </div>
@@ -345,7 +345,7 @@ export const EmploymentTab: React.FC<EmploymentTabProps> = ({ isViewOnly = false
           <Label htmlFor="personal_mobile_no">Personal Mobile No</Label>
           <Input 
             id="personal_mobile_no" 
-            {...register('employee.personal_mobile_no')}
+            {...register('employee.personal_mobile_no' as any)}
             disabled={isViewOnly}
           />
         </div>
