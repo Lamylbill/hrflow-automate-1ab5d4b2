@@ -18,7 +18,7 @@ export const CompensationBenefitsTab: React.FC<CompensationBenefitsTabProps> = (
   onToggleAdvanced,
 }) => {
   const methods = useFormContext<EmployeeFormData>();
-  const compensationFields = getEmployeeFieldsByCategory('compensation');
+  const compensationFields = getEmployeeFieldsByCategory('compensation-benefits');
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-8">
