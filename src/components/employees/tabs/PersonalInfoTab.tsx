@@ -18,7 +18,7 @@ export const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({
   onToggleAdvanced
 }) => {
   const methods = useFormContext<EmployeeFormData>();
-  const personalFields = getEmployeeFieldsByCategory('personal');
+  const personalFields = getEmployeeFieldsByCategory('personal-info'); 
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-8">
