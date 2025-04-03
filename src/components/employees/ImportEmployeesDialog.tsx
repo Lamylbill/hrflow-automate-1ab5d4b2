@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
-import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui-custom/Button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -25,7 +25,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { generateEmployeeTemplate } from '@/utils/excelUtils';
+import { generateEmployeeTemplate, processEmployeeImport } from '@/utils/excelUtils';
+import { Employee } from '@/types/employee';
 
 interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void
@@ -37,7 +38,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
   const [duplicateCount, setDuplicateCount] = useState(0);
   const [newEmployeesCount, setNewEmployeesCount] = useState(0);
   const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
-  const [pendingEmployees, setPendingEmployees] = useState<any[]>([]);
+  const [pendingEmployees, setPendingEmployees] = useState<Partial<Employee>[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -55,7 +56,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     });
   };
 
-  const checkForDuplicates = async (employees: any[]) => {
+  const checkForDuplicates = async (employees: Partial<Employee>[]) => {
     try {
       const emails = employees.map(emp => emp.email).filter(Boolean);
       
@@ -85,176 +86,47 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     }
   };
   
-  const prepareEmployeesData = (jsonData: any[][], headers: string[]) => {
-    console.log("Raw jsonData:", jsonData);
-    console.log("Headers:", headers);
-    
-    const filteredData = jsonData.filter(row => 
-      row && Array.isArray(row) && row.length > 0 && row.some(cell => cell !== undefined && cell !== null && cell !== '')
-    );
-    
-    console.log("Filtered Data Length:", filteredData.length);
-    console.log("First row after filtering:", filteredData[0]);
-    
-    if (filteredData.length === 0) {
-      throw new Error("No valid data found in the import file");
-    }
-    
-    const safeUserId = user?.id?.trim();
-    if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
-    
-    const employees = filteredData.map(row => {
-      const employee: any = { user_id: safeUserId };
-      
-      headers.forEach((header, index) => {
-        if (!header) return;
-        
-        if (index < row.length && row[index] !== undefined) {
-          const rawValue = row[index]?.toString() || '';
-          
-          if (header === 'benefits_enrolled' && rawValue) {
-            employee[header] = rawValue.split(',').map((s: string) => s.trim());
-          } 
-          else if (['cpf_contribution', 'contract_signed', 'new_graduate', 'rehire', 'must_clock', 'all_work_day', 'freeze_payment'].includes(header)) {
-            const value = rawValue.toLowerCase().trim();
-            if (['yes', 'true', '1', 'y'].includes(value)) {
-              employee[header] = true;
-            } else if (['no', 'false', '0', 'n'].includes(value)) {
-              employee[header] = false;
-            } else if (value === '') {
-              employee[header] = null;
-            } else {
-              employee[header] = rawValue;
-            }
-          } 
-          else if (['salary', 'leave_entitlement', 'leave_balance', 'medical_entitlement', 'performance_score', 
-                     'salary_fixed', 'allocation_amount', 'salary_arrears', 'mvc'].includes(header) && rawValue) {
-            const numValue = parseFloat(rawValue);
-            employee[header] = isNaN(numValue) ? rawValue : numValue;
-          } 
-          else {
-            employee[header] = rawValue;
-          }
-        }
-      });
-      
-      if (!employee.full_name || !employee.email) {
-        console.warn("Skipping row due to missing required fields (full_name or email):", employee);
-        return null;
-      }
-      
-      return employee;
-    }).filter(Boolean);
-    
-    console.log("Valid employee records:", employees.length);
-    if (employees.length === 0) {
-      throw new Error("No valid employees found with required fields (full_name and email)");
-    }
-    
-    return employees;
-  };
-  
   const processImport = async () => {
     if (!file || !user) return;
     
     setIsImporting(true);
     
     try {
-      const reader = new FileReader();
+      // Process the Excel file to extract employee data
+      const employees = await processEmployeeImport(file);
       
-      reader.onload = async (e) => {
-        try {
-          const data = new Uint8Array(e.target?.result as ArrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          
-          console.log("Available sheets:", workbook.SheetNames);
-          
-          let jsonData: any[][] = [];
-          let headers: string[] = [];
-          
-          const sheetNames = workbook.SheetNames;
-          
-          let templateSheetName = sheetNames.find(name => 
-            name.toLowerCase().includes("template") || name.toLowerCase().includes("data")
-          );
-          
-          if (!templateSheetName && sheetNames.length > 0) {
-            templateSheetName = sheetNames[0];
-            console.log("Using first sheet:", templateSheetName);
-          }
-          
-          if (templateSheetName) {
-            const worksheet = workbook.Sheets[templateSheetName];
-            
-            if (worksheet) {
-              const wsJson = XLSX.utils.sheet_to_json(worksheet, { 
-                header: 1, 
-                blankrows: false,
-                defval: '' 
-              }) as any[][];
-              
-              console.log("Worksheet rows:", wsJson.length);
-              
-              if (wsJson.length > 0) {
-                headers = wsJson[0].map(h => h?.toString().trim() || '');
-                
-                const dataStartRow = templateSheetName.toLowerCase().includes("template") ? 
-                  (wsJson.length > 3 ? 3 : 1) : 1;
-                
-                jsonData = wsJson.slice(dataStartRow);
-                
-                console.log(`Using data starting from row ${dataStartRow+1}, found ${jsonData.length} data rows`);
-              }
-            }
-          }
-          
-          if (!headers.length) {
-            throw new Error("Could not extract headers from the Excel file");
-          }
-          
-          if (!jsonData.length) {
-            throw new Error("No data rows found in the Excel file");
-          }
-          
-          const employees = prepareEmployeesData(jsonData, headers);
-          
-          const { duplicates, newEmployees } = await checkForDuplicates(employees);
-          
-          if (duplicates.length > 0) {
-            setDuplicateCount(duplicates.length);
-            setNewEmployeesCount(newEmployees.length);
-            setPendingEmployees(newEmployees);
-            setShowDuplicateAlert(true);
-            setIsImporting(false);
-            return;
-          }
-          
-          await importEmployeesToDatabase(newEmployees);
-          
-        } catch (error: any) {
-          console.error("Error importing employees:", error);
-          toast({
-            title: "Import Failed",
-            description: error.message || "An error occurred while importing employees.",
-            variant: "destructive",
-          });
-          setIsImporting(false);
-        }
-      };
+      console.log("Parsed employee data:", employees);
       
-      reader.readAsArrayBuffer(file);
+      if (employees.length === 0) {
+        throw new Error("No valid employees found with required fields (full_name and email)");
+      }
+      
+      // Check for duplicates
+      const { duplicates, newEmployees } = await checkForDuplicates(employees);
+      
+      if (duplicates.length > 0) {
+        setDuplicateCount(duplicates.length);
+        setNewEmployeesCount(newEmployees.length);
+        setPendingEmployees(newEmployees);
+        setShowDuplicateAlert(true);
+        setIsImporting(false);
+        return;
+      }
+      
+      await importEmployeesToDatabase(newEmployees);
+      
     } catch (error: any) {
-      console.error("Error reading file:", error);
+      console.error("Error importing employees:", error);
       toast({
         title: "Import Failed",
-        description: error.message || "An error occurred while reading the file.",
+        description: error.message || "An error occurred while importing employees.",
         variant: "destructive",
       });
       setIsImporting(false);
     }
   };
   
-  const importEmployeesToDatabase = async (employees: any[]) => {
+  const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
     try {
       if (employees.length === 0) {
         toast({
@@ -268,8 +140,21 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       
       console.log(`Importing ${employees.length} employees to database`);
       
-      for (const employee of employees) {
-        const { error } = await supabase.from('employees').insert(employee);
+      const safeUserId = user?.id?.trim();
+      if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
+      
+      // Add user_id to each employee record
+      const employeesWithUserId = employees.map(employee => ({
+        ...employee,
+        user_id: safeUserId,
+      }));
+      
+      // Insert employees in batches
+      for (const employee of employeesWithUserId) {
+        const { error } = await supabase
+          .from('employees')
+          .insert(employee);
+          
         if (error) throw error;
       }
       

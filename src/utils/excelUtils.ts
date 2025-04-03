@@ -1,101 +1,234 @@
-
-import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-import { fullEmployeeFieldList } from './employeeFieldUtils';
+import { saveAs } from 'file-saver';
 import { Employee } from '@/types/employee';
+import { 
+  fullEmployeeFieldList,
+  getAllCategories,
+  getFieldsByCategory,
+  getFieldMetaByName,
+  convertFieldValue
+} from './employeeFieldUtils';
 
-export function generateExcel(
-  filename: string,
-  sheets: {
-    name: string;
-    data: any[][];
-  }[]
-) {
-  const wb = XLSX.utils.book_new();
-
-  sheets.forEach(sheet => {
-    const ws = XLSX.utils.aoa_to_sheet(sheet.data);
-    XLSX.utils.book_append_sheet(wb, ws, sheet.name);
-  });
-
-  const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const data = new Blob([excelBuffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  });
-
-  saveAs(data, `${filename}.xlsx`);
-}
-
-export function exportEmployeesToExcel(employees: Employee[]) {
-  if (!employees || employees.length === 0) {
+// Function to export employees data to Excel
+export const exportEmployeesToExcel = (employees: Employee[]) => {
+  try {
+    // Group fields by category
+    const categories = getAllCategories();
+    
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet([]);
+    let rowIndex = 0;
+    
+    // Add category headers
+    categories.forEach(category => {
+      const fields = getFieldsByCategory(category);
+      
+      // Add category header
+      XLSX.utils.sheet_add_aoa(worksheet, [[category]], { origin: { r: rowIndex, c: 0 } });
+      rowIndex++;
+      
+      // Add field headers
+      const headers = fields.map(field => field.label);
+      XLSX.utils.sheet_add_aoa(worksheet, [headers], { origin: { r: rowIndex, c: 0 } });
+      rowIndex++;
+      
+      // Add employee data
+      employees.forEach(employee => {
+        const rowData = fields.map(field => {
+          const value = employee[field.name as keyof Employee];
+          return value === null || value === undefined ? '' : value;
+        });
+        
+        XLSX.utils.sheet_add_aoa(worksheet, [rowData], { origin: { r: rowIndex, c: 0 } });
+        rowIndex++;
+      });
+      
+      // Add empty row after each category
+      XLSX.utils.sheet_add_aoa(worksheet, [['']], { origin: { r: rowIndex, c: 0 } });
+      rowIndex++;
+    });
+    
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+    
+    // Generate Excel file
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
+    // Save file
+    saveAs(blob, `Employees_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    return true;
+  } catch (error) {
+    console.error('Error exporting employees to Excel:', error);
     return false;
   }
+};
 
-  const allFields = new Set<string>();
-  employees.forEach(employee => {
-    Object.keys(employee).forEach(key => {
-      if (key !== 'id' && key !== 'user_id') {
-        allFields.add(key);
-      }
+// Function to generate employee template for import
+export const generateEmployeeTemplate = () => {
+  try {
+    // Group fields by category
+    const categories = getAllCategories();
+    
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet([]);
+    let rowIndex = 0;
+    let colIndex = 0;
+    
+    // Add header row with field names
+    const headerRow: string[] = [];
+    const sampleDataRow: any[] = [];
+    const blankDataRow: any[] = [];
+    
+    // Process fields by category
+    categories.forEach(category => {
+      const fields = getFieldsByCategory(category);
+      
+      // Add category header
+      headerRow.push(`--- ${category} ---`);
+      sampleDataRow.push('');
+      blankDataRow.push('');
+      colIndex++;
+      
+      // Add fields
+      fields.forEach(field => {
+        headerRow.push(field.label);
+        
+        // Add sample data based on field type
+        switch (field.type) {
+          case 'text':
+            sampleDataRow.push(field.name === 'full_name' ? 'John Doe' : 'Sample Text');
+            break;
+          case 'email':
+            sampleDataRow.push('johndoe@example.com');
+            break;
+          case 'date':
+            sampleDataRow.push('2023-01-01');
+            break;
+          case 'number':
+            sampleDataRow.push(1000);
+            break;
+          case 'dropdown':
+            sampleDataRow.push(field.options && field.options.length > 0 ? field.options[0] : '');
+            break;
+          case 'boolean':
+            sampleDataRow.push('Yes');
+            break;
+          default:
+            sampleDataRow.push('');
+        }
+        
+        blankDataRow.push('');
+        colIndex++;
+      });
     });
-  });
+    
+    // Add rows to worksheet
+    XLSX.utils.sheet_add_aoa(worksheet, [headerRow], { origin: { r: 0, c: 0 } });
+    XLSX.utils.sheet_add_aoa(worksheet, [sampleDataRow], { origin: { r: 1, c: 0 } });
+    XLSX.utils.sheet_add_aoa(worksheet, [blankDataRow], { origin: { r: 2, c: 0 } });
+    
+    // Create workbook and add worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
+    
+    // Save workbook as Excel file
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Employee_Import_Template_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    return true;
+  } catch (error) {
+    console.error('Error generating employee template:', error);
+    return false;
+  }
+};
 
-  const headers = Array.from(allFields).map(field =>
-    field
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-  );
-
-  const data = employees.map(employee => {
-    return Array.from(allFields).map(field => {
-      const value = employee[field as keyof Employee];
-      if (value === null || value === undefined) {
-        return '';
-      } else if (Array.isArray(value)) {
-        return value.join(', ');
-      } else if (typeof value === 'boolean') {
-        return value ? 'Yes' : 'No';
-      } else {
-        return value;
+// Helper function to parse employee data from Excel for import
+export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Partial<Employee> => {
+  const employee: Partial<Employee> = {};
+  
+  headerRow.forEach((header, index) => {
+    if (!header || typeof header !== 'string') return;
+    
+    // Skip category headers which are marked with "---"
+    if (header.includes('---')) return;
+    
+    // Find the corresponding field by label
+    const field = fullEmployeeFieldList.find(f => f.label === header);
+    
+    if (field && index < dataRow.length) {
+      const rawValue = dataRow[index];
+      
+      if (rawValue !== undefined && rawValue !== null) {
+        const fieldName = field.name as keyof Employee;
+        const convertedValue = convertFieldValue(field, rawValue);
+        
+        if (convertedValue !== null) {
+          (employee as any)[fieldName] = convertedValue;
+        }
       }
-    });
+    }
   });
+  
+  return employee;
+};
 
-  const exportData = [headers, ...data];
-  generateExcel('employees_export', [{ name: 'Employees', data: exportData }]);
-  return true;
-}
-
-export function generateEmployeeTemplate() {
-  const allFields = fullEmployeeFieldList;
-
-  const labelRow: string[] = [];
-  const categoryRow: string[] = [];
-  const requiredRow: string[] = [];
-  const exampleRow: string[] = [];
-
-  allFields.forEach(field => {
-    labelRow.push(field.label);
-    categoryRow.push(field.category || 'Other');
-    requiredRow.push(field.required ? 'Yes' : 'No');
-    exampleRow.push(field.example || '');
+// Main function to process employee import from Excel
+export const processEmployeeImport = async (file: File): Promise<Partial<Employee>[]> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // Get first sheet
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        
+        // Convert sheet to JSON
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }) as any[][];
+        
+        if (jsonData.length < 2) {
+          throw new Error('Invalid template format or empty file');
+        }
+        
+        // Extract header row (field names)
+        const headerRow = jsonData[0];
+        
+        // Process data rows (starting from row 2)
+        const employees: Partial<Employee>[] = [];
+        
+        for (let i = 1; i < jsonData.length; i++) {
+          const dataRow = jsonData[i];
+          
+          // Skip empty rows
+          if (!dataRow || dataRow.length === 0 || !dataRow.some(cell => cell !== null && cell !== undefined && cell !== '')) {
+            continue;
+          }
+          
+          const employeeData = parseEmployeeDataFromExcel(headerRow, dataRow);
+          
+          // Validate required fields
+          if (employeeData.full_name && employeeData.email) {
+            employees.push(employeeData);
+          }
+        }
+        
+        resolve(employees);
+      } catch (error) {
+        console.error('Error parsing Excel file:', error);
+        reject(error);
+      }
+    };
+    
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    
+    reader.readAsArrayBuffer(file);
   });
-
-  const sheetData = [labelRow, categoryRow, requiredRow, exampleRow];
-
-  generateExcel('employee_template', [
-    {
-      name: 'Template',
-      data: sheetData,
-    },
-  ]);
-
-  return true;
-}
-
-export default {
-  generateExcel,
-  generateEmployeeTemplate,
-  exportEmployeesToExcel,
 };
