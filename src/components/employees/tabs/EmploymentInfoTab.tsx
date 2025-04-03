@@ -18,7 +18,7 @@ export const EmploymentInfoTab: React.FC<EmploymentInfoTabProps> = ({
   onToggleAdvanced
 }) => {
   const methods = useFormContext<EmployeeFormData>();
-  const employmentFields = getEmployeeFieldsByCategory('employment');
+  const employmentFields = getEmployeeFieldsByCategory('employment-info');
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-8">
