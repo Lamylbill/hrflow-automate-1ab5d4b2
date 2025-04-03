@@ -1,245 +1,33 @@
-
+// src/components/employees/tabs/OtherTab.tsx
 import React from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { useFormContext } from 'react-hook-form';
 import { EmployeeFormData } from '@/types/employee';
 import { FieldsToggle } from './shared/FieldsToggle';
-import { nsGroupOptions, vaccinationStatusOptions, skillOptions } from '../data/employeeOptions';
+import { getEmployeeFieldsByCategory } from '@/utils/employeeFieldUtils';
+import { renderFieldGroups } from './shared/renderFieldGroups';
 
-interface OthersTabProps {
+interface OtherTabProps {
   isViewOnly?: boolean;
   showAdvancedFields: boolean;
   onToggleAdvanced: (value: boolean) => void;
 }
 
-export const OthersTab: React.FC<OthersTabProps> = ({ 
+export const OtherTab: React.FC<OtherTabProps> = ({
   isViewOnly = false,
   showAdvancedFields,
-  onToggleAdvanced
+  onToggleAdvanced,
 }) => {
-  const { control, register } = useFormContext<EmployeeFormData>();
-
-  const skillsOptions = skillOptions.map(skill => ({
-    label: skill,
-    value: skill
-  }));
+  const methods = useFormContext<EmployeeFormData>();
+  const otherFields = getEmployeeFieldsByCategory('other');
 
   return (
-    <div className="space-y-6">
-      <FieldsToggle 
-        showAdvanced={showAdvancedFields} 
-        onToggle={onToggleAdvanced} 
+    <div className="space-y-6 px-4 sm:px-6 md:px-8">
+      <FieldsToggle
+        showAdvanced={showAdvancedFields}
+        onToggle={onToggleAdvanced}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Core Fields */}
-        <div className="space-y-4">
-          <div>
-            <Label className="font-bold" htmlFor="emergency_contact_name">Emergency Contact Name</Label>
-            <Input
-              id="emergency_contact_name"
-              {...register('employee.emergency_contact_name')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="emergency_relationship">Relationship</Label>
-            <Input
-              id="emergency_relationship"
-              {...register('employee.emergency_relationship')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="emergency_contact_phone">Mobile Number</Label>
-            <Input
-              id="emergency_contact_phone"
-              {...register('employee.emergency_contact_phone')}
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="qualification">Education Qualification</Label>
-            <Input
-              id="qualification"
-              {...register('employee.qualifications')}
-              disabled={isViewOnly}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label className="font-bold" htmlFor="institute_name">Institute</Label>
-            <Input
-              id="institute_name"
-              disabled={isViewOnly}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="skill_set">Skills</Label>
-            <Controller
-              name="employee.skill_set"
-              control={control}
-              render={({ field }) => (
-                <MultiSelect
-                  disabled={isViewOnly}
-                  selected={field.value || []}
-                  options={skillsOptions}
-                  onChange={field.onChange}
-                  placeholder="Select skills"
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="ns_group">NS Group</Label>
-            <Controller
-              name="employee.ns_group"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  disabled={isViewOnly}
-                  onValueChange={field.onChange}
-                  value={field.value || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select NS group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {nsGroupOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div>
-            <Label className="font-bold" htmlFor="vaccination_status">Vaccination Status</Label>
-            <Controller
-              name="employee.vaccination_status"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  disabled={isViewOnly}
-                  onValueChange={field.onChange}
-                  value={field.value || ""}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vaccination status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vaccinationStatusOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Advanced Fields */}
-      {showAdvancedFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="graduation_year">Graduation Year</Label>
-              <Input
-                id="graduation_year"
-                type="number"
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="major">Major</Label>
-              <Input
-                id="major"
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="group_hospital_surgical_plan">Group Hospital Plan</Label>
-              <Input
-                id="group_hospital_surgical_plan"
-                {...register('employee.group_hospital_surgical_plan')}
-                disabled={isViewOnly}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="font-bold" htmlFor="group_personal_accident_plan">Accident Plan</Label>
-              <Input
-                id="group_personal_accident_plan"
-                {...register('employee.group_personal_accident_plan')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="outpatient_medical_plan">Outpatient Medical</Label>
-              <Input
-                id="outpatient_medical_plan"
-                {...register('employee.outpatient_medical_plan')}
-                disabled={isViewOnly}
-              />
-            </div>
-
-            <div>
-              <Label className="font-bold" htmlFor="thirteenth_month_entitlement">13th Month Eligibility</Label>
-              <Controller
-                name="employee.thirteenth_month_entitlement"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    disabled={isViewOnly}
-                    onValueChange={(value) => field.onChange(value === 'true')}
-                    value={field.value !== undefined ? String(field.value) : ''}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select eligibility" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">Eligible</SelectItem>
-                      <SelectItem value="false">Not Eligible</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <Label className="font-bold" htmlFor="notes">Notes</Label>
-        <Textarea
-          id="notes"
-          {...register('employee.notes')}
-          disabled={isViewOnly}
-          className="min-h-[100px]"
-        />
-      </div>
+      {renderFieldGroups(methods, otherFields, isViewOnly, showAdvancedFields)}
     </div>
   );
 };
