@@ -245,7 +245,6 @@ export interface Employee {
   
   // Missing fields that are used in various tabs
   probation_period_type?: string | null;
-  shorted_period_type?: string | null;
 }
 
 export interface EmployeeAllowance {
