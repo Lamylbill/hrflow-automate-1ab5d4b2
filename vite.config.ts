@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -25,6 +24,7 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     // Ensure the production build handles chunk loading correctly
     rollupOptions: {
+      external: ['@rollup/pluginutils'], // ✅ Added this line
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
