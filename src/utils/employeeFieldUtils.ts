@@ -290,3 +290,5 @@ export const mapLegacyFieldNames = (employee: any): Employee => {
 export const standardizeEmployee = (employeeData: any): Employee => {
   return mapLegacyFieldNames(employeeData);
 };
+
+export const getEmployeeFieldsByCategory = getFieldsByCategory;
