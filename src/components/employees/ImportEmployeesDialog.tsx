@@ -29,7 +29,7 @@ import { Employee } from '@/types/employee';
 import { stringToBoolean } from '@/utils/formatters';
 
 interface ImportEmployeesDialogProps {
-  onImportSuccess?: () => void;
+  onImportSuccess?: () => void
 }
 
 const cleanObject = (obj: Record<string, any>) =>
@@ -55,26 +55,38 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     generateEmployeeTemplate();
     toast({
       title: "Template Downloaded",
-      description: "Employee import template downloaded.",
+      description: "Complete employee import template has been downloaded with all fields organized by category.",
     });
   };
 
   const checkForDuplicates = async (employees: Partial<Employee>[]) => {
-    const emails = employees.map(emp => emp.email).filter(Boolean);
-    if (emails.length === 0) return { duplicates: [], newEmployees: employees };
+    try {
+      const emails = employees.map(emp => emp.email).filter(Boolean);
 
-    const { data, error } = await supabase
-      .from('employees')
-      .select('email')
-      .in('email', emails as string[]);
+      if (emails.length === 0) return { duplicates: [], newEmployees: employees };
 
-    if (error) throw error;
+      const { data, error } = await supabase
+        .from('employees')
+        .select('email')
+        .in('email', emails as string[]);
 
-    const existingEmails = new Set(data.map(emp => emp.email.toLowerCase()));
-    const duplicates = employees.filter(emp => emp.email && existingEmails.has(emp.email.toLowerCase()));
-    const newEmployees = employees.filter(emp => !emp.email || !existingEmails.has(emp.email.toLowerCase()));
+      if (error) throw error;
 
-    return { duplicates, newEmployees };
+      const existingEmails = new Set(data.map(emp => emp.email.toLowerCase()));
+
+      const duplicates = employees.filter(emp => 
+        emp.email && existingEmails.has(emp.email.toLowerCase())
+      );
+
+      const newEmployees = employees.filter(emp => 
+        !emp.email || !existingEmails.has(emp.email?.toLowerCase() || '')
+      );
+
+      return { duplicates, newEmployees };
+    } catch (error: any) {
+      console.error("Error checking for duplicates:", error);
+      throw error;
+    }
   };
 
   const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
@@ -88,6 +100,8 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         setIsImporting(false);
         return;
       }
+
+      console.log(`Importing ${employees.length} employees to database`);
 
       const safeUserId = user?.id?.trim();
       if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
@@ -114,8 +128,14 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           thirteenth_month_entitlement: stringToBoolean(baseEmployee.thirteenth_month_entitlement),
         });
 
-        const { error } = await supabase.from('employees').insert(typedEmployee);
-        if (error) throw error;
+        const { error } = await supabase
+          .from('employees')
+          .insert(typedEmployee);
+
+        if (error) {
+          console.error("Insert failed for:", typedEmployee.email || typedEmployee.full_name, error.message);
+          throw error;
+        }
       }
 
       toast({
@@ -130,24 +150,30 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       setDuplicateCount(0);
       setNewEmployeesCount(0);
       setIsImporting(false);
+
     } catch (error: any) {
       console.error("Error importing employees to database:", error);
       toast({
         title: "Import Failed",
-        description: error.message || "An error occurred while importing employees.",
+        description: error.message || "An error occurred while importing employees to the database.",
         variant: "destructive",
       });
       setIsImporting(false);
     }
   };
 
-  const handleImportEmployees = async () => {
+  const processImport = async () => {
     if (!file || !user) return;
+
     setIsImporting(true);
 
     try {
       const employees = await processEmployeeImport(file);
-      if (employees.length === 0) throw new Error("No valid employees found.");
+
+      if (employees.length === 0) {
+        throw new Error("No valid employees found with required fields (full_name and email)");
+      }
+
       const { duplicates, newEmployees } = await checkForDuplicates(employees);
 
       if (duplicates.length > 0) {
@@ -160,11 +186,12 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       }
 
       await importEmployeesToDatabase(newEmployees);
-    } catch (err: any) {
+    } catch (error: any) {
+      console.error("Error importing employees:", error);
       toast({
-        title: 'Import Failed',
-        description: err.message,
-        variant: 'destructive'
+        title: "Import Failed",
+        description: error.message || "An error occurred while importing employees.",
+        variant: "destructive",
       });
       setIsImporting(false);
     }
@@ -188,7 +215,8 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           <DialogHeader>
             <DialogTitle>Import Employees</DialogTitle>
             <DialogDescription>
-              Upload an Excel file with employee data. Download the template to get started.
+              Upload an Excel file with employee data. 
+              Download the template file to ensure proper formatting with all required and optional fields.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-6">
@@ -210,13 +238,23 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             </div>
           </div>
           <DialogFooter className="flex flex-row justify-between sm:justify-between">
-            <Button variant="outline" onClick={downloadTemplate} disabled={isImporting}>
+            <Button 
+              variant="outline" 
+              onClick={downloadTemplate}
+              disabled={isImporting}
+            >
               <Download className="mr-2 h-4 w-4" />
               Download Template
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" disabled={isImporting}>Cancel</Button>
-              <Button variant="primary" onClick={handleImportEmployees} disabled={!file || isImporting}>
+              <Button variant="outline" disabled={isImporting}>
+                Cancel
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={processImport} 
+                disabled={!file || isImporting}
+              >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>
             </div>
@@ -229,11 +267,12 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           <AlertDialogHeader>
             <AlertDialogTitle>Duplicate Employees Detected</AlertDialogTitle>
             <AlertDialogDescription>
-              {duplicateCount} duplicate employee(s) detected. Proceed with {newEmployeesCount} new employee(s)?
+              {duplicateCount} duplicate {duplicateCount === 1 ? 'employee' : 'employees'} detected. 
+              Proceed with import of remaining {newEmployeesCount} new {newEmployeesCount === 1 ? 'employee' : 'employees'}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setShowDuplicateAlert(false)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleProceedWithNewOnly}>
               Import New Employees Only
             </AlertDialogAction>
