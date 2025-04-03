@@ -108,9 +108,10 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
                     disabled={isViewOnly}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {controllerField.value
-                      ? format(new Date(controllerField.value), 'PPP')
+                    {controllerField.value && !isNaN(new Date(controllerField.value as any).getTime())
+                      ? format(new Date(controllerField.value as any), 'PPP')
                       : <span>Pick a date</span>}
+
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
