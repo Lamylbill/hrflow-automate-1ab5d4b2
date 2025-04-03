@@ -76,7 +76,6 @@ export const generateEmployeeTemplate = () => {
     
     // Create worksheet
     const worksheet = XLSX.utils.aoa_to_sheet([]);
-    let rowIndex = 0;
     let colIndex = 0;
     
     // Add header row with field names
@@ -216,6 +215,12 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
           
           // Validate required fields
           if (employeeData.full_name && employeeData.email) {
+            // Safety check: Ensure 'allowances' is not directly included in the employee data
+            // as it should be handled separately in a dedicated table
+            if ('allowances' in employeeData && typeof employeeData.allowances !== 'number') {
+              delete employeeData.allowances;
+            }
+            
             employees.push(employeeData);
           }
         }

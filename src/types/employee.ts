@@ -1,3 +1,4 @@
+
 export interface Employee {
   id: string;
   user_id: string;
@@ -245,6 +246,7 @@ export interface Employee {
   
   // Missing fields that are used in various tabs
   probation_period_type?: string | null;
+  qualification?: string | null;
 }
 
 export interface EmployeeAllowance {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -81,12 +82,14 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
   const [newEmployeesCount, setNewEmployeesCount] = useState(0);
   const [showDuplicateAlert, setShowDuplicateAlert] = useState(false);
   const [pendingEmployees, setPendingEmployees] = useState<Partial<Employee>[]>([]);
+  const [importError, setImportError] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setImportError(null);
     }
   };
 
@@ -114,12 +117,14 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
 
       for (const employee of employees) {
+        // Extract related entities that should be stored separately
         const {
           allowances, familyMembers, education, workExperience, appraisalRatings, documents,
           created_at, updated_at, id,
           ...baseEmployee
         } = employee;
 
+        // Process the base employee data, making sure boolean values are handled correctly
         const typedEmployee: Partial<Employee> = cleanObject({
           ...baseEmployee,
           user_id: safeUserId,
@@ -135,8 +140,19 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           thirteenth_month_entitlement: stringToBoolean(baseEmployee.thirteenth_month_entitlement),
         });
 
-        const { error } = await supabase.from('employees').insert(typedEmployee);
-        if (error) throw error;
+        // Insert the employee record
+        const { error, data } = await supabase.from('employees').insert(typedEmployee);
+        
+        if (error) {
+          console.error("Error inserting employee:", error);
+          
+          // Check if it's a schema-related error
+          if (error.message && error.message.includes('column') && error.message.includes('does not exist')) {
+            throw new Error(`Database schema error: ${error.message}. Please ensure your database schema is up to date.`);
+          }
+          
+          throw error;
+        }
       }
 
       toast({
@@ -154,6 +170,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
 
     } catch (error: any) {
       console.error("Error importing employees to database:", error);
+      setImportError(error.message || "An error occurred while importing employees.");
       toast({
         title: "Import Failed",
         description: error.message || "An error occurred while importing employees.",
@@ -166,6 +183,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
   const processImport = async () => {
     if (!file || !user) return;
     setIsImporting(true);
+    setImportError(null);
 
     try {
       const employees = await processEmployeeImport(file);
@@ -186,6 +204,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
 
     } catch (error: any) {
       console.error("Error during import:", error);
+      setImportError(error.message || "An error occurred.");
       toast({
         title: "Import Failed",
         description: error.message || "An error occurred.",
@@ -233,6 +252,13 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 </div>
               </div>
             </div>
+            
+            {importError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+                <p className="font-medium">Import Failed</p>
+                <p className="text-sm mt-1">{importError}</p>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="flex flex-row justify-between sm:justify-between">

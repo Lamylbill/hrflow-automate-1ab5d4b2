@@ -3,44 +3,54 @@ import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { EmployeeFormData } from '@/types/employee';
+import { 
+  employmentTypeOptions, employmentStatusOptions, 
+  probationStatusOptions, probationPeriodTypeOptions 
+} from '../data/employeeOptions';
 
 interface JobDetailsTabProps {
   isViewOnly?: boolean;
 }
 
-export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ 
-  isViewOnly = false 
-}) => {
-  const { control, register, watch } = useFormContext<EmployeeFormData>();
-  
-  const employmentType = watch("employee.employment_type");
-  const contractType = watch("employee.contract_type");
-  
+export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ isViewOnly = false }) => {
+  const { control, register, formState: { errors }, watch } = useFormContext<EmployeeFormData>();
+
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <Label className="font-medium" htmlFor="job_title">Job Title</Label>
+          <Label htmlFor="employee_code" className="font-bold">Employee Code</Label>
           <Input 
-            id="job_title" 
-            {...register("employee.job_title")} 
+            id="employee_code"
+            {...register('employee.employee_code')}
             disabled={isViewOnly}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="department">Department</Label>
+          <Label htmlFor="job_title" className="font-bold">Job Title</Label>
           <Input 
-            id="department" 
-            {...register("employee.department")} 
+            id="job_title"
+            {...register('employee.job_title')}
             disabled={isViewOnly}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="employment_type">Employment Type</Label>
+          <Label htmlFor="department" className="font-bold">Department</Label>
+          <Input 
+            id="department"
+            {...register('employee.department')}
+            disabled={isViewOnly}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="employment_type" className="font-bold">Employment Type</Label>
           <Controller
             name="employee.employment_type"
             control={control}
@@ -48,76 +58,77 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
               <Select
                 disabled={isViewOnly}
                 onValueChange={field.onChange}
-                value={field.value || ""}
+                value={field.value || undefined}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                <SelectTrigger id="employment_type">
+                  <SelectValue placeholder="Select Employment Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Full-time">Full-time</SelectItem>
-                  <SelectItem value="Part-time">Part-time</SelectItem>
-                  <SelectItem value="Contract">Contract</SelectItem>
-                  <SelectItem value="Temporary">Temporary</SelectItem>
-                  <SelectItem value="Intern">Intern</SelectItem>
-                  <SelectItem value="Freelance">Freelance</SelectItem>
+                  {employmentTypeOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="date_of_hire">Date of Hire</Label>
-          <Input 
-            id="date_of_hire" 
-            type="date"
-            {...register("employee.date_of_hire")} 
-            disabled={isViewOnly}
+          <Label htmlFor="employment_status" className="font-bold">Employment Status</Label>
+          <Controller
+            name="employee.employment_status"
+            control={control}
+            render={({ field }) => (
+              <Select
+                disabled={isViewOnly}
+                onValueChange={field.onChange}
+                value={field.value || undefined}
+              >
+                <SelectTrigger id="employment_status">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employmentStatusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="supervisor">Supervisor</Label>
-          <Input 
-            id="supervisor" 
-            {...register("employee.supervisor")} 
-            disabled={isViewOnly}
+          <Label htmlFor="date_of_hire" className="font-bold">Date of Hire</Label>
+          <Controller
+            name="employee.date_of_hire"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                id="date_of_hire"
+                disabled={isViewOnly}
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={field.onChange}
+              />
+            )}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="employment_status">Employment Status</Label>
+          <Label htmlFor="probation_period" className="font-bold">Probation Period</Label>
           <Input 
-            id="employment_status" 
-            {...register("employee.employment_status")} 
-            disabled={isViewOnly}
-          />
-        </div>
-      </div>
-  
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Label className="font-medium" htmlFor="confirmation_date">Confirmation Date</Label>
-          <Input 
-            id="confirmation_date" 
-            type="date"
-            {...register("employee.confirmation_date")} 
-            disabled={isViewOnly}
-          />
-        </div>
-  
-        <div>
-          <Label className="font-medium" htmlFor="probation_end">Probation End</Label>
-          <Input 
-            id="probation_end" 
-            type="date"
-            {...register("employee.probation_end")} 
+            id="probation_period"
+            type="number"
+            {...register('employee.probation_period', { valueAsNumber: true })}
             disabled={isViewOnly}
           />
         </div>
         
         <div>
-          <Label className="font-medium" htmlFor="probation_period_type">Probation Period Type</Label>
+          <Label htmlFor="probation_period_type" className="font-bold">Probation Period Type</Label>
           <Controller
             name="employee.probation_period_type"
             control={control}
@@ -125,110 +136,95 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({
               <Select
                 disabled={isViewOnly}
                 onValueChange={field.onChange}
-                value={field.value || ""}
+                value={field.value || undefined}
               >
-                <SelectTrigger>
+                <SelectTrigger id="probation_period_type">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="days">Days</SelectItem>
-                  <SelectItem value="weeks">Weeks</SelectItem>
-                  <SelectItem value="months">Months</SelectItem>
+                  {probationPeriodTypeOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="job_grade">Job Grade</Label>
-          <Input 
-            id="job_grade" 
-            {...register("employee.job_grade")} 
-            disabled={isViewOnly}
-          />
-        </div>
-  
-        <div>
-          <Label className="font-medium" htmlFor="employee_code">Employee Code</Label>
-          <Input 
-            id="employee_code" 
-            {...register("employee.employee_code")} 
-            disabled={isViewOnly}
-          />
-        </div>
-      </div>
-  
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <Label className="font-medium" htmlFor="contract_type">Contract Type</Label>
+          <Label htmlFor="probation_due" className="font-bold">Probation End Date</Label>
           <Controller
-            name="employee.contract_type"
+            name="employee.probation_due"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                id="probation_due"
+                disabled={isViewOnly}
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={field.onChange}
+              />
+            )}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="probation_status" className="font-bold">Probation Status</Label>
+          <Controller
+            name="employee.probation_status"
             control={control}
             render={({ field }) => (
               <Select
                 disabled={isViewOnly}
                 onValueChange={field.onChange}
-                value={field.value || ""}
+                value={field.value || undefined}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                <SelectTrigger id="probation_status">
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Permanent">Permanent</SelectItem>
-                  <SelectItem value="Fixed-term">Fixed-term</SelectItem>
-                  <SelectItem value="Zero-hour">Zero-hour</SelectItem>
-                  <SelectItem value="Consultant">Consultant</SelectItem>
+                  {probationStatusOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="contract_start">Contract Start</Label>
+          <Label htmlFor="confirmation_date" className="font-bold">Confirmation Date</Label>
+          <Controller
+            name="employee.confirmation_date"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                id="confirmation_date"
+                disabled={isViewOnly}
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={field.onChange}
+              />
+            )}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="supervisor" className="font-bold">Supervisor</Label>
           <Input 
-            id="contract_start" 
-            type="date"
-            {...register("employee.contract_start")} 
+            id="supervisor"
+            {...register('employee.supervisor')}
             disabled={isViewOnly}
           />
         </div>
-  
+        
         <div>
-          <Label className="font-medium" htmlFor="work_hours">Work Hours</Label>
+          <Label htmlFor="job_grade" className="font-bold">Job Grade</Label>
           <Input 
-            id="work_hours" 
-            type="number"
-            {...register("employee.work_hours", { valueAsNumber: true })} 
-            disabled={isViewOnly}
-          />
-        </div>
-  
-        <div>
-          <Label className="font-medium" htmlFor="work_pass_type">Work Pass Type</Label>
-          <Input 
-            id="work_pass_type" 
-            {...register("employee.work_pass_type")} 
-            disabled={isViewOnly}
-          />
-        </div>
-  
-        <div>
-          <Label className="font-medium" htmlFor="work_pass_number">Work Pass Number</Label>
-          <Input 
-            id="work_pass_number" 
-            {...register("employee.work_pass_number")} 
-            disabled={isViewOnly}
-          />
-        </div>
-  
-        <div>
-          <Label className="font-medium" htmlFor="work_pass_expiry">Work Pass Expiry</Label>
-          <Input 
-            id="work_pass_expiry" 
-            type="date"
-            {...register("employee.work_pass_expiry")} 
+            id="job_grade"
+            {...register('employee.job_grade')}
             disabled={isViewOnly}
           />
         </div>
