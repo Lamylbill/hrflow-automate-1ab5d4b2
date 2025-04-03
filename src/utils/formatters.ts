@@ -1,102 +1,158 @@
 
+// Add any existing formatters from the current file
+
 /**
- * Format a phone number to display properly
+ * Formats a date object to a string in the format "MM/DD/YYYY"
  */
-export const formatPhoneNumber = (phoneNumber?: string | null): string => {
-  if (!phoneNumber) return 'N/A';
+export const formatDate = (date: Date | string | null | undefined): string => {
+  if (!date) return '';
   
-  // This is a simple formatter for Singapore, could be extended for other countries
-  const cleaned = phoneNumber.replace(/\D/g, '');
+  const d = typeof date === 'string' ? new Date(date) : date;
   
-  if (cleaned.length === 8) {
-    return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
-  } else if (cleaned.length > 8) {
-    return `+${cleaned.slice(0, 2)} ${cleaned.slice(2, 6)} ${cleaned.slice(6)}`;
+  if (!(d instanceof Date) || isNaN(d.getTime())) {
+    return '';
   }
   
-  return phoneNumber;
+  const month = (d.getMonth() + 1).toString().padStart(2, '0');
+  const day = d.getDate().toString().padStart(2, '0');
+  const year = d.getFullYear();
+  
+  return `${month}/${day}/${year}`;
 };
 
 /**
- * Format a salary value for display
+ * Format currency for display
  */
-export const formatSalary = (value?: number | null): string => {
-  if (value === undefined || value === null) return 'N/A';
+export const formatCurrency = (amount: number | string | null | undefined, currency = 'SGD'): string => {
+  if (amount === null || amount === undefined || amount === '') {
+    return '';
+  }
+  
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  if (isNaN(numAmount)) {
+    return '';
+  }
   
   return new Intl.NumberFormat('en-SG', {
     style: 'currency',
-    currency: 'SGD',
+    currency,
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(value);
+    maximumFractionDigits: 2,
+  }).format(numAmount);
 };
 
 /**
- * Format a date for display
+ * Converts string representations of boolean values to actual boolean values
  */
-export const formatDate = (date?: string | null): string => {
-  if (!date) return 'N/A';
-  
-  try {
-    const d = new Date(date);
-    
-    // Check if date is valid
-    if (isNaN(d.getTime())) {
-      return 'Invalid Date';
-    }
-    
-    return d.toLocaleDateString('en-SG', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'N/A';
+export const stringToBoolean = (value: any): boolean | null => {
+  // Return null for undefined or null values
+  if (value === undefined || value === null) {
+    return null;
   }
-};
-
-/**
- * Format a boolean value for display
- */
-export const formatBoolean = (value?: boolean | null): string => {
-  if (value === undefined || value === null) return 'N/A';
   
-  return value ? 'Yes' : 'No';
-};
-
-/**
- * Truncate long text with ellipsis
- */
-export const truncateText = (text?: string | null, maxLength = 100): string => {
-  if (!text) return 'N/A';
+  // If it's already a boolean, return it
+  if (typeof value === 'boolean') {
+    return value;
+  }
   
-  if (text.length <= maxLength) return text;
+  // Convert to string only if it's not already a string
+  const strValue = typeof value === 'string' ? value : String(value);
   
-  return `${text.slice(0, maxLength)}...`;
-};
-
-/**
- * Convert string representation of boolean to actual boolean
- */
-export const stringToBoolean = (value?: string | null): boolean | null => {
-  if (value === undefined || value === null) return null;
+  // Check for various "true" strings
+  if (['yes', 'true', '1', 'y'].includes(strValue.toLowerCase())) {
+    return true;
+  }
   
-  const lowerValue = value.toLowerCase();
-  if (['yes', 'true', '1', 'y'].includes(lowerValue)) return true;
-  if (['no', 'false', '0', 'n'].includes(lowerValue)) return false;
+  // Check for various "false" strings
+  if (['no', 'false', '0', 'n'].includes(strValue.toLowerCase())) {
+    return false;
+  }
   
+  // Return null for any other values
   return null;
 };
 
 /**
- * Type-safe way to access employee fields that might be null/undefined
+ * Returns a string representation of a boolean value
  */
-export const safeGetValue = <T extends Record<string, any>, K extends keyof T>(
-  obj: T | null | undefined,
-  key: K,
-  defaultValue: T[K] | null = null
-): T[K] | null => {
-  if (!obj) return defaultValue;
-  return obj[key] !== undefined ? obj[key] : defaultValue;
+export const booleanToString = (value: boolean | null | undefined): string => {
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
+  return '';
+};
+
+/**
+ * Format phone number for display
+ */
+export const formatPhoneNumber = (phoneNumber: string | null | undefined): string => {
+  if (!phoneNumber) return '';
+  
+  // Remove all non-digit characters
+  const cleaned = phoneNumber.replace(/\D/g, '');
+  
+  // Singapore phone number formatting
+  if (cleaned.length === 8) {
+    return `${cleaned.slice(0, 4)} ${cleaned.slice(4)}`;
+  }
+  
+  // With country code
+  if (cleaned.length > 8) {
+    const countryCode = cleaned.slice(0, cleaned.length - 8);
+    const mainNumber = cleaned.slice(-8);
+    return `+${countryCode} ${mainNumber.slice(0, 4)} ${mainNumber.slice(4)}`;
+  }
+  
+  // For other formats, just return cleaned
+  return cleaned;
+};
+
+/**
+ * Format the employee name with proper title case
+ */
+export const formatEmployeeName = (name: string | null | undefined): string => {
+  if (!name) return '';
+  
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+/**
+ * Convert text to title case
+ */
+export const toTitleCase = (text: string | null | undefined): string => {
+  if (!text) return '';
+  
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+/**
+ * Truncate text to a specific length
+ */
+export const truncateText = (text: string | null | undefined, maxLength: number): string => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  
+  return `${text.substring(0, maxLength)}...`;
+};
+
+/**
+ * Format file size in bytes to human-readable format
+ */
+export const formatFileSize = (bytes: number | null | undefined): string => {
+  if (bytes === null || bytes === undefined) return '';
+  
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };

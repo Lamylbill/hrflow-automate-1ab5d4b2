@@ -163,12 +163,19 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
     if (field && index < dataRow.length) {
       const rawValue = dataRow[index];
       
-      if (rawValue !== undefined && rawValue !== null) {
+      // Only process values that aren't empty
+      if (rawValue !== undefined && rawValue !== null && rawValue !== '') {
         const fieldName = field.name as keyof Employee;
-        const convertedValue = convertFieldValue(field, rawValue);
         
-        if (convertedValue !== null) {
-          (employee as any)[fieldName] = convertedValue;
+        try {
+          const convertedValue = convertFieldValue(field, rawValue);
+          
+          if (convertedValue !== null) {
+            (employee as any)[fieldName] = convertedValue;
+          }
+        } catch (error) {
+          console.error(`Error converting field ${field.name}:`, error);
+          // Continue with other fields even if one fails
         }
       }
     }
@@ -211,17 +218,22 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
             continue;
           }
           
-          const employeeData = parseEmployeeDataFromExcel(headerRow, dataRow);
-          
-          // Validate required fields
-          if (employeeData.full_name && employeeData.email) {
-            // Safety check: Ensure 'allowances' is not directly included in the employee data
-            // as it should be handled separately in a dedicated table
-            if ('allowances' in employeeData && typeof employeeData.allowances !== 'number') {
-              delete employeeData.allowances;
-            }
+          try {
+            const employeeData = parseEmployeeDataFromExcel(headerRow, dataRow);
             
-            employees.push(employeeData);
+            // Validate required fields
+            if (employeeData.full_name && employeeData.email) {
+              // Safety check: Ensure 'allowances' is not directly included in the employee data
+              // as it should be handled separately in a dedicated table
+              if ('allowances' in employeeData && typeof employeeData.allowances !== 'number') {
+                delete employeeData.allowances;
+              }
+              
+              employees.push(employeeData);
+            }
+          } catch (error) {
+            console.error(`Error processing row ${i}:`, error);
+            // Continue with other rows even if one fails
           }
         }
         

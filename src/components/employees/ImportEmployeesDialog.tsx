@@ -124,20 +124,21 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           ...baseEmployee
         } = employee;
 
-        // Process the base employee data, making sure boolean values are handled correctly
+        // Process the base employee data, handling boolean fields safely
         const typedEmployee: Partial<Employee> = cleanObject({
           ...baseEmployee,
           user_id: safeUserId,
-          cpf_contribution: stringToBoolean(baseEmployee.cpf_contribution),
-          disciplinary_flags: stringToBoolean(baseEmployee.disciplinary_flags),
-          must_clock: stringToBoolean(baseEmployee.must_clock),
-          all_work_day: stringToBoolean(baseEmployee.all_work_day),
-          freeze_payment: stringToBoolean(baseEmployee.freeze_payment),
-          paid_medical_examination_fee: stringToBoolean(baseEmployee.paid_medical_examination_fee),
-          new_graduate: stringToBoolean(baseEmployee.new_graduate),
-          rehire: stringToBoolean(baseEmployee.rehire),
-          contract_signed: stringToBoolean(baseEmployee.contract_signed),
-          thirteenth_month_entitlement: stringToBoolean(baseEmployee.thirteenth_month_entitlement),
+          // Safely convert boolean fields
+          cpf_contribution: baseEmployee.cpf_contribution !== undefined ? stringToBoolean(baseEmployee.cpf_contribution) : undefined,
+          disciplinary_flags: baseEmployee.disciplinary_flags !== undefined ? stringToBoolean(baseEmployee.disciplinary_flags) : undefined,
+          must_clock: baseEmployee.must_clock !== undefined ? stringToBoolean(baseEmployee.must_clock) : undefined,
+          all_work_day: baseEmployee.all_work_day !== undefined ? stringToBoolean(baseEmployee.all_work_day) : undefined,
+          freeze_payment: baseEmployee.freeze_payment !== undefined ? stringToBoolean(baseEmployee.freeze_payment) : undefined,
+          paid_medical_examination_fee: baseEmployee.paid_medical_examination_fee !== undefined ? stringToBoolean(baseEmployee.paid_medical_examination_fee) : undefined,
+          new_graduate: baseEmployee.new_graduate !== undefined ? stringToBoolean(baseEmployee.new_graduate) : undefined,
+          rehire: baseEmployee.rehire !== undefined ? stringToBoolean(baseEmployee.rehire) : undefined,
+          contract_signed: baseEmployee.contract_signed !== undefined ? stringToBoolean(baseEmployee.contract_signed) : undefined,
+          thirteenth_month_entitlement: baseEmployee.thirteenth_month_entitlement !== undefined ? stringToBoolean(baseEmployee.thirteenth_month_entitlement) : undefined,
         });
 
         // Insert the employee record
