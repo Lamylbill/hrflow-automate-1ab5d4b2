@@ -175,8 +175,6 @@ export const employeeBaseFields: FieldMeta[] = [
   // Other (for legacy or non-categorized fields)
  
   { name: 'notes', label: 'Notes', type: 'text', category: 'other', isAdvanced: false },
- 
-];
 
 // Nested entities
 export const nestedFieldMap: Record<keyof Omit<EmployeeFormData, 'employee'>, FieldMeta[]> = {
