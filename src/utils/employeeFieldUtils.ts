@@ -1,3 +1,4 @@
+
 import { Employee } from '@/types/employee';
 
 // Field categories
@@ -77,7 +78,7 @@ export const fullEmployeeFieldList: FieldMeta[] = [
   // Compensation & Benefits - Basic
   { name: 'gross_salary', label: 'Monthly Gross Salary', type: 'number', category: 'compensation-benefits', isAdvanced: false },
   { name: 'basic_salary', label: 'Basic Salary', type: 'number', category: 'compensation-benefits', isAdvanced: false },
-  { name: 'cpf_contribution', label: 'CPF Contribution', type: 'dropdown', category: 'compensation-benefits', isAdvanced: false, options: ['Yes', 'No'] },
+  { name: 'cpf_contribution', label: 'CPF Contribution', type: 'boolean', category: 'compensation-benefits', isAdvanced: false },
   { name: 'allowances', label: 'Allowances', type: 'number', category: 'compensation-benefits', isAdvanced: false },
   { name: 'bonus_eligible', label: 'Bonus Eligibility', type: 'dropdown', category: 'compensation-benefits', isAdvanced: false, options: ['Yes', 'No'] },
   { name: 'payroll_cycle', label: 'Payroll Cycle', type: 'dropdown', category: 'compensation-benefits', isAdvanced: false, options: ['Monthly', 'Biweekly'] },
@@ -231,13 +232,55 @@ export const mapLegacyFieldNames = (employee: any): Employee => {
     result.work_pass_number = employee.work_permit_number;
   }
 
-  // Convert boolean string values to actual booleans
+  // Convert string boolean values to actual booleans
   if (typeof result.cpf_contribution === 'string') {
-    result.cpf_contribution = result.cpf_contribution === 'Yes' ? 'Yes' : 'No';
+    const val = result.cpf_contribution.toLowerCase();
+    result.cpf_contribution = ['yes', 'true', '1', 'y'].includes(val);
   }
 
   if (typeof result.disciplinary_flags === 'string') {
-    result.disciplinary_flags = result.disciplinary_flags === 'Yes' || result.disciplinary_flags === 'true';
+    const val = result.disciplinary_flags.toLowerCase();
+    result.disciplinary_flags = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.must_clock === 'string') {
+    const val = result.must_clock.toLowerCase();
+    result.must_clock = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.all_work_day === 'string') {
+    const val = result.all_work_day.toLowerCase();
+    result.all_work_day = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.freeze_payment === 'string') {
+    const val = result.freeze_payment.toLowerCase();
+    result.freeze_payment = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.paid_medical_examination_fee === 'string') {
+    const val = result.paid_medical_examination_fee.toLowerCase();
+    result.paid_medical_examination_fee = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.new_graduate === 'string') {
+    const val = result.new_graduate.toLowerCase();
+    result.new_graduate = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.rehire === 'string') {
+    const val = result.rehire.toLowerCase();
+    result.rehire = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.contract_signed === 'string') {
+    const val = result.contract_signed.toLowerCase();
+    result.contract_signed = ['yes', 'true', '1', 'y'].includes(val);
+  }
+
+  if (typeof result.thirteenth_month_entitlement === 'string') {
+    const val = result.thirteenth_month_entitlement.toLowerCase();
+    result.thirteenth_month_entitlement = ['yes', 'true', '1', 'y'].includes(val);
   }
 
   return result as Employee;

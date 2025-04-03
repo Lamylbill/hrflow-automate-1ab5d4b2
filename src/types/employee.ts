@@ -56,7 +56,7 @@ export interface Employee {
   // Compensation & Benefits - Basic
   gross_salary?: number | null;
   basic_salary?: number | null;
-  cpf_contribution?: string | null;
+  cpf_contribution?: boolean | null; // Changed from string to boolean
   allowances?: number | null;
   bonus_eligible?: string | null;
   payroll_cycle?: string | null;
@@ -112,6 +112,132 @@ export interface Employee {
   tax_identification_number?: string | null; // Map to tax_file_no
   work_permit_number?: string | null; // Map to work_pass_number
   notes?: string | null; // No direct mapping
+  
+  // Additional fields for address
+  address_type?: string | null;
+  address_line_1?: string | null;
+  address_line_2?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+  country_region?: string | null;
+  home_address?: string | null;
+  
+  // Additional fields for assignments
+  assignment_date_start?: string | null;
+  status_change_reason?: string | null;
+  company?: string | null;
+  cost_center?: string | null;
+  hr_rpt_job_category?: string | null;
+  hr_rpt_division_category?: string | null;
+  leave_grade?: string | null;
+  pay_group?: string | null;
+  manager?: string | null;
+  
+  // Additional fields for attendance
+  attendance_calendar?: string | null;
+  ot_group?: string | null;
+  must_clock?: boolean | null;
+  all_work_day?: boolean | null;
+  badge_no?: string | null;
+  imei_uuid_no?: string | null;
+  clock_codes?: string[] | null;
+  clock_area_codes?: string[] | null;
+  
+  // Additional fields for salary
+  work_days_per_week?: number | null;
+  work_hours_per_day?: number | null;
+  work_hours_per_year?: number | null;
+  work_days_per_year?: number | null;
+  salary_arrears?: number | null;
+  freeze_payment?: boolean | null;
+  bank_currency?: string | null;
+  allocation_type?: string | null;
+  allocation_amount?: number | null;
+  allocation_account?: string | null;
+  allocation_run?: string | null;
+  salary_date_start?: string | null;
+  salary_status_change_reason?: string | null;
+  salary_grade?: string | null;
+  salary_fixed?: number | null;
+  mvc?: number | null;
+  mvc_percentage?: number | null;
+  salary_gross?: number | null;
+  leave_entitlement?: number | null;
+  leave_balance?: number | null;
+  medical_entitlement?: number | null;
+  
+  // Additional fields for statutory
+  mom_employee_type?: string | null;
+  mom_bc_occupation_group?: string | null;
+  mom_bc_employee_type?: string | null;
+  mom_bc_employment_type?: string | null;
+  mom_bc_employee_group?: string | null;
+  funds?: string | null;
+  mso_scheme?: string | null;
+  pr_issue_date?: string | null;
+  pr_renounce_date?: string | null;
+  statutory_date_start?: string | null;
+  statutory_date_end?: string | null;
+  membership_no?: string | null;
+  rest_day_per_week?: string | null;
+  overtime_payment_period?: string | null;
+  overtime_rate_of_pay?: number | null;
+  paid_medical_examination_fee?: boolean | null;
+  other_medical_benefit?: string | null;
+  termination_notice_period?: number | null;
+  work_pass_expiry_date?: string | null;
+  
+  // Additional fields for employment
+  join_date_for_leave?: string | null;
+  recruitment_type?: string | null;
+  new_graduate?: boolean | null;
+  probation_due?: string | null;
+  probation_status?: string | null;
+  resignation_tender_date?: string | null;
+  exit_interview_date?: string | null;
+  shorted_period?: number | null;
+  shorted_period_type?: string | null;
+  rehire?: boolean | null;
+  previous_employee_code?: string | null;
+  service_length_adjustment?: number | null;
+  service_length_total?: number | null;
+  previous_work_experience?: number | null;
+  work_experience_to_date?: number | null;
+  no_of_contracts?: number | null;
+  contract_adjustment?: number | null;
+  no_of_contracts_total?: number | null;
+  last_working_date?: string | null;
+  extension_no?: string | null;
+  mobile_no?: string | null;
+  telephone_no?: string | null;
+  personal_email?: string | null;
+  personal_mobile_no?: string | null;
+  
+  // Additional fields for personal info
+  nationality_other?: string | null;
+  title?: string | null;
+  login_id?: string | null;
+  birth_place?: string | null;
+  marriage_date?: string | null;
+  no_of_children?: number | null;
+  ethnic_origin?: string | null;
+  
+  // Additional fields for other info
+  skill_set?: string[] | null;
+  ns_group?: string | null;
+  vaccination_status?: string | null;
+  group_hospital_surgical_plan?: string | null;
+  group_personal_accident_plan?: string | null;
+  outpatient_medical_plan?: string | null;
+  thirteenth_month_entitlement?: boolean | null;
+  benefits_enrolled?: string[] | null;
+  last_performance_review?: string | null;
+  performance_score?: number | null;
+  
+  // Additional fields for legacy contract tab
+  contract_nature?: string | null;
+  renewal?: string | null;
+  contract_signed?: boolean | null;
 }
 
 // Related entity types for the tables that store multiple items per employee

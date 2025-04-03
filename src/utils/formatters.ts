@@ -75,3 +75,28 @@ export const truncateText = (text?: string | null, maxLength = 100): string => {
   
   return `${text.slice(0, maxLength)}...`;
 };
+
+/**
+ * Convert string representation of boolean to actual boolean
+ */
+export const stringToBoolean = (value?: string | null): boolean | null => {
+  if (value === undefined || value === null) return null;
+  
+  const lowerValue = value.toLowerCase();
+  if (['yes', 'true', '1', 'y'].includes(lowerValue)) return true;
+  if (['no', 'false', '0', 'n'].includes(lowerValue)) return false;
+  
+  return null;
+};
+
+/**
+ * Type-safe way to access employee fields that might be null/undefined
+ */
+export const safeGetValue = <T extends Record<string, any>, K extends keyof T>(
+  obj: T | null | undefined,
+  key: K,
+  defaultValue: T[K] | null = null
+): T[K] | null => {
+  if (!obj) return defaultValue;
+  return obj[key] !== undefined ? obj[key] : defaultValue;
+};

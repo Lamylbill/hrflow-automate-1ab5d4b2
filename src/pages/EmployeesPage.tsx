@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Search, PlusCircle, Download, AlertCircle,
@@ -27,6 +28,7 @@ import { Employee } from '@/types/employee';
 import { EmployeeCard } from '@/components/employees/EmployeeCard';
 import { ImportEmployeesDialog } from '@/components/employees/ImportEmployeesDialog';
 import { AdvancedFilterDropdown } from '@/components/employees/AdvancedFilterDropdown';
+import { standardizeEmployee } from '@/utils/employeeFieldUtils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,8 +90,11 @@ const EmployeesPage = () => {
 
       if (error) throw error;
 
-      setEmployees(data as Employee[]);
-      setFilteredEmployees(data as Employee[]);
+      // Standardize each employee record to ensure correct types and field mappings
+      const standardizedEmployees = data.map(emp => standardizeEmployee(emp)) as Employee[];
+      
+      setEmployees(standardizedEmployees);
+      setFilteredEmployees(standardizedEmployees);
     } catch (err: any) {
       setError(err.message || 'An error occurred.');
     } finally {
@@ -205,7 +210,7 @@ const EmployeesPage = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Employees</h1>
-          <p className="mt-1 text-gray-600">Manage your organization’s employees</p>
+          <p className="mt-1 text-gray-600">Manage your organization's employees</p>
         </div>
         <div className="mt-4 md:mt-0 flex flex-col sm:flex-row gap-2">
           <ImportEmployeesDialog onImportSuccess={fetchEmployees} />
@@ -271,7 +276,7 @@ const EmployeesPage = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Avatar className="h-10 w-10 border">
-                        <AvatarImage src={emp.profile_picture || undefined} />
+                        <AvatarImage src={emp.profile_photo || emp.profile_picture || undefined} />
                         <AvatarFallback className="bg-hrflow-blue text-white">
                           {emp.full_name?.[0] || '?'}
                         </AvatarFallback>
@@ -283,7 +288,7 @@ const EmployeesPage = () => {
                     </div>
                   </TableCell>
                   <TableCell>{emp.department || 'N/A'}</TableCell>
-                  <TableCell>{emp.email}<br /><span className="text-sm text-muted-foreground">{emp.phone_number || 'N/A'}</span></TableCell>
+                  <TableCell>{emp.email}<br /><span className="text-sm text-muted-foreground">{emp.contact_number || emp.phone_number || 'N/A'}</span></TableCell>
                   <TableCell>{emp.employment_type || 'N/A'}<br /><span className="text-sm text-muted-foreground">{formatDate(emp.date_of_hire)}</span></TableCell>
                   <TableCell><StatusBadge status={emp.employment_status} /></TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
