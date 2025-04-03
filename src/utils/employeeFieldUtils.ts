@@ -216,6 +216,7 @@ export const standardizeEmployee = (employee: Partial<Employee>): Employee => {
   };
 };
 
+export const fullEmployeeFieldList = getFlatEmployeeFormFields();
 
 // Export all fields including flattened nested
 export const getFlatEmployeeFormFields = (): FieldMeta[] => {
