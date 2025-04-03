@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist",
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: false,
     // Ensure the production build handles chunk loading correctly
     rollupOptions: {
       external: ['@rollup/pluginutils'], // ✅ Added this line
