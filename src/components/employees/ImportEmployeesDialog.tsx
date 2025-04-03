@@ -13,7 +13,7 @@ const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
       return;
     }
 
-    console.log(`Importing ${employees.length} employees to database`);
+    console.log(Importing ${employees.length} employees to database);
 
     const safeUserId = user?.id?.trim();
     if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
@@ -52,7 +52,7 @@ const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
 
     toast({
       title: "Import Successful",
-      description: `Successfully imported ${employees.length} employees.`,
+      description: Successfully imported ${employees.length} employees.,
     });
 
     if (onImportSuccess) onImportSuccess();
@@ -72,4 +72,8 @@ const importEmployeesToDatabase = async (employees: Partial<Employee>[]) => {
     });
     setIsImporting(false);
   }
+};
+
+export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ onImportSuccess }) => {
+  ...
 };
