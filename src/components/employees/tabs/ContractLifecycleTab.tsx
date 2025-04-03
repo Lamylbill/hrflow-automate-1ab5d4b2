@@ -18,7 +18,7 @@ export const ContractLifecycleTab: React.FC<ContractLifecycleTabProps> = ({
   onToggleAdvanced
 }) => {
   const methods = useFormContext<EmployeeFormData>();
-  const contractFields = getEmployeeFieldsByCategory('contract');
+  const contractFields = getEmployeeFieldsByCategory('contract-lifecycle');
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-8">
