@@ -151,7 +151,8 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
 
           try {
             const parsed = parseEmployeeDataFromExcel(headerRow, dataRow);
-            if (parsed.employee?.full_name && parsed.employee?.email) {
+            // Fix: Change this line to check if the employee is defined and has the required fields
+            if (parsed.employee && parsed.employee.full_name && parsed.employee.email) {
               employees.push(parsed);
             }
           } catch (error) {
