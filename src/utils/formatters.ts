@@ -1,4 +1,3 @@
-
 // Add any existing formatters from the current file
 
 /**
@@ -57,15 +56,15 @@ export const stringToBoolean = (value: any): boolean | null => {
   }
   
   // Convert to string only if it's not already a string
-  const strValue = typeof value === 'string' ? value : String(value);
+  const strValue = typeof value === 'string' ? value.toLowerCase() : String(value).toLowerCase();
   
   // Check for various "true" strings
-  if (['yes', 'true', '1', 'y'].includes(strValue.toLowerCase())) {
+  if (['yes', 'true', '1', 'y', 't'].includes(strValue)) {
     return true;
   }
   
   // Check for various "false" strings
-  if (['no', 'false', '0', 'n'].includes(strValue.toLowerCase())) {
+  if (['no', 'false', '0', 'n', 'f'].includes(strValue)) {
     return false;
   }
   
@@ -156,4 +155,7 @@ export const formatFileSize = (bytes: number | null | undefined): string => {
   
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
-export const formatSalary = formatCurrency;
+
+export const formatSalary = (amount: number | string | null | undefined, currency = 'SGD'): string => {
+  return formatCurrency(amount, currency);
+};

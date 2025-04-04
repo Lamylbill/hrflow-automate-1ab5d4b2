@@ -119,38 +119,51 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       for (const employee of employees) {
         // Extract related entities that should be stored separately
         const {
-  created_at, updated_at, id,
-  ...baseEmployee
-} = employee;
+          created_at, updated_at, id,
+          ...baseEmployee
+        } = employee;
 
-        // Process the base employee data, handling boolean fields safely
-        const typedEmployee: Partial<Employee> = cleanObject({
-          ...baseEmployee,
-          user_id: safeUserId,
-          // Safely convert boolean fields
-          cpf_contribution: baseEmployee.cpf_contribution !== undefined ? stringToBoolean(baseEmployee.cpf_contribution) : undefined,
-          disciplinary_flags: baseEmployee.disciplinary_flags !== undefined ? stringToBoolean(baseEmployee.disciplinary_flags) : undefined,
-          must_clock: baseEmployee.must_clock !== undefined ? stringToBoolean(baseEmployee.must_clock) : undefined,
-          all_work_day: baseEmployee.all_work_day !== undefined ? stringToBoolean(baseEmployee.all_work_day) : undefined,
-          freeze_payment: baseEmployee.freeze_payment !== undefined ? stringToBoolean(baseEmployee.freeze_payment) : undefined,
-          paid_medical_examination_fee: baseEmployee.paid_medical_examination_fee !== undefined ? stringToBoolean(baseEmployee.paid_medical_examination_fee) : undefined,
-          new_graduate: baseEmployee.new_graduate !== undefined ? stringToBoolean(baseEmployee.new_graduate) : undefined,
-          rehire: baseEmployee.rehire !== undefined ? stringToBoolean(baseEmployee.rehire) : undefined,
-          contract_signed: baseEmployee.contract_signed !== undefined ? stringToBoolean(baseEmployee.contract_signed) : undefined,
-          thirteenth_month_entitlement: baseEmployee.thirteenth_month_entitlement !== undefined ? stringToBoolean(baseEmployee.thirteenth_month_entitlement) : undefined,
+        // Process the base employee data, carefully handling numeric/boolean fields
+        const processedEmployee: Record<string, any> = {};
+        
+        // Add all string and simple fields
+        Object.entries(baseEmployee).forEach(([key, value]) => {
+          // Skip undefined values and nested objects
+          if (value === undefined || typeof value === 'object') return;
+          
+          // Handle special cases for fields that need to be numeric in DB
+          if (['gross_salary', 'basic_salary', 'allowances', 'work_hours', 'notice_period'].includes(key)) {
+            if (typeof value === 'string' && !isNaN(Number(value))) {
+              processedEmployee[key] = Number(value);
+            } else if (typeof value === 'number') {
+              processedEmployee[key] = value;
+            }
+            // Skip if not valid number
+            return;
+          }
+          
+          // Handle booleans
+          if (['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
+                'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
+                'rehire', 'contract_signed', 'thirteenth_month_entitlement'].includes(key)) {
+            processedEmployee[key] = stringToBoolean(value);
+            return;
+          }
+          
+          // Add the value as is for other fields
+          processedEmployee[key] = value;
         });
+        
+        // Always add user_id
+        processedEmployee.user_id = safeUserId;
 
         // Insert the employee record
-        const { error, data } = await supabase.from('employees').insert(typedEmployee);
+        const { error } = await supabase
+          .from('employees')
+          .insert(processedEmployee);
         
         if (error) {
           console.error("Error inserting employee:", error);
-          
-          // Check if it's a schema-related error
-          if (error.message && error.message.includes('column') && error.message.includes('does not exist')) {
-            throw new Error(`Database schema error: ${error.message}. Please ensure your database schema is up to date.`);
-          }
-          
           throw error;
         }
       }
@@ -186,9 +199,12 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
     setImportError(null);
 
     try {
-      const employees = await processEmployeeImport(file);
-      if (employees.length === 0) throw new Error("No valid employees found (e.g. missing full_name or email)");
+      const employeeForms = await processEmployeeImport(file);
+      if (employeeForms.length === 0) throw new Error("No valid employees found (e.g. missing full_name or email)");
 
+      // Extract just the employee data from the form data
+      const employees = employeeForms.map(form => form.employee);
+      
       const { duplicates, newEmployees } = await checkForDuplicates(employees);
 
       if (duplicates.length > 0) {

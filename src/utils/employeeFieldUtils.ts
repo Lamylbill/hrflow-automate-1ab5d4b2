@@ -3,11 +3,15 @@ import { Employee, EmployeeFormData } from '@/types/employee';
 export interface FieldMeta {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'email' | 'dropdown' | 'boolean';
+  type: 'text' | 'number' | 'date' | 'email' | 'dropdown' | 'boolean' | 'textarea' | 'upload';
   category: string;
   isNested?: boolean;
   nestedType?: keyof Omit<EmployeeFormData, 'employee'>;
   example?: string | number;
+  isAdvanced?: boolean;
+  required?: boolean;
+  placeholder?: string;
+  options?: string[] | { value: string, label: string }[];
 }
 
 // Base fields from Employee
@@ -175,8 +179,8 @@ export const employeeBaseFields: FieldMeta[] = [
   // Other (for legacy or non-categorized fields)
  
   { name: 'notes', label: 'Notes', type: 'text', category: 'other', isAdvanced: false },
+];
 
-// Nested entities
 export const nestedFieldMap: Record<keyof Omit<EmployeeFormData, 'employee'>, FieldMeta[]> = {
   allowances: [
     { name: 'allowance_type', label: 'Allowance Type', type: 'text', category: 'Allowances', isNested: true, nestedType: 'allowances' },
@@ -217,7 +221,7 @@ export const standardizeEmployee = (employee: Partial<Employee>): Employee => {
 export const fullEmployeeFieldList = getFlatEmployeeFormFields();
 
 // Export all fields including flattened nested
-export const getFlatEmployeeFormFields = (): FieldMeta[] => {
+export function getFlatEmployeeFormFields(): FieldMeta[] {
   const base = employeeBaseFields;
   const nestedFlattened: FieldMeta[] = [];
 
@@ -234,8 +238,67 @@ export const getFlatEmployeeFormFields = (): FieldMeta[] => {
   });
 
   return [...base, ...nestedFlattened];
-};
+}
 
 export const getFieldMetaByName = (name: string): FieldMeta | undefined => {
   return getFlatEmployeeFormFields().find(f => f.name === name);
-}
+};
+
+export const getEmployeeFieldsByCategory = (category: string): FieldMeta[] => {
+  return employeeBaseFields.filter(field => field.category === category);
+};
+
+export const getAllCategories = (): string[] => {
+  const categories = employeeBaseFields.map(field => field.category);
+  return [...new Set(categories)]; // Remove duplicates
+};
+
+export const getFieldsByCategory = (category: string): FieldMeta[] => {
+  return employeeBaseFields.filter(field => field.category === category);
+};
+
+export const convertFieldValue = (field: FieldMeta, rawValue: any): any => {
+  if (rawValue === undefined || rawValue === null || rawValue === '') {
+    return null;
+  }
+
+  try {
+    switch (field.type) {
+      case 'number':
+        // For fields that could contain "Yes"/"No" but are numeric in database
+        if (typeof rawValue === 'string' && 
+            (rawValue.toLowerCase() === 'yes' || 
+             rawValue.toLowerCase() === 'no' || 
+             rawValue.toLowerCase() === 'true' || 
+             rawValue.toLowerCase() === 'false')) {
+          return null; // Return null to avoid numeric parsing errors
+        }
+        const num = Number(rawValue);
+        return isNaN(num) ? null : num;
+      
+      case 'boolean':
+        if (typeof rawValue === 'boolean') return rawValue;
+        if (typeof rawValue === 'string') {
+          const lower = rawValue.toLowerCase();
+          if (['yes', 'true', '1', 'y'].includes(lower)) return true;
+          if (['no', 'false', '0', 'n'].includes(lower)) return false;
+        }
+        return null;
+      
+      case 'date':
+        if (rawValue instanceof Date) return rawValue.toISOString().split('T')[0];
+        try {
+          const date = new Date(rawValue);
+          return !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : null;
+        } catch (e) {
+          return null;
+        }
+      
+      default:
+        return String(rawValue);
+    }
+  } catch (error) {
+    console.error(`Error converting field ${field.name}:`, error);
+    return null;
+  }
+};

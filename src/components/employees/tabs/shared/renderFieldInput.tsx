@@ -1,3 +1,4 @@
+
 // src/components/employees/tabs/shared/renderFieldInput.tsx
 import React from 'react';
 import { Controller, UseFormReturn } from 'react-hook-form';
@@ -13,17 +14,25 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { FieldMeta } from '@/utils/employeeFieldUtils';
 
 interface RenderFieldInputProps {
-  field: any;
+  field: FieldMeta;
   methods: UseFormReturn<EmployeeFormData>;
   isViewOnly?: boolean;
 }
 
 export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderFieldInputProps) => {
   const { control, register, formState: { errors } } = methods;
-  const fieldName = `employee.${field.name}`;
-  const error = errors?.employee?.[field.name];
+  const fieldName = `employee.${field.name}` as const;
+  const error = errors?.employee?.[field.name as keyof typeof errors.employee];
+
+  // Helper function to safely check if a date is valid
+  const isValidDate = (date: any): boolean => {
+    if (!date) return false;
+    const d = new Date(date);
+    return !isNaN(d.getTime());
+  };
 
   const renderInput = () => {
     switch (field.type) {
@@ -36,7 +45,7 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
             type={field.type}
             placeholder={field.placeholder}
             disabled={isViewOnly}
-            {...register(fieldName as any)}
+            {...register(fieldName)}
           />
         );
 
@@ -46,11 +55,11 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
             id={field.name}
             placeholder={field.placeholder}
             disabled={isViewOnly}
-            {...register(fieldName as any)}
+            {...register(fieldName)}
           />
         );
 
-      case 'select':
+      case 'dropdown':
         return (
           <Controller
             name={fieldName}
@@ -59,15 +68,16 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
               <Select
                 disabled={isViewOnly}
                 onValueChange={controllerField.onChange}
-                value={controllerField.value || ''}
+                value={String(controllerField.value || '')}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent>
                   {(field.options || []).map((opt: any) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
+                    <SelectItem key={typeof opt === 'object' ? opt.value : opt} 
+                                value={typeof opt === 'object' ? opt.value : opt}>
+                      {typeof opt === 'object' ? opt.label : opt}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -108,16 +118,17 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
                     disabled={isViewOnly}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {controllerField.value && !isNaN(new Date(controllerField.value as any).getTime())
-                      ? format(new Date(controllerField.value as any), 'PPP')
+                    {controllerField.value && isValidDate(controllerField.value)
+                      ? format(new Date(controllerField.value as string), 'PPP')
                       : <span>Pick a date</span>}
-
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={controllerField.value ? new Date(controllerField.value) : undefined}
+                    selected={controllerField.value && isValidDate(controllerField.value) 
+                      ? new Date(controllerField.value as string) 
+                      : undefined}
                     onSelect={(date) =>
                       controllerField.onChange(date ? format(date, 'yyyy-MM-dd') : undefined)
                     }
@@ -135,7 +146,7 @@ export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderF
             id={field.name}
             placeholder={field.placeholder}
             disabled={isViewOnly}
-            {...register(fieldName as any)}
+            {...register(fieldName)}
           />
         );
     }

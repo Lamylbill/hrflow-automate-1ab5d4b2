@@ -10,11 +10,9 @@ import {
 } from '@/types/employee';
 import {
   fullEmployeeFieldList,
-  getAllCategories,
-  getFieldsByCategory,
-  convertFieldValue,
-  standardizeEmployee
+  getFieldMetaByName
 } from './employeeFieldUtils';
+import { stringToBoolean } from './formatters';
 
 export const exportEmployeesToExcel = (employees: Employee[]) => {
   // Unchanged logic
@@ -22,6 +20,54 @@ export const exportEmployeesToExcel = (employees: Employee[]) => {
 
 export const generateEmployeeTemplate = () => {
   // Unchanged logic
+};
+
+export const convertFieldValue = (field: any, rawValue: any): any => {
+  if (rawValue === undefined || rawValue === null || rawValue === '') {
+    return null;
+  }
+
+  try {
+    switch (field.type) {
+      case 'number':
+        // For fields that could contain "Yes"/"No" but are numeric in database
+        if (typeof rawValue === 'string' && 
+            (rawValue.toLowerCase() === 'yes' || 
+             rawValue.toLowerCase() === 'no' || 
+             rawValue.toLowerCase() === 'true' || 
+             rawValue.toLowerCase() === 'false')) {
+          return null; // Return null to avoid numeric parsing errors
+        }
+        const num = Number(rawValue);
+        return isNaN(num) ? null : num;
+      
+      case 'boolean':
+        return stringToBoolean(rawValue);
+      
+      case 'date':
+        if (rawValue instanceof Date) return rawValue.toISOString().split('T')[0];
+        // Excel dates can be numbers - check if it's a number and convert
+        if (typeof rawValue === 'number') {
+          const excelDate = new Date(Math.floor((rawValue - 25569) * 86400 * 1000));
+          return excelDate.toISOString().split('T')[0];
+        }
+        try {
+          const date = new Date(rawValue);
+          return !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : null;
+        } catch (e) {
+          return null;
+        }
+      
+      case 'dropdown':
+        return String(rawValue);
+      
+      default:
+        return String(rawValue);
+    }
+  } catch (error) {
+    console.error(`Error converting value ${rawValue} for field ${field.name}:`, error);
+    return null;
+  }
 };
 
 export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Partial<EmployeeFormData> => {
@@ -36,7 +82,8 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
       const rawValue = dataRow[index];
       if (rawValue !== undefined && rawValue !== null && rawValue !== '') {
         try {
-          const convertedValue = convertFieldValue(field, rawValue);
+          const fieldMeta = getFieldMetaByName(field.name);
+          const convertedValue = convertFieldValue(fieldMeta || field, rawValue);
           if (convertedValue !== null) {
             (employee as any)[field.name] = convertedValue;
           }
@@ -47,7 +94,7 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
     }
   });
 
-  return { employee: standardizeEmployee(employee) };
+  return { employee };
 };
 
 export const processEmployeeImport = async (file: File): Promise<EmployeeFormData[]> => {

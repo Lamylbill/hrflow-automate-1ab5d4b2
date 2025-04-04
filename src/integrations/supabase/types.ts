@@ -281,53 +281,60 @@ export type Database = {
       }
       employees: {
         Row: {
-          address_line_1: string | null
           address_line_2: string | null
           address_type: string | null
-          alias_name: string | null
           all_work_day: boolean | null
           allocation_account: string | null
           allocation_amount: number | null
           allocation_run: string | null
           allocation_type: string | null
+          allowances: number | null
+          annual_bonus_eligible: number | null
           assignment_date_start: string | null
           attendance_calendar: string | null
           badge_no: string | null
+          bank_account: string | null
           bank_account_number: string | null
-          bank_branch: string | null
           bank_currency: string | null
           bank_name: string | null
+          basic_salary: string | null
           beneficiary_name: string | null
           benefits_enrolled: string[] | null
-          birth_place: string | null
+          benefits_tier: string | null
+          bonus_eligible: string | null
           city: string | null
           clock_area_codes: string[] | null
           clock_codes: string[] | null
           company: string | null
-          confirmed_date: string | null
+          confirmation_date: string | null
+          contact_number: string | null
           contract_adjustment: number | null
-          contract_date_end: string | null
           contract_date_start: string | null
+          contract_end: string | null
           contract_nature: string | null
           contract_signed: boolean | null
+          contract_start: string | null
           contract_type: string | null
           cost_center: string | null
           country_region: string | null
+          cpf_account: string | null
           cpf_account_number: string | null
           cpf_contribution: boolean | null
+          cpf_status: string | null
+          cpf_submission_number: string | null
           created_at: string
           date_of_birth: string | null
           date_of_exit: string | null
           date_of_hire: string | null
           department: string | null
+          disciplinary_flags: boolean | null
           email: string
-          emergency_contact_name: string | null
-          emergency_contact_phone: string | null
           emergency_relationship: string | null
           employee_code: string | null
+          employment_info_open_2: string | null
+          employment_info_open_3: string | null
           employment_status: string | null
           employment_type: string | null
-          ethnic_origin: string | null
           exit_interview_date: string | null
           exit_reason: string | null
           extension_no: string | null
@@ -336,29 +343,31 @@ export type Database = {
           full_name: string
           funds: string | null
           gender: string | null
+          gross_salary: number | null
           group_hospital_surgical_plan: string | null
           group_personal_accident_plan: string | null
-          home_address: string | null
+          has_dependants: string | null
           hr_rpt_division_category: string | null
           hr_rpt_job_category: string | null
           id: string
           identity_no: string | null
           imei_uuid_no: string | null
           initial_join_date: string | null
+          ir8a_required: string | null
           job_grade: string | null
           job_title: string | null
           join_date_for_leave: string | null
           last_name: string | null
           last_performance_review: string | null
           last_working_date: string | null
+          last_working_day: string | null
           leave_balance: number | null
+          leave_category: string | null
           leave_entitlement: number | null
           leave_grade: string | null
           local_name: string | null
-          login_id: string | null
           manager: string | null
           marital_status: string | null
-          marriage_date: string | null
           medical_entitlement: number | null
           membership_no: string | null
           middle_name: string | null
@@ -369,9 +378,9 @@ export type Database = {
           mom_bc_occupation_group: string | null
           mom_employee_type: string | null
           mom_occupation_group: string | null
+          mom_status: string | null
           mso_scheme: string | null
           must_clock: boolean | null
-          mvc: number | null
           mvc_percentage: number | null
           nationality: string | null
           new_graduate: boolean | null
@@ -380,7 +389,10 @@ export type Database = {
           no_of_contracts_total: number | null
           notes: string | null
           notice_period: number | null
+          nric: string | null
           ns_group: string | null
+          ns_status: string | null
+          ot_eligible: string | null
           ot_group: string | null
           other_medical_benefit: string | null
           outpatient_medical_plan: string | null
@@ -389,9 +401,10 @@ export type Database = {
           paid_medical_examination_fee: boolean | null
           pay_group: string | null
           pay_mode: string | null
-          pay_type: string | null
+          payroll_cycle: string | null
           performance_score: number | null
           personal_email: string | null
+          personal_info_open_1: string | null
           personal_mobile_no: string | null
           phone_number: string | null
           postal_code: string | null
@@ -400,18 +413,21 @@ export type Database = {
           previous_employee_code: string | null
           previous_work_experience: number | null
           probation_due: string | null
+          probation_end: string | null
           probation_period: number | null
           probation_period_type: string | null
-          probation_status: string | null
+          profile_photo: string | null
           profile_picture: string | null
           qualification: string | null
+          race: string | null
           recruitment_type: string | null
           rehire: boolean | null
+          rehire_eligibility: string | null
           religion: string | null
           renewal: string | null
           reporting_manager: string | null
           residency_status: string | null
-          resignation_tender_date: string | null
+          resignation_date: string | null
           rest_day_per_week: string | null
           retire_age: number | null
           salary: number | null
@@ -421,18 +437,20 @@ export type Database = {
           salary_fixed: number | null
           salary_grade: string | null
           salary_gross: number | null
-          salary_status_change_reason: string | null
           service_length_adjustment: number | null
           service_length_total: number | null
           shorted_period: number | null
           shorted_period_type: string | null
           skill_set: string[] | null
+          skillsfuture_eligible: string | null
           status_change_reason: string | null
           statutory_date_end: string | null
           statutory_date_start: string | null
+          supervisor: string | null
+          tax_file_no: string | null
           tax_identification_number: string | null
+          tax_residency: string | null
           telephone_no: string | null
-          termination_notice_period: number | null
           thirteenth_month_entitlement: boolean | null
           title: string | null
           union_membership: string | null
@@ -443,59 +461,70 @@ export type Database = {
           work_days_per_week: number | null
           work_days_per_year: number | null
           work_experience_to_date: number | null
+          work_hours: number | null
           work_hours_per_day: number | null
           work_hours_per_year: number | null
+          work_pass_expiry: string | null
           work_pass_expiry_date: string | null
+          work_pass_number: string | null
+          work_pass_type: string | null
           work_permit_number: string | null
         }
         Insert: {
-          address_line_1?: string | null
           address_line_2?: string | null
           address_type?: string | null
-          alias_name?: string | null
           all_work_day?: boolean | null
           allocation_account?: string | null
           allocation_amount?: number | null
           allocation_run?: string | null
           allocation_type?: string | null
+          allowances?: number | null
+          annual_bonus_eligible?: number | null
           assignment_date_start?: string | null
           attendance_calendar?: string | null
           badge_no?: string | null
+          bank_account?: string | null
           bank_account_number?: string | null
-          bank_branch?: string | null
           bank_currency?: string | null
           bank_name?: string | null
+          basic_salary?: string | null
           beneficiary_name?: string | null
           benefits_enrolled?: string[] | null
-          birth_place?: string | null
+          benefits_tier?: string | null
+          bonus_eligible?: string | null
           city?: string | null
           clock_area_codes?: string[] | null
           clock_codes?: string[] | null
           company?: string | null
-          confirmed_date?: string | null
+          confirmation_date?: string | null
+          contact_number?: string | null
           contract_adjustment?: number | null
-          contract_date_end?: string | null
           contract_date_start?: string | null
+          contract_end?: string | null
           contract_nature?: string | null
           contract_signed?: boolean | null
+          contract_start?: string | null
           contract_type?: string | null
           cost_center?: string | null
           country_region?: string | null
+          cpf_account?: string | null
           cpf_account_number?: string | null
           cpf_contribution?: boolean | null
+          cpf_status?: string | null
+          cpf_submission_number?: string | null
           created_at?: string
           date_of_birth?: string | null
           date_of_exit?: string | null
           date_of_hire?: string | null
           department?: string | null
+          disciplinary_flags?: boolean | null
           email: string
-          emergency_contact_name?: string | null
-          emergency_contact_phone?: string | null
           emergency_relationship?: string | null
           employee_code?: string | null
+          employment_info_open_2?: string | null
+          employment_info_open_3?: string | null
           employment_status?: string | null
           employment_type?: string | null
-          ethnic_origin?: string | null
           exit_interview_date?: string | null
           exit_reason?: string | null
           extension_no?: string | null
@@ -504,29 +533,31 @@ export type Database = {
           full_name: string
           funds?: string | null
           gender?: string | null
+          gross_salary?: number | null
           group_hospital_surgical_plan?: string | null
           group_personal_accident_plan?: string | null
-          home_address?: string | null
+          has_dependants?: string | null
           hr_rpt_division_category?: string | null
           hr_rpt_job_category?: string | null
           id?: string
           identity_no?: string | null
           imei_uuid_no?: string | null
           initial_join_date?: string | null
+          ir8a_required?: string | null
           job_grade?: string | null
           job_title?: string | null
           join_date_for_leave?: string | null
           last_name?: string | null
           last_performance_review?: string | null
           last_working_date?: string | null
+          last_working_day?: string | null
           leave_balance?: number | null
+          leave_category?: string | null
           leave_entitlement?: number | null
           leave_grade?: string | null
           local_name?: string | null
-          login_id?: string | null
           manager?: string | null
           marital_status?: string | null
-          marriage_date?: string | null
           medical_entitlement?: number | null
           membership_no?: string | null
           middle_name?: string | null
@@ -537,9 +568,9 @@ export type Database = {
           mom_bc_occupation_group?: string | null
           mom_employee_type?: string | null
           mom_occupation_group?: string | null
+          mom_status?: string | null
           mso_scheme?: string | null
           must_clock?: boolean | null
-          mvc?: number | null
           mvc_percentage?: number | null
           nationality?: string | null
           new_graduate?: boolean | null
@@ -548,7 +579,10 @@ export type Database = {
           no_of_contracts_total?: number | null
           notes?: string | null
           notice_period?: number | null
+          nric?: string | null
           ns_group?: string | null
+          ns_status?: string | null
+          ot_eligible?: string | null
           ot_group?: string | null
           other_medical_benefit?: string | null
           outpatient_medical_plan?: string | null
@@ -557,9 +591,10 @@ export type Database = {
           paid_medical_examination_fee?: boolean | null
           pay_group?: string | null
           pay_mode?: string | null
-          pay_type?: string | null
+          payroll_cycle?: string | null
           performance_score?: number | null
           personal_email?: string | null
+          personal_info_open_1?: string | null
           personal_mobile_no?: string | null
           phone_number?: string | null
           postal_code?: string | null
@@ -568,18 +603,21 @@ export type Database = {
           previous_employee_code?: string | null
           previous_work_experience?: number | null
           probation_due?: string | null
+          probation_end?: string | null
           probation_period?: number | null
           probation_period_type?: string | null
-          probation_status?: string | null
+          profile_photo?: string | null
           profile_picture?: string | null
           qualification?: string | null
+          race?: string | null
           recruitment_type?: string | null
           rehire?: boolean | null
+          rehire_eligibility?: string | null
           religion?: string | null
           renewal?: string | null
           reporting_manager?: string | null
           residency_status?: string | null
-          resignation_tender_date?: string | null
+          resignation_date?: string | null
           rest_day_per_week?: string | null
           retire_age?: number | null
           salary?: number | null
@@ -589,18 +627,20 @@ export type Database = {
           salary_fixed?: number | null
           salary_grade?: string | null
           salary_gross?: number | null
-          salary_status_change_reason?: string | null
           service_length_adjustment?: number | null
           service_length_total?: number | null
           shorted_period?: number | null
           shorted_period_type?: string | null
           skill_set?: string[] | null
+          skillsfuture_eligible?: string | null
           status_change_reason?: string | null
           statutory_date_end?: string | null
           statutory_date_start?: string | null
+          supervisor?: string | null
+          tax_file_no?: string | null
           tax_identification_number?: string | null
+          tax_residency?: string | null
           telephone_no?: string | null
-          termination_notice_period?: number | null
           thirteenth_month_entitlement?: boolean | null
           title?: string | null
           union_membership?: string | null
@@ -611,59 +651,70 @@ export type Database = {
           work_days_per_week?: number | null
           work_days_per_year?: number | null
           work_experience_to_date?: number | null
+          work_hours?: number | null
           work_hours_per_day?: number | null
           work_hours_per_year?: number | null
+          work_pass_expiry?: string | null
           work_pass_expiry_date?: string | null
+          work_pass_number?: string | null
+          work_pass_type?: string | null
           work_permit_number?: string | null
         }
         Update: {
-          address_line_1?: string | null
           address_line_2?: string | null
           address_type?: string | null
-          alias_name?: string | null
           all_work_day?: boolean | null
           allocation_account?: string | null
           allocation_amount?: number | null
           allocation_run?: string | null
           allocation_type?: string | null
+          allowances?: number | null
+          annual_bonus_eligible?: number | null
           assignment_date_start?: string | null
           attendance_calendar?: string | null
           badge_no?: string | null
+          bank_account?: string | null
           bank_account_number?: string | null
-          bank_branch?: string | null
           bank_currency?: string | null
           bank_name?: string | null
+          basic_salary?: string | null
           beneficiary_name?: string | null
           benefits_enrolled?: string[] | null
-          birth_place?: string | null
+          benefits_tier?: string | null
+          bonus_eligible?: string | null
           city?: string | null
           clock_area_codes?: string[] | null
           clock_codes?: string[] | null
           company?: string | null
-          confirmed_date?: string | null
+          confirmation_date?: string | null
+          contact_number?: string | null
           contract_adjustment?: number | null
-          contract_date_end?: string | null
           contract_date_start?: string | null
+          contract_end?: string | null
           contract_nature?: string | null
           contract_signed?: boolean | null
+          contract_start?: string | null
           contract_type?: string | null
           cost_center?: string | null
           country_region?: string | null
+          cpf_account?: string | null
           cpf_account_number?: string | null
           cpf_contribution?: boolean | null
+          cpf_status?: string | null
+          cpf_submission_number?: string | null
           created_at?: string
           date_of_birth?: string | null
           date_of_exit?: string | null
           date_of_hire?: string | null
           department?: string | null
+          disciplinary_flags?: boolean | null
           email?: string
-          emergency_contact_name?: string | null
-          emergency_contact_phone?: string | null
           emergency_relationship?: string | null
           employee_code?: string | null
+          employment_info_open_2?: string | null
+          employment_info_open_3?: string | null
           employment_status?: string | null
           employment_type?: string | null
-          ethnic_origin?: string | null
           exit_interview_date?: string | null
           exit_reason?: string | null
           extension_no?: string | null
@@ -672,29 +723,31 @@ export type Database = {
           full_name?: string
           funds?: string | null
           gender?: string | null
+          gross_salary?: number | null
           group_hospital_surgical_plan?: string | null
           group_personal_accident_plan?: string | null
-          home_address?: string | null
+          has_dependants?: string | null
           hr_rpt_division_category?: string | null
           hr_rpt_job_category?: string | null
           id?: string
           identity_no?: string | null
           imei_uuid_no?: string | null
           initial_join_date?: string | null
+          ir8a_required?: string | null
           job_grade?: string | null
           job_title?: string | null
           join_date_for_leave?: string | null
           last_name?: string | null
           last_performance_review?: string | null
           last_working_date?: string | null
+          last_working_day?: string | null
           leave_balance?: number | null
+          leave_category?: string | null
           leave_entitlement?: number | null
           leave_grade?: string | null
           local_name?: string | null
-          login_id?: string | null
           manager?: string | null
           marital_status?: string | null
-          marriage_date?: string | null
           medical_entitlement?: number | null
           membership_no?: string | null
           middle_name?: string | null
@@ -705,9 +758,9 @@ export type Database = {
           mom_bc_occupation_group?: string | null
           mom_employee_type?: string | null
           mom_occupation_group?: string | null
+          mom_status?: string | null
           mso_scheme?: string | null
           must_clock?: boolean | null
-          mvc?: number | null
           mvc_percentage?: number | null
           nationality?: string | null
           new_graduate?: boolean | null
@@ -716,7 +769,10 @@ export type Database = {
           no_of_contracts_total?: number | null
           notes?: string | null
           notice_period?: number | null
+          nric?: string | null
           ns_group?: string | null
+          ns_status?: string | null
+          ot_eligible?: string | null
           ot_group?: string | null
           other_medical_benefit?: string | null
           outpatient_medical_plan?: string | null
@@ -725,9 +781,10 @@ export type Database = {
           paid_medical_examination_fee?: boolean | null
           pay_group?: string | null
           pay_mode?: string | null
-          pay_type?: string | null
+          payroll_cycle?: string | null
           performance_score?: number | null
           personal_email?: string | null
+          personal_info_open_1?: string | null
           personal_mobile_no?: string | null
           phone_number?: string | null
           postal_code?: string | null
@@ -736,18 +793,21 @@ export type Database = {
           previous_employee_code?: string | null
           previous_work_experience?: number | null
           probation_due?: string | null
+          probation_end?: string | null
           probation_period?: number | null
           probation_period_type?: string | null
-          probation_status?: string | null
+          profile_photo?: string | null
           profile_picture?: string | null
           qualification?: string | null
+          race?: string | null
           recruitment_type?: string | null
           rehire?: boolean | null
+          rehire_eligibility?: string | null
           religion?: string | null
           renewal?: string | null
           reporting_manager?: string | null
           residency_status?: string | null
-          resignation_tender_date?: string | null
+          resignation_date?: string | null
           rest_day_per_week?: string | null
           retire_age?: number | null
           salary?: number | null
@@ -757,18 +817,20 @@ export type Database = {
           salary_fixed?: number | null
           salary_grade?: string | null
           salary_gross?: number | null
-          salary_status_change_reason?: string | null
           service_length_adjustment?: number | null
           service_length_total?: number | null
           shorted_period?: number | null
           shorted_period_type?: string | null
           skill_set?: string[] | null
+          skillsfuture_eligible?: string | null
           status_change_reason?: string | null
           statutory_date_end?: string | null
           statutory_date_start?: string | null
+          supervisor?: string | null
+          tax_file_no?: string | null
           tax_identification_number?: string | null
+          tax_residency?: string | null
           telephone_no?: string | null
-          termination_notice_period?: number | null
           thirteenth_month_entitlement?: boolean | null
           title?: string | null
           union_membership?: string | null
@@ -779,9 +841,13 @@ export type Database = {
           work_days_per_week?: number | null
           work_days_per_year?: number | null
           work_experience_to_date?: number | null
+          work_hours?: number | null
           work_hours_per_day?: number | null
           work_hours_per_year?: number | null
+          work_pass_expiry?: string | null
           work_pass_expiry_date?: string | null
+          work_pass_number?: string | null
+          work_pass_type?: string | null
           work_permit_number?: string | null
         }
         Relationships: [

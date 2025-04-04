@@ -1,12 +1,14 @@
+
 // src/components/employees/tabs/shared/renderFieldGroups.tsx
 import React from 'react';
-import { Control, FieldValues, UseFormReturn } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 import { renderFieldInput } from '@/components/employees/tabs/shared/renderFieldInput';
-import { EmployeeFieldDefinition } from '@/types/employee';
+import { EmployeeFormData } from '@/types/employee';
+import { FieldMeta } from '@/utils/employeeFieldUtils';
 
 export const renderFieldGroups = (
-  methods: UseFormReturn<FieldValues>,
-  fields: EmployeeFieldDefinition[],
+  methods: UseFormReturn<EmployeeFormData>,
+  fields: FieldMeta[],
   isViewOnly: boolean,
   showAdvancedFields: boolean
 ) => {
