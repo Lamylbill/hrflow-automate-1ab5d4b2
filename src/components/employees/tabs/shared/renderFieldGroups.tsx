@@ -12,29 +12,42 @@ export const renderFieldGroups = (
   isViewOnly: boolean,
   showAdvancedFields: boolean
 ) => {
-  console.log('🔍 Raw fields passed to renderFieldGroups:', fields);
+  if (!fields || !Array.isArray(fields)) {
+    console.error('❌ Invalid or missing fields array passed to renderFieldGroups:', fields);
+    return null;
+  }
 
-  const basicFields = fields.filter(f => !f.isAdvanced);
-  const advancedFields = fields.filter(f => f.isAdvanced);
+  try {
+    const basicFields = fields.filter(f => !f.isAdvanced);
+    const advancedFields = fields.filter(f => f.isAdvanced);
 
-  console.log('📌 Basic Fields:', basicFields);
-  console.log('📌 Advanced Fields:', advancedFields);
-
-  return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {basicFields.map((field) =>
-          renderFieldInput({ field, methods, isViewOnly })
-        )}
-      </div>
-
-      {showAdvancedFields && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
-          {advancedFields.map((field) =>
-            renderFieldInput({ field, methods, isViewOnly })
-          )}
+    return (
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {basicFields.map((field, index) => (
+            <React.Fragment key={`${field.name}-${index}`}>
+              {renderFieldInput({ field, methods, isViewOnly })}
+            </React.Fragment>
+          ))}
         </div>
-      )}
-    </>
-  );
+
+        {showAdvancedFields && advancedFields.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
+            {advancedFields.map((field, index) => (
+              <React.Fragment key={`${field.name}-${index}`}>
+                {renderFieldInput({ field, methods, isViewOnly })}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  } catch (error) {
+    console.error('❌ Error rendering field groups:', error);
+    return (
+      <div className="p-4 bg-red-50 text-red-600 rounded-md">
+        An error occurred while rendering form fields. Please check the console for details.
+      </div>
+    );
+  }
 };

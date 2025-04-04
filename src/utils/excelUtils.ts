@@ -1,3 +1,4 @@
+
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import {
@@ -97,7 +98,7 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
   return { employee };
 };
 
-export const processEmployeeImport = async (file: File): Promise<EmployeeFormData[]> => {
+export const processEmployeeImport = async (file: File): Promise<Partial<EmployeeFormData>[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -112,7 +113,7 @@ export const processEmployeeImport = async (file: File): Promise<EmployeeFormDat
         }
 
         const headerRow = jsonData[0];
-        const employees: EmployeeFormData[] = [];
+        const employees: Partial<EmployeeFormData>[] = [];
 
         for (let i = 1; i < jsonData.length; i++) {
           const dataRow = jsonData[i];
@@ -122,7 +123,7 @@ export const processEmployeeImport = async (file: File): Promise<EmployeeFormDat
 
           try {
             const parsed = parseEmployeeDataFromExcel(headerRow, dataRow);
-            if (parsed.employee.full_name && parsed.employee.email) {
+            if (parsed.employee?.full_name && parsed.employee?.email) {
               employees.push(parsed);
             }
           } catch (error) {

@@ -1,58 +1,79 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
+import { EmployeeFormData } from '@/types/employee';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { Button } from '@/components/ui/button';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { 
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Check, ChevronsUpDown, Plus, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { EmployeeFormData } from '@/types/employee';
-import { skillOptions, nsStatusOptions, vaccinationStatusOptions } from '../data/employeeOptions';
+
+interface OptionType {
+  value: string;
+  label: string;
+}
 
 interface OthersTabProps {
   isViewOnly?: boolean;
 }
 
 export const OthersTab: React.FC<OthersTabProps> = ({ isViewOnly = false }) => {
-  const { control, register, formState: { errors } } = useFormContext<EmployeeFormData>();
-
+  const { control, register, watch, setValue } = useFormContext<EmployeeFormData>();
+  const [newSkill, setNewSkill] = useState('');
+  
+  const skillOptions: OptionType[] = [
+    { value: 'React', label: 'React' },
+    { value: 'Angular', label: 'Angular' },
+    { value: 'Vue', label: 'Vue' },
+    { value: 'Node.js', label: 'Node.js' },
+    { value: 'Python', label: 'Python' },
+    { value: 'Java', label: 'Java' },
+    { value: 'Project Management', label: 'Project Management' },
+    { value: 'Leadership', label: 'Leadership' },
+    { value: 'Communication', label: 'Communication' },
+    { value: 'Teamwork', label: 'Teamwork' },
+  ];
+  
+  const addSkill = () => {
+    if (!newSkill.trim()) return;
+    
+    const currentSkills: string[] = watch('employee.skill_set') || [];
+    if (!currentSkills.includes(newSkill)) {
+      setValue('employee.skill_set', [...currentSkills, newSkill]);
+    }
+    setNewSkill('');
+  };
+  
+  const removeSkill = (skill: string) => {
+    const currentSkills: string[] = watch('employee.skill_set') || [];
+    setValue('employee.skill_set', currentSkills.filter(s => s !== skill));
+  };
+  
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Personal Attributes */}
-        <div className="col-span-full">
-          <h3 className="text-lg font-semibold mb-4">Personal Attributes</h3>
-        </div>
-        
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label className="font-bold" htmlFor="qualificationField">Qualification</Label>
-          <Input 
-            id="qualificationField"
-            {...register('employee.qualification')} 
-            disabled={isViewOnly}
-          />
-        </div>
-        
-        <div>
-          <Label className="font-bold" htmlFor="skillSet">Skill Set</Label>
-          <Controller
-            name="employee.skill_set"
-            control={control}
-            render={({ field }) => (
-              <MultiSelect
-                options={skillOptions}
-                selected={field.value || []}
-                onChange={(selected) => field.onChange(selected)}
-                disabled={isViewOnly}
-                placeholder="Select skills..."
-              />
-            )}
-          />
-        </div>
-        
-        <div>
-          <Label className="font-bold" htmlFor="nsGroup">NS Status</Label>
+          <Label htmlFor="ns_group" className="font-bold">NS Group</Label>
           <Controller
             name="employee.ns_group"
             control={control}
@@ -60,29 +81,24 @@ export const OthersTab: React.FC<OthersTabProps> = ({ isViewOnly = false }) => {
               <Select
                 disabled={isViewOnly}
                 onValueChange={field.onChange}
-                value={field.value || undefined}
+                value={field.value || ''}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select NS status" />
+                  <SelectValue placeholder="Select NS Group" />
                 </SelectTrigger>
                 <SelectContent>
-                  {nsStatusOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="A">Group A</SelectItem>
+                  <SelectItem value="B">Group B</SelectItem>
+                  <SelectItem value="C">Group C</SelectItem>
+                  <SelectItem value="None">None</SelectItem>
                 </SelectContent>
               </Select>
             )}
           />
         </div>
         
-        <div className="col-span-full">
-          <h3 className="text-lg font-semibold mb-4 mt-4">Health & Medical</h3>
-        </div>
-        
         <div>
-          <Label className="font-bold" htmlFor="vaccinationStatus">Vaccination Status</Label>
+          <Label htmlFor="vaccination_status" className="font-bold">Vaccination Status</Label>
           <Controller
             name="employee.vaccination_status"
             control={control}
@@ -90,17 +106,16 @@ export const OthersTab: React.FC<OthersTabProps> = ({ isViewOnly = false }) => {
               <Select
                 disabled={isViewOnly}
                 onValueChange={field.onChange}
-                value={field.value || undefined}
+                value={field.value || ''}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select vaccination status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {vaccinationStatusOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="Fully Vaccinated">Fully Vaccinated</SelectItem>
+                  <SelectItem value="Partially Vaccinated">Partially Vaccinated</SelectItem>
+                  <SelectItem value="Not Vaccinated">Not Vaccinated</SelectItem>
+                  <SelectItem value="Medically Exempted">Medically Exempted</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -108,75 +123,80 @@ export const OthersTab: React.FC<OthersTabProps> = ({ isViewOnly = false }) => {
         </div>
         
         <div>
-          <Label className="font-bold" htmlFor="medicalEntitlement">Medical Entitlement</Label>
-          <Input 
-            id="medicalEntitlement"
-            type="number"
-            step="0.01"
-            {...register('employee.medical_entitlement', { valueAsNumber: true })} 
+          <Label htmlFor="group_hospital_surgical_plan" className="font-bold">Group Hospital & Surgical Plan</Label>
+          <Input
+            id="group_hospital_surgical_plan"
             disabled={isViewOnly}
+            {...register('employee.group_hospital_surgical_plan')}
           />
         </div>
         
         <div>
-          <Label className="font-bold" htmlFor="outpatientMedicalPlan">Outpatient Medical Plan</Label>
-          <Input 
-            id="outpatientMedicalPlan"
-            {...register('employee.outpatient_medical_plan')} 
+          <Label htmlFor="group_personal_accident_plan" className="font-bold">Group Personal Accident Plan</Label>
+          <Input
+            id="group_personal_accident_plan"
             disabled={isViewOnly}
+            {...register('employee.group_personal_accident_plan')}
           />
         </div>
         
         <div>
-          <Label className="font-bold" htmlFor="groupHospitalSurgicalPlan">Group Hospital & Surgical Plan</Label>
-          <Input 
-            id="groupHospitalSurgicalPlan"
-            {...register('employee.group_hospital_surgical_plan')} 
+          <Label htmlFor="outpatient_medical_plan" className="font-bold">Outpatient Medical Plan</Label>
+          <Input
+            id="outpatient_medical_plan"
             disabled={isViewOnly}
+            {...register('employee.outpatient_medical_plan')}
           />
         </div>
         
-        <div>
-          <Label className="font-bold" htmlFor="groupPersonalAccidentPlan">Group Personal Accident Plan</Label>
-          <Input 
-            id="groupPersonalAccidentPlan"
-            {...register('employee.group_personal_accident_plan')} 
-            disabled={isViewOnly}
-          />
+        <div className="md:col-span-2">
+          <Label className="font-bold">Skills</Label>
+          <div className="flex gap-2 mb-2">
+            <Input
+              placeholder="Add new skill"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              disabled={isViewOnly}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+            />
+            <Button 
+              type="button" 
+              onClick={addSkill}
+              disabled={isViewOnly}
+              variant="outline"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mt-2">
+            {(watch('employee.skill_set') || []).map(skill => (
+              <div 
+                key={skill} 
+                className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm flex items-center"
+              >
+                {skill}
+                {!isViewOnly && (
+                  <button 
+                    type="button" 
+                    onClick={() => removeSkill(skill)}
+                    className="ml-1 text-primary hover:text-primary/80"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
         
-        <div>
-          <Label className="font-bold" htmlFor="otherMedicalBenefit">Other Medical Benefits</Label>
-          <Input 
-            id="otherMedicalBenefit"
-            {...register('employee.other_medical_benefit')} 
-            disabled={isViewOnly}
-          />
-        </div>
-        
-        <div className="flex items-center space-x-2 pt-6">
-          <Controller
-            name="employee.thirteenth_month_entitlement"
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                id="thirteenthMonthEntitlement"
-                checked={field.value || false}
-                onCheckedChange={field.onChange}
-                disabled={isViewOnly}
-              />
-            )}
-          />
-          <Label className="font-bold" htmlFor="thirteenthMonthEntitlement">13th Month Entitlement</Label>
-        </div>
-        
-        <div className="col-span-full mt-4">
-          <Label className="font-bold" htmlFor="notes">Notes</Label>
-          <Textarea 
+        <div className="md:col-span-2">
+          <Label htmlFor="notes" className="font-bold">Notes</Label>
+          <Textarea
             id="notes"
-            className="min-h-[120px]"
-            {...register('employee.notes')} 
             disabled={isViewOnly}
+            {...register('employee.notes')}
+            rows={4}
           />
         </div>
       </div>

@@ -1,3 +1,4 @@
+
 // Add any existing formatters from the current file
 
 /**
@@ -55,17 +56,24 @@ export const stringToBoolean = (value: any): boolean | null => {
     return value;
   }
   
-  // Convert to string only if it's not already a string
-  const strValue = typeof value === 'string' ? value.toLowerCase() : String(value).toLowerCase();
-  
-  // Check for various "true" strings
-  if (['yes', 'true', '1', 'y', 't'].includes(strValue)) {
-    return true;
+  // Normalize strings that are "true" or "false" (case insensitive)
+  if (typeof value === 'string') {
+    const strValue = value.toLowerCase();
+    
+    // Check for various "true" strings
+    if (['yes', 'true', '1', 'y', 't'].includes(strValue)) {
+      return true;
+    }
+    
+    // Check for various "false" strings
+    if (['no', 'false', '0', 'n', 'f'].includes(strValue)) {
+      return false;
+    }
   }
   
-  // Check for various "false" strings
-  if (['no', 'false', '0', 'n', 'f'].includes(strValue)) {
-    return false;
+  // Handle numeric values
+  if (typeof value === 'number') {
+    return value !== 0;
   }
   
   // Return null for any other values

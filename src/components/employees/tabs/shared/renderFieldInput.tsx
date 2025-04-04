@@ -1,7 +1,7 @@
 
 // src/components/employees/tabs/shared/renderFieldInput.tsx
 import React from 'react';
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { Controller, UseFormReturn, FieldPath } from 'react-hook-form';
 import { EmployeeFormData } from '@/types/employee';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,7 @@ interface RenderFieldInputProps {
 
 export const renderFieldInput = ({ field, methods, isViewOnly = false }: RenderFieldInputProps) => {
   const { control, register, formState: { errors } } = methods;
-  const fieldName = `employee.${field.name}` as const;
+  const fieldName = `employee.${field.name}` as FieldPath<EmployeeFormData>;
   const error = errors?.employee?.[field.name as keyof typeof errors.employee];
 
   // Helper function to safely check if a date is valid
