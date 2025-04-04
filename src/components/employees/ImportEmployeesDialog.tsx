@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -32,6 +31,8 @@ import { stringToBoolean } from '@/utils/formatters';
 interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void;
 }
+
+type EmployeeRecord = Omit<Employee, 'id'> & { user_id: string };
 
 const checkForDuplicates = async (employees: Partial<Employee>[]) => {
   try {
@@ -114,61 +115,52 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
 
       for (const employee of employees) {
-        // Special handling for fields that might contain Yes/No values but need numeric values
-        const processedEmployee: Record<string, any> = {
-          user_id: safeUserId,
-        };
-
-        // Make sure required fields are present
         if (!employee.email || !employee.full_name) {
           console.error("Missing required fields:", employee);
-          continue; // Skip this employee
+          continue;
         }
 
-        processedEmployee.email = employee.email;
-        processedEmployee.full_name = employee.full_name;
+        const employeeRecord: EmployeeRecord = {
+          user_id: safeUserId,
+          email: employee.email,
+          full_name: employee.full_name,
+        };
         
-        // Process all other fields
         Object.entries(employee).forEach(([key, value]) => {
-          if (key === 'user_id' || key === 'email' || key === 'full_name' || value === undefined || value === null) {
-            return; // Skip already processed fields and undefined values
+          if (key === 'user_id' || key === 'email' || key === 'full_name' || key === 'id' || value === undefined || value === null) {
+            return;
           }
 
-          // Handle special cases for fields that need to be numeric in DB
           if (['gross_salary', 'allowances', 'basic_salary', 'work_hours', 'notice_period'].includes(key)) {
             if (typeof value === 'string') {
-              // Handle Yes/No values in numeric fields - convert to null
               if (['yes', 'no', 'true', 'false'].includes(value.toLowerCase())) {
-                processedEmployee[key] = null;
+                (employeeRecord as any)[key] = null;
               } else if (!isNaN(Number(value))) {
-                processedEmployee[key] = Number(value);
+                (employeeRecord as any)[key] = Number(value);
               } else {
-                processedEmployee[key] = null; // Set to null if not a valid number
+                (employeeRecord as any)[key] = null;
               }
             } else if (typeof value === 'number') {
-              processedEmployee[key] = value;
+              (employeeRecord as any)[key] = value;
             } else {
-              processedEmployee[key] = null;
+              (employeeRecord as any)[key] = null;
             }
             return;
           }
           
-          // Handle booleans
           if (['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
                 'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
                 'rehire', 'contract_signed', 'thirteenth_month_entitlement'].includes(key)) {
-            processedEmployee[key] = stringToBoolean(value);
+            (employeeRecord as any)[key] = stringToBoolean(value);
             return;
           }
           
-          // Add the value as is for other fields
-          processedEmployee[key] = value;
+          (employeeRecord as any)[key] = value;
         });
 
-        // Insert the employee record
         const { error } = await supabase
           .from('employees')
-          .insert(processedEmployee);
+          .insert(employeeRecord);
         
         if (error) {
           console.error("Error inserting employee:", error);
@@ -210,7 +202,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       const employeeForms = await processEmployeeImport(file);
       if (employeeForms.length === 0) throw new Error("No valid employees found (e.g. missing full_name or email)");
 
-      // Extract just the employee data from the form data
       const employees = employeeForms.map(form => form.employee || {});
       
       const { duplicates, newEmployees } = await checkForDuplicates(employees);
