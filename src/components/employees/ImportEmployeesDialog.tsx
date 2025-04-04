@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -32,7 +33,13 @@ interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void;
 }
 
-type EmployeeRecord = Omit<Employee, 'id'> & { user_id: string };
+// Define a more specific type that aligns with the Supabase schema
+type EmployeeInsertData = {
+  user_id: string;
+  email: string;
+  full_name: string;
+  [key: string]: any;
+};
 
 const checkForDuplicates = async (employees: Partial<Employee>[]) => {
   try {
@@ -120,47 +127,67 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           continue;
         }
 
-        const employeeRecord: EmployeeRecord = {
+        // Create a properly typed object for Supabase insert
+        const employeeData: EmployeeInsertData = {
           user_id: safeUserId,
           email: employee.email,
           full_name: employee.full_name,
         };
         
+        // Process all other fields with proper type handling
         Object.entries(employee).forEach(([key, value]) => {
           if (key === 'user_id' || key === 'email' || key === 'full_name' || key === 'id' || value === undefined || value === null) {
             return;
           }
 
+          // Handle numeric fields
           if (['gross_salary', 'allowances', 'basic_salary', 'work_hours', 'notice_period'].includes(key)) {
             if (typeof value === 'string') {
               if (['yes', 'no', 'true', 'false'].includes(value.toLowerCase())) {
-                (employeeRecord as any)[key] = null;
+                employeeData[key] = null;
               } else if (!isNaN(Number(value))) {
-                (employeeRecord as any)[key] = Number(value);
+                employeeData[key] = Number(value);
               } else {
-                (employeeRecord as any)[key] = null;
+                employeeData[key] = null;
               }
             } else if (typeof value === 'number') {
-              (employeeRecord as any)[key] = value;
+              employeeData[key] = value;
             } else {
-              (employeeRecord as any)[key] = null;
+              employeeData[key] = null;
             }
             return;
           }
           
+          // Handle boolean fields
           if (['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
                 'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
                 'rehire', 'contract_signed', 'thirteenth_month_entitlement'].includes(key)) {
-            (employeeRecord as any)[key] = stringToBoolean(value);
+            employeeData[key] = stringToBoolean(value);
+            return;
+          }
+
+          // Handle annual_bonus_eligible specifically since it can be string or number
+          if (key === 'annual_bonus_eligible') {
+            if (typeof value === 'string') {
+              if (!isNaN(Number(value))) {
+                employeeData[key] = Number(value);
+              } else {
+                employeeData[key] = null;
+              }
+            } else {
+              employeeData[key] = value;
+            }
             return;
           }
           
-          (employeeRecord as any)[key] = value;
+          // Default handling for other fields
+          employeeData[key] = value;
         });
 
+        // Insert the employee data to Supabase
         const { error } = await supabase
           .from('employees')
-          .insert(employeeRecord);
+          .insert(employeeData);
         
         if (error) {
           console.error("Error inserting employee:", error);
