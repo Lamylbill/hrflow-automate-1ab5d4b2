@@ -208,6 +208,19 @@ export const nestedFieldMap: Record<keyof Omit<EmployeeFormData, 'employee'>, Fi
   ],
 };
 
+// Function to get flat list of all employee form fields
+export const getFlatEmployeeFormFields = (): FieldMeta[] => {
+  // Get base fields
+  const baseFields = [...employeeBaseFields];
+  
+  // Add nested fields
+  Object.values(nestedFieldMap).forEach(fieldGroup => {
+    baseFields.push(...fieldGroup);
+  });
+  
+  return baseFields;
+}
+
 export const standardizeEmployee = (employee: Partial<Employee>): Employee => {
   // Convert fields to proper types
   const standardized: Partial<Employee> = { ...employee };

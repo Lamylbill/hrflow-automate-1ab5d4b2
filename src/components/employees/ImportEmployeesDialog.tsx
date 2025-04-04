@@ -121,12 +121,16 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         } = employee;
 
         // Process the base employee data, carefully handling numeric/boolean fields
-        const processedEmployee: Record<string, any> = {};
+        const processedEmployee: Record<string, any> = {
+          user_id: safeUserId,
+          email: employee.email,
+          full_name: employee.full_name
+        };
         
         // Add all string and simple fields
         Object.entries(baseEmployee).forEach(([key, value]) => {
           // Skip undefined values and nested objects
-          if (value === undefined || typeof value === 'object') return;
+          if (value === undefined || value === null) return;
           
           // Handle special cases for fields that need to be numeric in DB
           if (['gross_salary', 'allowances', 'work_hours', 'notice_period'].includes(key)) {
@@ -135,7 +139,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             } else if (typeof value === 'number') {
               processedEmployee[key] = value;
             }
-            // Skip if not valid number
             return;
           }
           
@@ -151,9 +154,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           processedEmployee[key] = value;
         });
         
-        // Always add user_id and required fields
-        processedEmployee.user_id = safeUserId;
-        
         // Check if email and full_name are present
         if (!processedEmployee.email) {
           console.error("Employee missing email:", processedEmployee);
@@ -165,10 +165,21 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           continue; // Skip this employee
         }
 
+        // Ensure the employee has the required properties
+        if (!processedEmployee.user_id || !processedEmployee.email || !processedEmployee.full_name) {
+          console.error("Missing required fields for employee:", processedEmployee);
+          continue; // Skip this employee
+        }
+
         // Insert the employee record with required fields
         const { error } = await supabase
           .from('employees')
-          .insert(processedEmployee);
+          .insert({
+            user_id: processedEmployee.user_id,
+            email: processedEmployee.email,
+            full_name: processedEmployee.full_name,
+            ...processedEmployee
+          });
         
         if (error) {
           console.error("Error inserting employee:", error);

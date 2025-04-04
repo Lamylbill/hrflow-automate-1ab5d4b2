@@ -108,10 +108,10 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ isViewOnly = false
             control={control}
             render={({ field }) => (
               <DatePicker
-                id="date_of_hire"
+                date={field.value ? new Date(field.value) : undefined}
+                onDateChange={field.onChange}
                 disabled={isViewOnly}
-                selected={field.value ? new Date(field.value) : undefined}
-                onSelect={field.onChange}
+                placeholder="Select hire date"
               />
             )}
           />
@@ -160,10 +160,10 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ isViewOnly = false
             control={control}
             render={({ field }) => (
               <DatePicker
-                id="probation_due"
+                date={field.value ? new Date(field.value) : undefined}
+                onDateChange={field.onChange}
                 disabled={isViewOnly}
-                selected={field.value ? new Date(field.value) : undefined}
-                onSelect={field.onChange}
+                placeholder="Select probation end date"
               />
             )}
           />
@@ -202,10 +202,10 @@ export const JobDetailsTab: React.FC<JobDetailsTabProps> = ({ isViewOnly = false
             control={control}
             render={({ field }) => (
               <DatePicker
-                id="confirmation_date"
+                date={field.value ? new Date(field.value) : undefined}
+                onDateChange={field.onChange}
                 disabled={isViewOnly}
-                selected={field.value ? new Date(field.value) : undefined}
-                onSelect={field.onChange}
+                placeholder="Select confirmation date"
               />
             )}
           />
