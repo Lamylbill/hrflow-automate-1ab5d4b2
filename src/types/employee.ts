@@ -1,4 +1,3 @@
-
 export interface Employee {
   id: string;
   user_id: string;
@@ -55,7 +54,7 @@ export interface Employee {
   
   // Compensation & Benefits - Basic
   gross_salary?: number | null;
-  basic_salary?: number | null;
+  basic_salary?: number | string | null;
   cpf_contribution?: boolean | null;
   allowances?: number | null;
   bonus_eligible?: string | null;
@@ -66,7 +65,7 @@ export interface Employee {
   bank_name?: string | null;
   pay_mode?: string | null;
   ot_eligible?: string | null;
-  annual_bonus_eligible?: string | null;
+  annual_bonus_eligible?: string | number | null;
   benefits_tier?: string | null;
   
   // Compliance - Basic

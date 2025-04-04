@@ -33,9 +33,6 @@ interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void;
 }
 
-const cleanObject = (obj: Record<string, any>) =>
-  Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== undefined && v !== ''));
-
 const checkForDuplicates = async (employees: Partial<Employee>[]) => {
   try {
     const emails = employees
@@ -124,7 +121,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         } = employee;
 
         // Process the base employee data, carefully handling numeric/boolean fields
-        const processedEmployee: Partial<Employee> = {};
+        const processedEmployee: Record<string, any> = {};
         
         // Add all string and simple fields
         Object.entries(baseEmployee).forEach(([key, value]) => {
@@ -132,11 +129,11 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           if (value === undefined || typeof value === 'object') return;
           
           // Handle special cases for fields that need to be numeric in DB
-          if (['gross_salary', 'basic_salary', 'allowances', 'work_hours', 'notice_period'].includes(key)) {
+          if (['gross_salary', 'allowances', 'work_hours', 'notice_period'].includes(key)) {
             if (typeof value === 'string' && !isNaN(Number(value))) {
-              processedEmployee[key as keyof Employee] = Number(value);
+              processedEmployee[key] = Number(value);
             } else if (typeof value === 'number') {
-              processedEmployee[key as keyof Employee] = value;
+              processedEmployee[key] = value;
             }
             // Skip if not valid number
             return;
@@ -146,12 +143,12 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           if (['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
                 'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
                 'rehire', 'contract_signed', 'thirteenth_month_entitlement'].includes(key)) {
-            processedEmployee[key as keyof Employee] = stringToBoolean(value);
+            processedEmployee[key] = stringToBoolean(value);
             return;
           }
           
           // Add the value as is for other fields
-          processedEmployee[key as keyof Employee] = value;
+          processedEmployee[key] = value;
         });
         
         // Always add user_id and required fields
@@ -171,12 +168,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         // Insert the employee record with required fields
         const { error } = await supabase
           .from('employees')
-          .insert({
-            email: processedEmployee.email,
-            full_name: processedEmployee.full_name,
-            user_id: safeUserId,
-            ...processedEmployee
-          });
+          .insert(processedEmployee);
         
         if (error) {
           console.error("Error inserting employee:", error);

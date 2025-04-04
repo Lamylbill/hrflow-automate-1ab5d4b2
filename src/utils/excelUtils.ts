@@ -1,4 +1,3 @@
-
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import {
@@ -16,11 +15,39 @@ import {
 import { stringToBoolean } from './formatters';
 
 export const exportEmployeesToExcel = (employees: Employee[]) => {
-  // Unchanged logic
+  const workbook = XLSX.utils.book_new();
+  const sheetData = employees.map(employee => {
+    const row: any = {};
+    for (const field of fullEmployeeFieldList) {
+      row[field.label] = (employee as any)[field.name] || '';
+    }
+    return row;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(sheetData);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+  saveAs(data, 'employees.xlsx');
 };
 
 export const generateEmployeeTemplate = () => {
-  // Unchanged logic
+  const workbook = XLSX.utils.book_new();
+
+  // Create header row based on field labels
+  const headerRow = fullEmployeeFieldList.map(field => field.label);
+
+  // Create a worksheet with the header row
+  const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
+
+  // Convert the workbook to an Excel file (array buffer)
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+
+  // Save the file using FileSaver.js
+  saveAs(data, 'employee_template.xlsx');
 };
 
 export const convertFieldValue = (field: any, rawValue: any): any => {

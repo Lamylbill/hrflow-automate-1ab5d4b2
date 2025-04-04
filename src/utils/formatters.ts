@@ -58,7 +58,7 @@ export const stringToBoolean = (value: any): boolean | null => {
   
   // Normalize strings that are "true" or "false" (case insensitive)
   if (typeof value === 'string') {
-    const strValue = value.toLowerCase();
+    const strValue = value.toLowerCase().trim();
     
     // Check for various "true" strings
     if (['yes', 'true', '1', 'y', 't'].includes(strValue)) {

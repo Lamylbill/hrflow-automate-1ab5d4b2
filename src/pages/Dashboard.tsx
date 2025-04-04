@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { AnimatedSection } from '@/components/ui-custom/AnimatedSection';
 import { supabase } from '@/integrations/supabase/client';
 import { Employee } from '@/types/employee';
+import { standardizeEmployee } from '@/utils/employeeFieldUtils';
 
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -59,6 +60,37 @@ const Dashboard = () => {
       }
     };
     fetchEmployeeData();
+  }, [user]);
+
+  useEffect(() => {
+    const fetchRecentEmployees = async () => {
+      try {
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('employees')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+
+        // Cast data to unknown first, then to Employee[] to handle type issues
+        const rawEmployees = data as unknown as Employee[];
+        
+        // Standardize each employee to ensure correct types
+        const standardizedEmployees = rawEmployees.map(emp => standardizeEmployee(emp));
+        
+        setRecentEmployees(standardizedEmployees);
+      } catch (error) {
+        console.error('Error fetching recent employees:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecentEmployees();
   }, [user]);
 
   const quickActions = [

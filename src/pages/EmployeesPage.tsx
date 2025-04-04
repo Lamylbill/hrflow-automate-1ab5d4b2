@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Search, PlusCircle, Download, AlertCircle,
@@ -90,8 +89,9 @@ const EmployeesPage = () => {
 
       if (error) throw error;
 
-      // Standardize each employee record to ensure correct types and field mappings
-      const standardizedEmployees = data.map(emp => standardizeEmployee(emp)) as Employee[];
+      const rawEmployees = data as unknown as Employee[];
+      
+      const standardizedEmployees = rawEmployees.map(emp => standardizeEmployee(emp)) as Employee[];
       
       setEmployees(standardizedEmployees);
       setFilteredEmployees(standardizedEmployees);

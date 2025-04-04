@@ -209,36 +209,46 @@ export const nestedFieldMap: Record<keyof Omit<EmployeeFormData, 'employee'>, Fi
 };
 
 export const standardizeEmployee = (employee: Partial<Employee>): Employee => {
+  // Convert fields to proper types
+  const standardized: Partial<Employee> = { ...employee };
+  
+  // Ensure numeric fields are numbers
+  ['gross_salary', 'basic_salary', 'allowances', 'work_hours', 'notice_period'].forEach(field => {
+    const value = (employee as any)[field];
+    if (value !== undefined && value !== null) {
+      if (typeof value === 'string' && !isNaN(Number(value))) {
+        (standardized as any)[field] = Number(value);
+      }
+    }
+  });
+  
+  // Ensure boolean fields are booleans
+  ['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
+   'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
+   'rehire', 'contract_signed', 'thirteenth_month_entitlement'].forEach(field => {
+    const value = (employee as any)[field];
+    if (value !== undefined) {
+      if (typeof value === 'string') {
+        const lowerValue = value.toLowerCase();
+        if (['yes', 'true', '1', 'y', 't'].includes(lowerValue)) {
+          (standardized as any)[field] = true;
+        } else if (['no', 'false', '0', 'n', 'f'].includes(lowerValue)) {
+          (standardized as any)[field] = false;
+        }
+      }
+    }
+  });
+  
   return {
     id: '',
     user_id: '',
     email: '',
     full_name: '',
-    ...employee,
+    ...standardized,
   };
 };
 
 export const fullEmployeeFieldList = getFlatEmployeeFormFields();
-
-// Export all fields including flattened nested
-export function getFlatEmployeeFormFields(): FieldMeta[] {
-  const base = employeeBaseFields;
-  const nestedFlattened: FieldMeta[] = [];
-
-  Object.entries(nestedFieldMap).forEach(([key, fields]) => {
-    for (let i = 0; i < 3; i++) {
-      fields.forEach(field => {
-        nestedFlattened.push({
-          ...field,
-          name: `${key}.${i}.${field.name}`,
-          label: `${field.label} (${i + 1})`
-        });
-      });
-    }
-  });
-
-  return [...base, ...nestedFlattened];
-}
 
 export const getFieldMetaByName = (name: string): FieldMeta | undefined => {
   return getFlatEmployeeFormFields().find(f => f.name === name);
