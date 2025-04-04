@@ -114,30 +114,41 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
       if (!safeUserId) throw new Error("Invalid user session. Please log in again.");
 
       for (const employee of employees) {
-        // Extract related entities that should be stored separately
-        const {
-          created_at, updated_at, id,
-          ...baseEmployee
-        } = employee;
-
-        // Process the base employee data, carefully handling numeric/boolean fields
+        // Special handling for fields that might contain Yes/No values but need numeric values
         const processedEmployee: Record<string, any> = {
           user_id: safeUserId,
-          email: employee.email,
-          full_name: employee.full_name
         };
+
+        // Make sure required fields are present
+        if (!employee.email || !employee.full_name) {
+          console.error("Missing required fields:", employee);
+          continue; // Skip this employee
+        }
+
+        processedEmployee.email = employee.email;
+        processedEmployee.full_name = employee.full_name;
         
-        // Add all string and simple fields
-        Object.entries(baseEmployee).forEach(([key, value]) => {
-          // Skip undefined values and nested objects
-          if (value === undefined || value === null) return;
-          
+        // Process all other fields
+        Object.entries(employee).forEach(([key, value]) => {
+          if (key === 'user_id' || key === 'email' || key === 'full_name' || value === undefined || value === null) {
+            return; // Skip already processed fields and undefined values
+          }
+
           // Handle special cases for fields that need to be numeric in DB
-          if (['gross_salary', 'allowances', 'work_hours', 'notice_period'].includes(key)) {
-            if (typeof value === 'string' && !isNaN(Number(value))) {
-              processedEmployee[key] = Number(value);
+          if (['gross_salary', 'allowances', 'basic_salary', 'work_hours', 'notice_period'].includes(key)) {
+            if (typeof value === 'string') {
+              // Handle Yes/No values in numeric fields - convert to null
+              if (['yes', 'no', 'true', 'false'].includes(value.toLowerCase())) {
+                processedEmployee[key] = null;
+              } else if (!isNaN(Number(value))) {
+                processedEmployee[key] = Number(value);
+              } else {
+                processedEmployee[key] = null; // Set to null if not a valid number
+              }
             } else if (typeof value === 'number') {
               processedEmployee[key] = value;
+            } else {
+              processedEmployee[key] = null;
             }
             return;
           }
@@ -153,33 +164,11 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           // Add the value as is for other fields
           processedEmployee[key] = value;
         });
-        
-        // Check if email and full_name are present
-        if (!processedEmployee.email) {
-          console.error("Employee missing email:", processedEmployee);
-          continue; // Skip this employee
-        }
-        
-        if (!processedEmployee.full_name) {
-          console.error("Employee missing full name:", processedEmployee);
-          continue; // Skip this employee
-        }
 
-        // Ensure the employee has the required properties
-        if (!processedEmployee.user_id || !processedEmployee.email || !processedEmployee.full_name) {
-          console.error("Missing required fields for employee:", processedEmployee);
-          continue; // Skip this employee
-        }
-
-        // Insert the employee record with required fields
+        // Insert the employee record
         const { error } = await supabase
           .from('employees')
-          .insert({
-            user_id: processedEmployee.user_id,
-            email: processedEmployee.email,
-            full_name: processedEmployee.full_name,
-            ...processedEmployee
-          });
+          .insert(processedEmployee);
         
         if (error) {
           console.error("Error inserting employee:", error);

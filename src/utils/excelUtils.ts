@@ -65,8 +65,11 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
              rawValue.toLowerCase() === 'no' || 
              rawValue.toLowerCase() === 'true' || 
              rawValue.toLowerCase() === 'false')) {
-          return null; // Return null to avoid numeric parsing errors
+          // Don't try to convert Yes/No answers to numbers
+          return rawValue; // Return the string as is, we'll handle these special cases elsewhere
         }
+        
+        // Convert to number if it's a valid number
         const num = Number(rawValue);
         return isNaN(num) ? null : num;
       
@@ -151,10 +154,17 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
 
           try {
             const parsed = parseEmployeeDataFromExcel(headerRow, dataRow);
-            // Only add to the result if the employee has the required fields
-            if (parsed.employee && typeof parsed.employee.full_name === 'string' && 
-                typeof parsed.employee.email === 'string') {
-              employeeForms.push(parsed);
+            if (parsed.employee) {
+              // We need to make sure full_name and email are strings, to satisfy TypeScript
+              const fullName = parsed.employee.full_name;
+              const email = parsed.employee.email;
+              
+              if (typeof fullName === 'string' && fullName.trim() !== '' &&
+                  typeof email === 'string' && email.trim() !== '') {
+                employeeForms.push(parsed);
+              } else {
+                console.warn(`Skipping row ${i}: Invalid or missing required fields (full_name: ${fullName}, email: ${email})`);
+              }
             }
           } catch (error) {
             console.error(`Error processing row ${i}:`, error);
