@@ -102,8 +102,8 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
   }
 };
 
+// Fixed: Changed return type to explicitly show we're returning a partial structure
 export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Partial<EmployeeFormData> => {
-  // Fix: Use Partial<Employee> explicitly
   const employee: Partial<Employee> = {};
 
   headerRow.forEach((header, index) => {

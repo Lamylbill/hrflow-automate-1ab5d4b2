@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -34,12 +33,29 @@ interface ImportEmployeesDialogProps {
 }
 
 // Define a more specific type that aligns with the Supabase schema
-type EmployeeInsertData = {
+interface EmployeeInsertData {
   user_id: string;
   email: string;
   full_name: string;
   [key: string]: any;
-};
+  
+  gross_salary?: number | null;
+  basic_salary?: number | string | null;
+  allowances?: number | null;
+  work_hours?: number | null;
+  notice_period?: number | null;
+  cpf_contribution?: boolean | null;
+  disciplinary_flags?: boolean | null;
+  must_clock?: boolean | null;
+  all_work_day?: boolean | null;
+  freeze_payment?: boolean | null;
+  paid_medical_examination_fee?: boolean | null;
+  new_graduate?: boolean | null;
+  rehire?: boolean | null;
+  contract_signed?: boolean | null;
+  thirteenth_month_entitlement?: boolean | null;
+  annual_bonus_eligible?: number | string | null;
+}
 
 const checkForDuplicates = async (employees: Partial<Employee>[]) => {
   try {
@@ -127,20 +143,17 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           continue;
         }
 
-        // Create a properly typed object for Supabase insert
         const employeeData: EmployeeInsertData = {
           user_id: safeUserId,
           email: employee.email,
           full_name: employee.full_name,
         };
         
-        // Process all other fields with proper type handling
         Object.entries(employee).forEach(([key, value]) => {
           if (key === 'user_id' || key === 'email' || key === 'full_name' || key === 'id' || value === undefined || value === null) {
             return;
           }
 
-          // Handle numeric fields
           if (['gross_salary', 'allowances', 'basic_salary', 'work_hours', 'notice_period'].includes(key)) {
             if (typeof value === 'string') {
               if (['yes', 'no', 'true', 'false'].includes(value.toLowerCase())) {
@@ -158,7 +171,6 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             return;
           }
           
-          // Handle boolean fields
           if (['cpf_contribution', 'disciplinary_flags', 'must_clock', 'all_work_day', 
                 'freeze_payment', 'paid_medical_examination_fee', 'new_graduate', 
                 'rehire', 'contract_signed', 'thirteenth_month_entitlement'].includes(key)) {
@@ -166,12 +178,15 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             return;
           }
 
-          // Handle annual_bonus_eligible specifically since it can be string or number
           if (key === 'annual_bonus_eligible') {
             if (typeof value === 'string') {
               if (!isNaN(Number(value))) {
                 employeeData[key] = Number(value);
-              } else {
+              } 
+              else if (['yes', 'no'].includes(value.toLowerCase())) {
+                employeeData[key] = value;
+              } 
+              else {
                 employeeData[key] = null;
               }
             } else {
@@ -180,14 +195,14 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             return;
           }
           
-          // Default handling for other fields
           employeeData[key] = value;
         });
 
-        // Insert the employee data to Supabase
+        const typedEmployeeData = employeeData as Record<string, any>;
+        
         const { error } = await supabase
           .from('employees')
-          .insert(employeeData);
+          .insert(typedEmployeeData);
         
         if (error) {
           console.error("Error inserting employee:", error);
