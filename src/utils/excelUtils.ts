@@ -141,7 +141,7 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
         }
 
         const headerRow = jsonData[0];
-        const employees: Partial<EmployeeFormData>[] = [];
+        const employeeForms: Partial<EmployeeFormData>[] = [];
 
         for (let i = 1; i < jsonData.length; i++) {
           const dataRow = jsonData[i];
@@ -151,16 +151,17 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
 
           try {
             const parsed = parseEmployeeDataFromExcel(headerRow, dataRow);
-            // Fix: Change this line to check if the employee is defined and has the required fields
-            if (parsed.employee && parsed.employee.full_name && parsed.employee.email) {
-              employees.push(parsed);
+            // Only add to the result if the employee has the required fields
+            if (parsed.employee && typeof parsed.employee.full_name === 'string' && 
+                typeof parsed.employee.email === 'string') {
+              employeeForms.push(parsed);
             }
           } catch (error) {
             console.error(`Error processing row ${i}:`, error);
           }
         }
 
-        resolve(employees);
+        resolve(employeeForms);
       } catch (error) {
         console.error('Error parsing Excel file:', error);
         reject(error);
