@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -305,7 +304,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 variant="primary"
                 onClick={processImport}
                 disabled={!file || isImporting}
-                className={`${!file || isImporting ? "text-gray-100" : "text-white"} bg-hrflow-primary hover:bg-hrflow-dark`}
+                className={`${!file || isImporting ? "opacity-60 bg-hrflow-primary text-white" : "text-white bg-hrflow-primary hover:bg-hrflow-dark"}`}
               >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>
