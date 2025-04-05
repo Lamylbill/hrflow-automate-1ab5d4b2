@@ -161,7 +161,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 employeeData[key] = Number(value);
               } 
               else if (['yes', 'no'].includes(value.toLowerCase())) {
-                employeeData[key] = value;
+                employeeData[key] = value.toLowerCase() === 'yes' ? 1 : 0;
               } 
               else {
                 employeeData[key] = null;
