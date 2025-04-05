@@ -112,7 +112,7 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): { 
     if (!header || typeof header !== 'string') return;
     if (header.includes('---')) return;
 
-    const field = fullEmployeeFieldList.find(f => f.label === header);
+    const field = fullEmployeeFieldList.find(f => f.name === header);
     if (field && index < dataRow.length) {
       const rawValue = dataRow[index];
       if (rawValue !== undefined && rawValue !== null && rawValue !== '') {
