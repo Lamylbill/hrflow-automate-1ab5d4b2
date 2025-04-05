@@ -4,20 +4,27 @@ import { Edit, Trash, Eye } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui-custom/Button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Employee } from '@/types/employee';
 
 interface EmployeeCardProps { 
   employee: Employee,
   onViewDetails: (employee: Employee) => void,
   onEdit: (employee: Employee) => void,
-  onDelete: (employee: Employee) => void
+  onDelete: (employee: Employee) => void,
+  isMultiSelectMode?: boolean,
+  isSelected?: boolean,
+  onToggleSelect?: () => void,
 }
 
 export const EmployeeCard: React.FC<EmployeeCardProps> = ({ 
   employee,
   onViewDetails,
   onEdit,
-  onDelete
+  onDelete,
+  isMultiSelectMode = false,
+  isSelected = false,
+  onToggleSelect
 }) => {
   // Generate initials from full name
   const getInitials = (name: string | undefined) => {
@@ -25,11 +32,31 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
     return name.split(' ').map(n => n?.[0]).join('').toUpperCase();
   };
 
+  const handleClick = () => {
+    if (isMultiSelectMode && onToggleSelect) {
+      onToggleSelect();
+    } else {
+      onViewDetails(employee);
+    }
+  };
+
   return (
     <div 
-      className="bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => onViewDetails(employee)}
+      className={`
+        bg-white rounded-lg shadow border p-4 hover:shadow-md transition-shadow cursor-pointer 
+        ${isMultiSelectMode && isSelected ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500' : ''}
+      `}
+      onClick={handleClick}
     >
+      {isMultiSelectMode && (
+        <div className="flex justify-end mb-2" onClick={(e) => e.stopPropagation()}>
+          <Checkbox 
+            checked={isSelected} 
+            onCheckedChange={onToggleSelect} 
+          />
+        </div>
+      )}
+      
       <div className="flex items-center mb-3">
         <Avatar className="h-12 w-12 border">
           <AvatarImage src={employee.profile_photo || employee.profile_picture} alt={employee.full_name} />
@@ -38,7 +65,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           </AvatarFallback>
         </Avatar>
         <div className="ml-3">
-          <h3 className="font-medium">{employee.full_name}</h3>
+          <h3 className="font-medium text-base">{employee.full_name}</h3>
           <p className="text-sm text-gray-500">{employee.job_title || 'No Job Title'}</p>
         </div>
       </div>

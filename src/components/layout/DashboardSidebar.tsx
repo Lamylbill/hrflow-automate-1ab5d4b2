@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -46,7 +47,7 @@ const SidebarNavItem = ({
           <div className={cn("flex-shrink-0", collapsed ? "" : "mr-3")}>
             {item.icon}
           </div>
-          {!collapsed && <span className="truncate">{item.name}</span>}
+          {!collapsed && <span className="truncate text-sm">{item.name}</span>}
         </Link>
       </TooltipTrigger>
       <TooltipContent side="right" align="center" className={collapsed ? "" : "hidden"}>
@@ -132,8 +133,6 @@ export const DashboardSidebar = () => {
     navigate('/');
   };
 
-  
-
   return (
     <aside
       className={cn(
@@ -148,10 +147,10 @@ export const DashboardSidebar = () => {
         {!collapsed && (
           <div 
             onClick={navigateToLanding} 
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-1 cursor-pointer"
           >
-            <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
-            <span className="font-display font-bold text-lg text-indigo-800">Flow</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-1.5 py-0.5 rounded-md text-sm">HR</span>
+            <span className="font-display font-bold text-base text-indigo-800">Flow</span>
           </div>
         )}
         {collapsed && (
@@ -159,7 +158,7 @@ export const DashboardSidebar = () => {
             onClick={navigateToLanding} 
             className="flex items-center justify-center cursor-pointer"
           >
-            <span className="bg-indigo-600 text-white font-display font-bold px-2 py-1 rounded-md text-lg">HR</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-1.5 py-0.5 rounded-md text-sm">HR</span>
           </div>
         )}
         
@@ -168,9 +167,9 @@ export const DashboardSidebar = () => {
             variant="ghost" 
             size="icon" 
             onClick={toggleCollapse} 
-            className="text-white bg-indigo-600 hover:bg-indigo-700 h-8 w-8 rounded-md"
+            className="text-white bg-indigo-600 hover:bg-indigo-700 h-7 w-7 rounded-md"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
         )}
       </div>
@@ -180,9 +179,9 @@ export const DashboardSidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleCollapse}
-          className="text-white bg-indigo-600 hover:bg-indigo-700 h-8 w-8 rounded-md mx-auto mt-4"
+          className="text-white bg-indigo-600 hover:bg-indigo-700 h-7 w-7 rounded-md mx-auto mt-4"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       )}
 
@@ -201,7 +200,7 @@ export const DashboardSidebar = () => {
         >
           <Tooltip>
             <TooltipTrigger asChild>
-              <Avatar className={cn("bg-indigo-600", collapsed ? "h-10 w-10" : "h-12 w-12")}>
+              <Avatar className={cn("bg-indigo-600", collapsed ? "h-10 w-10" : "h-10 w-10")}>
                 {avatarImageUrl ? (
                   <AvatarImage 
                     src={avatarImageUrl} 
@@ -221,7 +220,7 @@ export const DashboardSidebar = () => {
         
         {!collapsed && (
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-indigo-800 truncate">
+            <p className="text-xs font-medium text-indigo-800 truncate">
               {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
             </p>
             <p className="text-xs text-indigo-500 truncate">
@@ -259,7 +258,7 @@ export const DashboardSidebar = () => {
             "my-2 px-3 py-2",
             collapsed ? "flex justify-center" : "flex items-center justify-between"
           )}>
-            {!collapsed && <span className="text-sm font-medium text-indigo-800">Notifications</span>}
+            {!collapsed && <span className="text-xs font-medium text-indigo-800">Notifications</span>}
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn(collapsed ? "" : "ml-auto")}>
@@ -277,10 +276,10 @@ export const DashboardSidebar = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-sm flex items-center justify-start text-indigo-800 border-indigo-200"
+                className="w-full text-xs flex items-center justify-start text-indigo-800 border-indigo-200"
                 onClick={downloadCSVTemplate}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-3.5 w-3.5 mr-2" />
                 <span>Download Template</span>
               </Button>
             </div>
@@ -295,7 +294,7 @@ export const DashboardSidebar = () => {
                   className="w-full mt-4 flex justify-center text-indigo-800 border-indigo-200"
                   onClick={downloadCSVTemplate}
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-3.5 w-3.5" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right" align="center">
@@ -316,12 +315,12 @@ export const DashboardSidebar = () => {
               <Button
                 variant="outline"
                 className={cn(
-                  "text-red-500 w-full flex items-center border-red-200",
+                  "text-red-500 w-full flex items-center border-red-200 text-xs",
                   collapsed ? "justify-center px-2" : "justify-start"
                 )}
                 onClick={() => logout()}
               >
-                <LogOut className={cn("h-5 w-5", !collapsed && "mr-2")} />
+                <LogOut className={cn("h-3.5 w-3.5", !collapsed && "mr-2")} />
                 {!collapsed && <span>Logout</span>}
               </Button>
             </TooltipTrigger>

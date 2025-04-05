@@ -24,7 +24,7 @@ export interface EmployeeInsertData {
   rehire?: boolean | null;
   contract_signed?: boolean | null;
   thirteenth_month_entitlement?: boolean | null;
-  annual_bonus_eligible?: number | string | null;
+  annual_bonus_eligible?: string | number | null;
 }
 
 // Type for Excel imported data

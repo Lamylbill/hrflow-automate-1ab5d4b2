@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Upload, FileUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui-custom/Button';
@@ -27,34 +28,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { generateEmployeeTemplate, processEmployeeImport } from '@/utils/excelUtils';
 import { Employee } from '@/types/employee';
 import { stringToBoolean } from '@/utils/formatters';
+import { EmployeeInsertData } from '@/types/employeeTypes';
 
 interface ImportEmployeesDialogProps {
   onImportSuccess?: () => void;
-}
-
-// Define a more specific type that aligns with the Supabase schema
-interface EmployeeInsertData {
-  user_id: string;
-  email: string;
-  full_name: string;
-  [key: string]: any;
-  
-  gross_salary?: number | null;
-  basic_salary?: number | string | null;
-  allowances?: number | null;
-  work_hours?: number | null;
-  notice_period?: number | null;
-  cpf_contribution?: boolean | null;
-  disciplinary_flags?: boolean | null;
-  must_clock?: boolean | null;
-  all_work_day?: boolean | null;
-  freeze_payment?: boolean | null;
-  paid_medical_examination_fee?: boolean | null;
-  new_graduate?: boolean | null;
-  rehire?: boolean | null;
-  contract_signed?: boolean | null;
-  thirteenth_month_entitlement?: boolean | null;
-  annual_bonus_eligible?: number | string | null;
 }
 
 const checkForDuplicates = async (employees: Partial<Employee>[]) => {
@@ -198,11 +175,9 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           employeeData[key] = value;
         });
 
-        const typedEmployeeData = employeeData as Record<string, any>;
-        
         const { error } = await supabase
           .from('employees')
-          .insert(typedEmployeeData);
+          .insert(employeeData);
         
         if (error) {
           console.error("Error inserting employee:", error);
@@ -328,6 +303,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 variant="primary"
                 onClick={processImport}
                 disabled={!file || isImporting}
+                className="text-white" // Ensure button text is white for visibility
               >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>

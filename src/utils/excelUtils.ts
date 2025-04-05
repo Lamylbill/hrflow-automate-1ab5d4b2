@@ -102,8 +102,7 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
   }
 };
 
-// Fixed: Changed return type to explicitly show we're returning a partial structure
-export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Partial<EmployeeFormData> => {
+export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): { employee: Partial<Employee> } => {
   const employee: Partial<Employee> = {};
 
   headerRow.forEach((header, index) => {
@@ -130,7 +129,7 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): Pa
   return { employee };
 };
 
-export const processEmployeeImport = async (file: File): Promise<Partial<EmployeeFormData>[]> => {
+export const processEmployeeImport = async (file: File): Promise<{ employee: Partial<Employee> }[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -145,7 +144,7 @@ export const processEmployeeImport = async (file: File): Promise<Partial<Employe
         }
 
         const headerRow = jsonData[0];
-        const employeeForms: Partial<EmployeeFormData>[] = [];
+        const employeeForms: { employee: Partial<Employee> }[] = [];
 
         for (let i = 1; i < jsonData.length; i++) {
           const dataRow = jsonData[i];

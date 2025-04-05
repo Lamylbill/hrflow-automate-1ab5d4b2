@@ -289,7 +289,7 @@ export type Database = {
           allocation_run: string | null
           allocation_type: string | null
           allowances: number | null
-          annual_bonus_eligible: number | null
+          annual_bonus_eligible: string | null
           assignment_date_start: string | null
           attendance_calendar: string | null
           badge_no: string | null
@@ -297,7 +297,7 @@ export type Database = {
           bank_account_number: string | null
           bank_currency: string | null
           bank_name: string | null
-          basic_salary: string | null
+          basic_salary: number | null
           beneficiary_name: string | null
           benefits_enrolled: string[] | null
           benefits_tier: string | null
@@ -479,7 +479,7 @@ export type Database = {
           allocation_run?: string | null
           allocation_type?: string | null
           allowances?: number | null
-          annual_bonus_eligible?: number | null
+          annual_bonus_eligible?: string | null
           assignment_date_start?: string | null
           attendance_calendar?: string | null
           badge_no?: string | null
@@ -487,7 +487,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_currency?: string | null
           bank_name?: string | null
-          basic_salary?: string | null
+          basic_salary?: number | null
           beneficiary_name?: string | null
           benefits_enrolled?: string[] | null
           benefits_tier?: string | null
@@ -669,7 +669,7 @@ export type Database = {
           allocation_run?: string | null
           allocation_type?: string | null
           allowances?: number | null
-          annual_bonus_eligible?: number | null
+          annual_bonus_eligible?: string | null
           assignment_date_start?: string | null
           attendance_calendar?: string | null
           badge_no?: string | null
@@ -677,7 +677,7 @@ export type Database = {
           bank_account_number?: string | null
           bank_currency?: string | null
           bank_name?: string | null
-          basic_salary?: string | null
+          basic_salary?: number | null
           beneficiary_name?: string | null
           benefits_enrolled?: string[] | null
           benefits_tier?: string | null
@@ -925,7 +925,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      sync_employee_schema: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
