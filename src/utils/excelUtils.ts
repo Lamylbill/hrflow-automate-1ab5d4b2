@@ -48,7 +48,7 @@ export const exportEmployeesToExcel = (employees: Employee[]) => {
 
 export const generateEmployeeTemplate = () => {
   const workbook = XLSX.utils.book_new();
-  const headerRow = allowedEmployeeFields.map(field => field.label);
+  const headerRow = allowedEmployeeFields.map(field => field.name);
   const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
