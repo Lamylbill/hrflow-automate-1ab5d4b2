@@ -1,17 +1,3 @@
-// Define which fields belong to the employees table
-const allowedEmployeeFields = fullEmployeeFieldList.filter(field =>
-  !field.name.startsWith('allowance_') &&
-  !field.name.startsWith('document_') &&
-  !field.name.startsWith('family_member_') &&
-  !field.name.startsWith('qualification') &&
-  !field.name.startsWith('relationship') &&
-  !field.name.startsWith('rating') &&
-  !field.name.startsWith('company_name') &&
-  !field.name.startsWith('institute') &&
-  !field.name.startsWith('position') &&
-  !field.name.startsWith('appraisal_type')
-);
-
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import {
@@ -28,11 +14,25 @@ import {
 } from './employeeFieldUtils';
 import { stringToBoolean } from './formatters';
 
+// ✅ Shared field list used across import/export
+export const allowedEmployeeFields = fullEmployeeFieldList.filter(field =>
+  !field.name.startsWith('allowance_') &&
+  !field.name.startsWith('document_') &&
+  !field.name.startsWith('family_member_') &&
+  !field.name.startsWith('qualification') &&
+  !field.name.startsWith('relationship') &&
+  !field.name.startsWith('rating') &&
+  !field.name.startsWith('company_name') &&
+  !field.name.startsWith('institute') &&
+  !field.name.startsWith('position') &&
+  !field.name.startsWith('appraisal_type')
+);
+
 export const exportEmployeesToExcel = (employees: Employee[]) => {
   const workbook = XLSX.utils.book_new();
   const sheetData = employees.map(employee => {
     const row: any = {};
-    for (const field of fullEmployeeFieldList) {
+    for (const field of allowedEmployeeFields) {
       row[field.label] = (employee as any)[field.name] || '';
     }
     return row;
@@ -48,34 +48,14 @@ export const exportEmployeesToExcel = (employees: Employee[]) => {
 
 export const generateEmployeeTemplate = () => {
   const workbook = XLSX.utils.book_new();
-
-const allowedEmployeeFields = fullEmployeeFieldList.filter(field =>
-  !field.name.startsWith('allowance_') &&
-  !field.name.startsWith('document_') &&
-  !field.name.startsWith('family_member_') &&
-  !field.name.startsWith('qualification') &&
-  !field.name.startsWith('relationship') &&
-  !field.name.startsWith('rating') &&
-  !field.name.startsWith('company_name') &&
-  !field.name.startsWith('institute') &&
-  !field.name.startsWith('position') &&
-  !field.name.startsWith('appraisal_type')
-);
-// Create header row based on field labels
-const headerRow = allowedEmployeeFields.map(field => field.label);
-  
-// Create a worksheet with the header row
-const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
-XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
-
-// Convert the workbook to an Excel file (array buffer)
-const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-const data = new Blob([excelBuffer], {
-  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-});
-
-// Save the file using FileSaver.js
-saveAs(data, 'employee_template.xlsx');
+  const headerRow = allowedEmployeeFields.map(field => field.label);
+  const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+  });
+  saveAs(data, 'employee_template.xlsx');
 };
 
 export const convertFieldValue = (field: any, rawValue: any): any => {
@@ -86,34 +66,23 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
   try {
     switch (field.type) {
       case 'number':
-        // Check for Yes/No values for annual_bonus_eligible field
         if (field.name === 'annual_bonus_eligible' && typeof rawValue === 'string') {
           if (rawValue.toLowerCase() === 'yes') return 1;
           if (rawValue.toLowerCase() === 'no') return 0;
           if (!isNaN(Number(rawValue))) return Number(rawValue);
           return null;
         }
-        
-        // For other fields that could contain "Yes"/"No" but are numeric in database
-        if (typeof rawValue === 'string' && 
-            (rawValue.toLowerCase() === 'yes' || 
-             rawValue.toLowerCase() === 'no' || 
-             rawValue.toLowerCase() === 'true' || 
-             rawValue.toLowerCase() === 'false')) {
-          // Return the raw string for fields that accept string values
+        if (typeof rawValue === 'string' && ['yes', 'no', 'true', 'false'].includes(rawValue.toLowerCase())) {
           return rawValue;
         }
-        
-        // Convert to number if it's a valid number
         const num = Number(rawValue);
         return isNaN(num) ? null : num;
-      
+
       case 'boolean':
         return stringToBoolean(rawValue);
-      
+
       case 'date':
         if (rawValue instanceof Date) return rawValue.toISOString().split('T')[0];
-        // Excel dates can be numbers - check if it's a number and convert
         if (typeof rawValue === 'number') {
           const excelDate = new Date(Math.floor((rawValue - 25569) * 86400 * 1000));
           return excelDate.toISOString().split('T')[0];
@@ -124,10 +93,10 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
         } catch (e) {
           return null;
         }
-      
+
       case 'dropdown':
         return String(rawValue);
-      
+
       default:
         return String(rawValue);
     }
@@ -139,7 +108,6 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
 
 export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): { employee: Partial<Employee> } => {
   const employee: Partial<Employee> = {};
-
   headerRow.forEach((header, index) => {
     if (!header || typeof header !== 'string') return;
     if (header.includes('---')) return;
@@ -160,7 +128,6 @@ export const parseEmployeeDataFromExcel = (headerRow: any[], dataRow: any[]): { 
       }
     }
   });
-
   return { employee };
 };
 
@@ -190,12 +157,9 @@ export const processEmployeeImport = async (file: File): Promise<{ employee: Par
           try {
             const parsed = parseEmployeeDataFromExcel(headerRow, dataRow);
             if (parsed.employee) {
-              // We need to make sure full_name and email are strings, to satisfy TypeScript
               const fullName = parsed.employee.full_name;
               const email = parsed.employee.email;
-              
-              if (typeof fullName === 'string' && fullName.trim() !== '' &&
-                  typeof email === 'string' && email.trim() !== '') {
+              if (typeof fullName === 'string' && fullName.trim() !== '' && typeof email === 'string' && email.trim() !== '') {
                 employeeForms.push(parsed);
               } else {
                 console.warn(`Skipping row ${i}: Invalid or missing required fields (full_name: ${fullName}, email: ${email})`);
