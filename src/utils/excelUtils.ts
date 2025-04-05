@@ -33,7 +33,7 @@ export const exportEmployeesToExcel = (employees: Employee[]) => {
   const sheetData = employees.map(employee => {
     const row: any = {};
     for (const field of allowedEmployeeFields) {
-      row[field.label] = (employee as any)[field.name] || '';
+      row[field.name] = (employee as any)[field.name] || '';
     }
     return row;
   });
@@ -66,11 +66,18 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
   try {
     switch (field.type) {
       case 'number':
-        if (field.name === 'annual_bonus_eligible' && typeof rawValue === 'string') {
-          if (rawValue.toLowerCase() === 'yes') return 1;
-          if (rawValue.toLowerCase() === 'no') return 0;
-          if (!isNaN(Number(rawValue))) return Number(rawValue);
-          return null;
+        if (field.name === 'annual_bonus_eligible') {
+  if (typeof rawValue === 'string') {
+    const val = rawValue.trim().toLowerCase();
+    if (val === 'yes') return 1;
+    if (val === 'no') return 0;
+    if (!isNaN(Number(val))) return Number(val);
+    return null;
+  }
+  if (typeof rawValue === 'number' && (rawValue === 0 || rawValue === 1)) {
+    return rawValue;
+  }
+  return null;
         }
         if (typeof rawValue === 'string' && ['yes', 'no', 'true', 'false'].includes(rawValue.toLowerCase())) {
           return rawValue;
