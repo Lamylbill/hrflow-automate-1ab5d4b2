@@ -1,3 +1,16 @@
+// Define which fields belong to the employees table
+const allowedEmployeeFields = fullEmployeeFieldList.filter(field =>
+  !field.name.startsWith('allowance_') &&
+  !field.name.startsWith('document_') &&
+  !field.name.startsWith('family_member_') &&
+  !field.name.startsWith('qualification') &&
+  !field.name.startsWith('relationship') &&
+  !field.name.startsWith('rating') &&
+  !field.name.startsWith('company_name') &&
+  !field.name.startsWith('institute') &&
+  !field.name.startsWith('position') &&
+  !field.name.startsWith('appraisal_type')
+);
 
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -36,19 +49,33 @@ export const exportEmployeesToExcel = (employees: Employee[]) => {
 export const generateEmployeeTemplate = () => {
   const workbook = XLSX.utils.book_new();
 
-  // Create header row based on field labels
-  const headerRow = fullEmployeeFieldList.map(field => field.label);
+const allowedEmployeeFields = fullEmployeeFieldList.filter(field =>
+  !field.name.startsWith('allowance_') &&
+  !field.name.startsWith('document_') &&
+  !field.name.startsWith('family_member_') &&
+  !field.name.startsWith('qualification') &&
+  !field.name.startsWith('relationship') &&
+  !field.name.startsWith('rating') &&
+  !field.name.startsWith('company_name') &&
+  !field.name.startsWith('institute') &&
+  !field.name.startsWith('position') &&
+  !field.name.startsWith('appraisal_type')
+);
+// Create header row based on field labels
+const headerRow = allowedEmployeeFields.map(field => field.label);
+  
+// Create a worksheet with the header row
+const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
+XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
 
-  // Create a worksheet with the header row
-  const worksheet = XLSX.utils.aoa_to_sheet([headerRow]);
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Template');
+// Convert the workbook to an Excel file (array buffer)
+const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+const data = new Blob([excelBuffer], {
+  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+});
 
-  // Convert the workbook to an Excel file (array buffer)
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  const data = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-
-  // Save the file using FileSaver.js
-  saveAs(data, 'employee_template.xlsx');
+// Save the file using FileSaver.js
+saveAs(data, 'employee_template.xlsx');
 };
 
 export const convertFieldValue = (field: any, rawValue: any): any => {
