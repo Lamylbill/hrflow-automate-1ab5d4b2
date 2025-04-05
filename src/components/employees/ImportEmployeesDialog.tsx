@@ -166,8 +166,10 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
               else {
                 employeeData[key] = null;
               }
-            } else {
+            } else if (typeof value === 'number') {
               employeeData[key] = value;
+            } else {
+              employeeData[key] = null;
             }
             return;
           }
@@ -177,7 +179,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
 
         const { error } = await supabase
           .from('employees')
-          .insert(employeeData);
+          .insert(employeeData as any); // Type assertion to bypass TypeScript error
         
         if (error) {
           console.error("Error inserting employee:", error);
@@ -303,7 +305,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 variant="primary"
                 onClick={processImport}
                 disabled={!file || isImporting}
-                className="text-white" // Ensure button text is white for visibility
+                className="text-white bg-hrflow-primary hover:bg-hrflow-dark" // Ensure button text is white for visibility
               >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>

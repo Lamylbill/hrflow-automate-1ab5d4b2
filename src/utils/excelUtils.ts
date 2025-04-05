@@ -59,14 +59,22 @@ export const convertFieldValue = (field: any, rawValue: any): any => {
   try {
     switch (field.type) {
       case 'number':
-        // For fields that could contain "Yes"/"No" but are numeric in database
+        // Check for Yes/No values for annual_bonus_eligible field
+        if (field.name === 'annual_bonus_eligible' && typeof rawValue === 'string') {
+          if (rawValue.toLowerCase() === 'yes') return 1;
+          if (rawValue.toLowerCase() === 'no') return 0;
+          if (!isNaN(Number(rawValue))) return Number(rawValue);
+          return null;
+        }
+        
+        // For other fields that could contain "Yes"/"No" but are numeric in database
         if (typeof rawValue === 'string' && 
             (rawValue.toLowerCase() === 'yes' || 
              rawValue.toLowerCase() === 'no' || 
              rawValue.toLowerCase() === 'true' || 
              rawValue.toLowerCase() === 'false')) {
-          // Don't try to convert Yes/No answers to numbers
-          return rawValue; // Return the string as is, we'll handle these special cases elsewhere
+          // Return the raw string for fields that accept string values
+          return rawValue;
         }
         
         // Convert to number if it's a valid number

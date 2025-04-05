@@ -276,3 +276,27 @@ tr:hover {
   0%, 100% { opacity: 0.6; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.05); }
 }
+
+/* Dashboard font size adjustments */
+.dashboard h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.dashboard .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard .card-number {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.dashboard h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}

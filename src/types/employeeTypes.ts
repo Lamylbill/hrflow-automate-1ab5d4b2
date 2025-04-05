@@ -10,7 +10,7 @@ export interface EmployeeInsertData {
   
   // Special fields with non-standard types
   gross_salary?: number | null;
-  basic_salary?: number | string | null;
+  basic_salary?: number | null;
   allowances?: number | null;
   work_hours?: number | null;
   notice_period?: number | null;
@@ -24,7 +24,7 @@ export interface EmployeeInsertData {
   rehire?: boolean | null;
   contract_signed?: boolean | null;
   thirteenth_month_entitlement?: boolean | null;
-  annual_bonus_eligible?: string | number | null;
+  annual_bonus_eligible?: number | null;  // Explicitly defined as number | null
 }
 
 // Type for Excel imported data
