@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -279,15 +278,17 @@ tr:hover {
 
 /* Dashboard font size adjustments */
 .dashboard h1 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  line-height: 1.2;
 }
 
 .dashboard .card-title {
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #4b5563;
 }
 
 .dashboard .card-number {
@@ -296,7 +297,7 @@ tr:hover {
 }
 
 .dashboard h2 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
 }

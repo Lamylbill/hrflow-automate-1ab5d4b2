@@ -261,15 +261,15 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             <Upload className="mr-2 h-4 w-4" /> Import
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Import Employees</DialogTitle>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-xl">Import Employees</DialogTitle>
             <DialogDescription className="text-sm">
               Upload an Excel file. Use the template for correct formatting.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-6">
+          <div className="grid gap-6 py-2">
             <div className="flex flex-col items-center justify-center py-4 gap-4">
               <div className="border rounded-md p-6 w-full">
                 <div className="flex flex-col items-center gap-2">
@@ -295,7 +295,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
             )}
           </div>
 
-          <DialogFooter className="flex flex-row justify-between sm:justify-between">
+          <DialogFooter className="flex flex-row justify-between sm:justify-between pt-4">
             <Button variant="outline" onClick={downloadTemplate} disabled={isImporting}>
               <Download className="mr-2 h-4 w-4" /> Download Template
             </Button>
@@ -305,7 +305,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 variant="primary"
                 onClick={processImport}
                 disabled={!file || isImporting}
-                className={`${!file || isImporting ? "text-gray-500" : "text-white"} bg-hrflow-primary hover:bg-hrflow-dark`}
+                className={`${!file || isImporting ? "text-gray-100" : "text-white"} bg-hrflow-primary hover:bg-hrflow-dark`}
               >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>
