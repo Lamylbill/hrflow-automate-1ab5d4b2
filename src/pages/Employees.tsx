@@ -16,6 +16,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
+import { Checkbox } from '@/components/ui/checkbox';
 
 const employees = [
   { id: 1, name: 'Sarah Johnson', email: 'sarah.j@example.com', department: 'Marketing', position: 'Marketing Director', status: 'Active', joinDate: '2021-05-12' },
@@ -31,7 +32,7 @@ const sortFunctions = {
   department: (a, b, dir) => dir === 'asc' ? a.department.localeCompare(b.department) : b.department.localeCompare(a.department),
   position: (a, b, dir) => dir === 'asc' ? a.position.localeCompare(b.position) : b.position.localeCompare(a.position),
   status: (a, b, dir) => dir === 'asc' ? a.status.localeCompare(b.status) : b.status.localeCompare(a.status),
-  joinDate: (a, b, dir) => dir === 'asc' ? new Date(a.joinDate).getTime() - new Date(b.joinDate).getTime() : new Date(b.joinDate).getTime() - new Date(a.joinDate).getTime()
+  joinDate: (a, b, dir) => dir === 'asc' ? new Date(a.joinDate) - new Date(b.joinDate) : new Date(b.joinDate) - new Date(a.joinDate)
 };
 
 const Employees = () => {
@@ -130,7 +131,11 @@ const Employees = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12 px-4">
-                        <input type="checkbox" checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0} onChange={handleSelectAll} className="accent-hrflow-primary cursor-pointer" />
+                        <Checkbox
+                          checked={selectedEmployees.length === filteredEmployees.length && filteredEmployees.length > 0}
+                          onCheckedChange={handleSelectAll}
+                          className="border-gray-300"
+                        />
                       </TableHead>
                       <TableHead onClick={() => handleSort('name')} className="cursor-pointer">Name <SortIndicator column="name" /></TableHead>
                       <TableHead>Email</TableHead>
@@ -150,9 +155,13 @@ const Employees = () => {
                       </TableRow>
                     ) : (
                       filteredEmployees.map(employee => (
-                        <TableRow key={employee.id} className={selectedEmployees.includes(employee.id) ? 'bg-blue-50' : ''}>
+                        <TableRow key={employee.id} data-state={selectedEmployees.includes(employee.id) ? 'selected' : undefined}>
                           <TableCell className="w-12 px-4">
-                            <input type="checkbox" checked={selectedEmployees.includes(employee.id)} onChange={() => handleCheckboxChange(employee.id)} className="accent-hrflow-primary cursor-pointer" />
+                            <Checkbox
+                              checked={selectedEmployees.includes(employee.id)}
+                              onCheckedChange={() => handleCheckboxChange(employee.id)}
+                              className="border-gray-300"
+                            />
                           </TableCell>
                           <TableCell className="font-medium">
                             <div className="flex items-center">
