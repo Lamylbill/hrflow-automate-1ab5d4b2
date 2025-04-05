@@ -53,8 +53,8 @@ const Dashboard = () => {
   }, [user]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+    <div className="p-6 dashboard">
+      <h1 className="font-bold mb-6">Dashboard</h1>
       
       {isLoading ? (
         <div className="text-center py-8">Loading dashboard data...</div>
@@ -65,24 +65,24 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-xl font-medium text-gray-700">Total Employees</h3>
-            <p className="text-3xl font-bold mt-2">{employeeCount}</p>
+            <h3 className="card-title text-gray-700">Total Employees</h3>
+            <p className="card-number mt-2">{employeeCount}</p>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-xl font-medium text-gray-700">Active Employees</h3>
-            <p className="text-3xl font-bold mt-2">{activeEmployees}</p>
+            <h3 className="card-title text-gray-700">Active Employees</h3>
+            <p className="card-number mt-2">{activeEmployees}</p>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <h3 className="text-xl font-medium text-gray-700">On Leave</h3>
-            <p className="text-3xl font-bold mt-2">{employeeCount - activeEmployees}</p>
+            <h3 className="card-title text-gray-700">On Leave</h3>
+            <p className="card-number mt-2">{employeeCount - activeEmployees}</p>
           </div>
         </div>
       )}
       
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+        <h2 className="mb-4">Recent Activity</h2>
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <p className="text-gray-600">No recent activity to display.</p>
         </div>

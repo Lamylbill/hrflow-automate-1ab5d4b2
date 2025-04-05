@@ -149,8 +149,8 @@ export const DashboardSidebar = () => {
             onClick={navigateToLanding} 
             className="flex items-center gap-1 cursor-pointer"
           >
-            <span className="bg-indigo-600 text-white font-display font-bold px-1.5 py-0.5 rounded-md text-sm">HR</span>
-            <span className="font-display font-bold text-base text-indigo-800">Flow</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-1 py-0.5 rounded text-xs">HR</span>
+            <span className="font-display font-bold text-sm text-indigo-800">Flow</span>
           </div>
         )}
         {collapsed && (
@@ -158,7 +158,7 @@ export const DashboardSidebar = () => {
             onClick={navigateToLanding} 
             className="flex items-center justify-center cursor-pointer"
           >
-            <span className="bg-indigo-600 text-white font-display font-bold px-1.5 py-0.5 rounded-md text-sm">HR</span>
+            <span className="bg-indigo-600 text-white font-display font-bold px-1 py-0.5 rounded text-xs">HR</span>
           </div>
         )}
         

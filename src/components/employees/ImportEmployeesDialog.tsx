@@ -264,7 +264,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Import Employees</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               Upload an Excel file. Use the template for correct formatting.
             </DialogDescription>
           </DialogHeader>
@@ -305,7 +305,7 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
                 variant="primary"
                 onClick={processImport}
                 disabled={!file || isImporting}
-                className="text-white bg-hrflow-primary hover:bg-hrflow-dark" // Ensure button text is white for visibility
+                className={`${!file || isImporting ? "text-gray-500" : "text-white"} bg-hrflow-primary hover:bg-hrflow-dark`}
               >
                 {isImporting ? "Importing..." : "Import Employees"}
               </Button>
