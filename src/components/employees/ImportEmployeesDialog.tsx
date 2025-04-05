@@ -9,7 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogDescription
+  DialogDescription,
+  DialogClose
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -295,21 +296,23 @@ export const ImportEmployeesDialog: React.FC<ImportEmployeesDialogProps> = ({ on
           </div>
 
           <DialogFooter className="flex flex-row justify-between sm:justify-between pt-4">
-            <Button variant="outline" onClick={downloadTemplate} disabled={isImporting}>
-              <Download className="mr-2 h-4 w-4" /> Download Template
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" disabled={isImporting}>Cancel</Button>
-              <Button
-                variant="primary"
-                onClick={processImport}
-                disabled={!file || isImporting}
-                className={`${!file || isImporting ? "opacity-60 bg-hrflow-primary text-white" : "text-white bg-hrflow-primary hover:bg-hrflow-dark"}`}
-              >
-                {isImporting ? "Importing..." : "Import Employees"}
-              </Button>
-            </div>
-          </DialogFooter>
+  <Button variant="outline" onClick={downloadTemplate} disabled={isImporting}>
+    <Download className="mr-2 h-4 w-4" /> Download Template
+  </Button>
+  <div className="flex gap-2">
+    <DialogClose asChild>
+      <Button variant="outline" disabled={isImporting}>Cancel</Button>
+    </DialogClose>
+    <Button
+      variant="primary"
+      onClick={processImport}
+      disabled={!file || isImporting}
+      className={`${!file || isImporting ? "opacity-60 bg-hrflow-primary text-white" : "text-white bg-hrflow-primary hover:bg-hrflow-dark"}`}
+    >
+      {isImporting ? "Importing..." : "Import Employees"}
+    </Button>
+  </div>
+</DialogFooter>
         </DialogContent>
       </Dialog>
 
